@@ -37,6 +37,7 @@ Elimination, of which `exists_isPAC_of_finite` is the existence form, with
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Learning.MedianElim Matrix
 open LMLExplore.Identification
+open LMLExplore.Identification.MedianElimination (numPhases pullSchedule phaseEnd)
 open scoped RealInnerProductSpace NNReal MatrixOrder
 
 namespace Maiti2026Power
@@ -175,11 +176,12 @@ theorem exists_isPAC_of_finite (𝒳 : Set (EuclideanSpace ℝ ι)) (hfin : 𝒳
   -- the region algorithm
   set B : PhasedAlg 𝒳 ℝ ((Fin (Fintype.card ι) → 𝒳) × Finset (Fin (Fintype.card ι))) :=
     regionAlg hd1 x hT₁pos sel' hsel'm hε0 hδ with hB
-  have hpac : IsPAC 𝒳 (B.toIdentAlg (numRounds (Fintype.card ι) + 1) (meOut (𝓐 := 𝒳) hd1)
+  have hpac : IsPAC 𝒳 (B.toIdentAlg (numPhases (Fintype.card ι) + 1) (meOut (𝓐 := 𝒳) hd1)
       (measurable_meOut hd1)) ε δ :=
     isPAC_regionAlg hfin ⟨x₀, hx₀⟩ hRsub hRne hcover hsel'' hSmpd hσ0 hσ hbound
-  refine ⟨T₁ + budget (Fintype.card ι) (ε / 2) (δ / 2), ?_,
-    B.toIdentAlg (numRounds (Fintype.card ι) + 1) (meOut (𝓐 := 𝒳) hd1) (measurable_meOut hd1),
+  refine ⟨T₁ + phaseEnd (Fintype.card ι) (pullSchedule 1 (ε / 2) (δ / 2))
+      (numPhases (Fintype.card ι)), ?_,
+    B.toIdentAlg (numPhases (Fintype.card ι) + 1) (meOut (𝓐 := 𝒳) hd1) (measurable_meOut hd1),
     ?_, hpac⟩
   · -- the budget
     push_cast

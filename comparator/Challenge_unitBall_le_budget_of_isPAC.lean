@@ -71,6 +71,7 @@ public import Mathlib.Data.Finset.Sort
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Order
 public import Mathlib.Algebra.Order.Field.GeomSum
 public import Mathlib.Analysis.SpecificLimits.Basic
+public import LMLExplore.Identification.MedianElimination
 public import LeanMachineLearning.ForMathlib.Probability.Moments.SubGaussian
 public import LMLExplore.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Analysis.SpecialFunctions.Exp
@@ -165,6 +166,7 @@ end
 @[expose] public section
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Learning.MedianElim Matrix
 open LMLExplore.Identification
+open LMLExplore.Identification.MedianElimination (numPhases pullSchedule phaseEnd)
 open scoped RealInnerProductSpace NNReal MatrixOrder
 namespace Maiti2026Power
 variable {ι : Type*} [Fintype ι]

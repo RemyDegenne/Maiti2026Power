@@ -17,8 +17,10 @@ arms, as a phased algorithm (`MedianElim.medianElim`): the state is a pair of a 
 `c : Fin K → 𝓐` from arms to actions and the set `S` of surviving arms; round `ℓ` pulls each
 surviving arm `n_ℓ` times (round-robin, `MedianElim.roundArm`) and keeps the `⌈|S|/2⌉` arms with
 the largest empirical means (`MedianElim.roundNext`), following the schedule of
-`MedianEliminationSchedule.lean`. After `L = ⌈log₂ K⌉` rounds a single arm survives, which is the
-recommendation (`MedianElim.meOut`); the budget is `MedianElim.budget K ε δ`.
+`MedianEliminationSchedule.lean` (on LMLExplore's `MedianElimination.armsCount` and
+`pullSchedule 1 ε δ`). After `L = ⌈log₂ K⌉` rounds (LMLExplore's `MedianElimination.numPhases K`)
+a single arm survives, which is the recommendation (`MedianElim.meOut`); the budget is LMLExplore's
+`MedianElimination.phaseEnd K (pullSchedule 1 ε δ) L` (`MedianElim.start_medianElim_numPhases`).
 
 `MedianElim.isPAC_medianElim` is the guarantee for candidate arms `c a ∈ 𝒳` of a linear Gaussian
 bandit (blueprint `thm:median_elimination`, `cor:median_elimination_linear`): with probability at
@@ -33,6 +35,8 @@ median counting argument of `MedianEliminationRound.lean`).
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Finset
+open LMLExplore.Identification.MedianElimination (armsCount armsCount_pos armsCount_numPhases
+  numPhases pullSchedule phaseEnd phaseEnd_eq_sum)
 open scoped RealInnerProductSpace
 
 namespace Learning.MedianElim
@@ -45,7 +49,7 @@ section goodSet
 target value `M`: sets of the scheduled size `s_ℓ` containing an arm with mean at least
 `M - ∑_{k < ℓ} ε_k`. -/
 def goodSet (μ : Fin K → ℝ) (M ε : ℝ) (ℓ : ℕ) : Set (Finset (Fin K)) :=
-  {S | S.card = survivors K ℓ ∧ ∃ b ∈ S, M - ∑ k ∈ range ℓ, epsSched ε k ≤ μ b}
+  {S | S.card = armsCount K ℓ ∧ ∃ b ∈ S, M - ∑ k ∈ range ℓ, epsSched ε k ≤ μ b}
 
 lemma measurableSet_goodSet (μ : Fin K → ℝ) (M ε : ℝ) (ℓ : ℕ) :
     MeasurableSet (goodSet μ M ε ℓ) :=
@@ -62,15 +66,15 @@ lemma one_sub_le_measureReal_roundNext_mem (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 
     (μ : Fin K → ℝ) (M : ℝ) (ℓ : ℕ) (a₀ : Fin K) {S : Finset (Fin K)}
     (hS : S ∈ goodSet μ M ε ℓ) :
     1 - deltaSched δ ℓ ≤
-      (Measure.pi fun _ : Fin (survivors K ℓ * numPulls ε δ ℓ) ↦ gaussianReal 0 1).real
-        {η | roundNext S (survivors K ℓ) (numPulls ε δ ℓ) (survivors K (ℓ + 1))
-          (fun j ↦ μ (roundArm S (survivors K ℓ) (numPulls ε δ ℓ) a₀ j) + η j) ∈
+      (Measure.pi fun _ : Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ) ↦ gaussianReal 0 1).real
+        {η | roundNext S (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) (armsCount K (ℓ + 1))
+          (fun j ↦ μ (roundArm S (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) a₀ j) + η j) ∈
             goodSet μ M ε (ℓ + 1)} := by
   obtain ⟨hcard, b, hb, hMb⟩ := hS
   refine (one_sub_le_measureReal_round hcard a₀ μ (epsSched_pos hε ℓ)
-    ⟨deltaSched_pos hδ.1 ℓ, deltaSched_lt_one hδ.2 ℓ⟩ (le_numPulls ε δ ℓ)).trans
+    ⟨deltaSched_pos hδ.1 ℓ, deltaSched_lt_one hδ.2 ℓ⟩ (le_pullSchedule ε δ ℓ)).trans
     (measureReal_mono fun η hη ↦ ?_)
-  simp only [goodSet, Set.mem_ofPred_eq, survivors_succ] at hη ⊢
+  simp only [goodSet, Set.mem_ofPred_eq, armsCount_succ_eq] at hη ⊢
   refine ⟨card_roundNext (by omega), ?_⟩
   obtain ⟨b', hb', hbb'⟩ := hη b hb
   refine ⟨b', hb', ?_⟩
@@ -84,28 +88,29 @@ section algorithm
 /-- The design of round `ℓ` of Median Elimination in the state `(c, S)`: the arms of `S`
 round-robin, each `n_ℓ` times, mapped to actions by `c`. -/
 noncomputable def meAct (hK : 0 < K) (ε δ : ℝ) (ℓ : ℕ) (p : (Fin K → 𝓐) × Finset (Fin K))
-    (j : Fin (survivors K ℓ * numPulls ε δ ℓ)) : 𝓐 :=
-  p.1 (roundArm p.2 (survivors K ℓ) (numPulls ε δ ℓ) ⟨0, hK⟩ j)
+    (j : Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ)) : 𝓐 :=
+  p.1 (roundArm p.2 (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) ⟨0, hK⟩ j)
 
-lemma measurable_meAct (hK : 0 < K) (ε δ : ℝ) (ℓ : ℕ) (j : Fin (survivors K ℓ * numPulls ε δ ℓ)) :
+lemma measurable_meAct (hK : 0 < K) (ε δ : ℝ) (ℓ : ℕ)
+    (j : Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ)) :
     Measurable fun p ↦ meAct (𝓐 := 𝓐) hK ε δ ℓ p j :=
   measurable_from_prod_countable_left fun S ↦
-    measurable_pi_apply (roundArm S (survivors K ℓ) (numPulls ε δ ℓ) ⟨0, hK⟩ j)
+    measurable_pi_apply (roundArm S (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) ⟨0, hK⟩ j)
 
 /-- The state update of round `ℓ` of Median Elimination: keep the arm map, select the
 `s_{ℓ + 1}` arms with the largest empirical means. -/
 noncomputable def meUpd (ε δ : ℝ) (ℓ : ℕ) (p : (Fin K → 𝓐) × Finset (Fin K))
-    (y : Fin (survivors K ℓ * numPulls ε δ ℓ) → ℝ) : (Fin K → 𝓐) × Finset (Fin K) :=
-  (p.1, roundNext p.2 (survivors K ℓ) (numPulls ε δ ℓ) (survivors K (ℓ + 1)) y)
+    (y : Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ) → ℝ) : (Fin K → 𝓐) × Finset (Fin K) :=
+  (p.1, roundNext p.2 (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) (armsCount K (ℓ + 1)) y)
 
 lemma measurable_meUpd (ε δ : ℝ) (ℓ : ℕ) :
     Measurable (Function.uncurry (meUpd (𝓐 := 𝓐) (K := K) ε δ ℓ)) := by
-  have h : Measurable fun q : Finset (Fin K) × (Fin (survivors K ℓ * numPulls ε δ ℓ) → ℝ) ↦
-      roundNext q.1 (survivors K ℓ) (numPulls ε δ ℓ) (survivors K (ℓ + 1)) q.2 :=
+  have h : Measurable fun q : Finset (Fin K) × (Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ) → ℝ) ↦
+      roundNext q.1 (armsCount K ℓ) (pullSchedule 1 ε δ ℓ) (armsCount K (ℓ + 1)) q.2 :=
     measurable_from_prod_countable_right fun S ↦ measurable_roundNext (S := S)
-      (s := survivors K ℓ) (n := numPulls ε δ ℓ) (m := survivors K (ℓ + 1))
+      (s := armsCount K ℓ) (n := pullSchedule 1 ε δ ℓ) (m := armsCount K (ℓ + 1))
   have h2 : Measurable fun p : ((Fin K → 𝓐) × Finset (Fin K)) ×
-      (Fin (survivors K ℓ * numPulls ε δ ℓ) → ℝ) ↦ (p.1.2, p.2) :=
+      (Fin (armsCount K ℓ * pullSchedule 1 ε δ ℓ) → ℝ) ↦ (p.1.2, p.2) :=
     measurable_fst.snd.prodMk measurable_snd
   have h3 := h.comp h2
   exact measurable_fst.fst.prodMk h3
@@ -117,8 +122,8 @@ surviving arms (initially all arms); round `ℓ` pulls each arm of `S` `n_ℓ` t
 `s_{ℓ + 1}` arms with the largest empirical means. -/
 noncomputable def medianElim (hK : 0 < K) (c₀ : Fin K → 𝓐) (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 0 1) :
     PhasedAlg 𝓐 ℝ ((Fin K → 𝓐) × Finset (Fin K)) where
-  len ℓ := survivors K ℓ * numPulls ε δ ℓ
-  len_pos ℓ := Nat.mul_pos (survivors_pos hK ℓ) (numPulls_pos hε hδ ℓ)
+  len ℓ := armsCount K ℓ * pullSchedule 1 ε δ ℓ
+  len_pos ℓ := Nat.mul_pos (armsCount_pos hK ℓ) (pullSchedule_pos hε hδ ℓ)
   init := (c₀, univ)
   act := meAct hK ε δ
   measurable_act := measurable_meAct hK ε δ
@@ -128,13 +133,16 @@ noncomputable def medianElim (hK : 0 < K) (c₀ : Fin K → 𝓐) (hε : 0 < ε)
 variable {hK : 0 < K} {c₀ : Fin K → 𝓐} {hε : 0 < ε} {hδ : δ ∈ Set.Ioo 0 1}
 
 @[simp] lemma medianElim_len (ℓ : ℕ) :
-    (medianElim 𝓐 hK c₀ hε hδ).len ℓ = survivors K ℓ * numPulls ε δ ℓ := rfl
+    (medianElim 𝓐 hK c₀ hε hδ).len ℓ = armsCount K ℓ * pullSchedule 1 ε δ ℓ := rfl
 
 @[simp] lemma medianElim_init : (medianElim 𝓐 hK c₀ hε hδ).init = (c₀, univ) := rfl
 
-/-- The budget of Median Elimination: `L = ⌈log₂ K⌉` rounds take `budget K ε δ` samples. -/
-lemma start_medianElim_numRounds :
-    (medianElim 𝓐 hK c₀ hε hδ).start (numRounds K) = budget K ε δ := rfl
+/-- The budget of Median Elimination: `L = ⌈log₂ K⌉` rounds take
+`phaseEnd K (pullSchedule 1 ε δ) L` samples. -/
+lemma start_medianElim_numPhases :
+    (medianElim 𝓐 hK c₀ hε hδ).start (numPhases K) =
+      phaseEnd K (pullSchedule 1 ε δ) (numPhases K) :=
+  (phaseEnd_eq_sum _ _ _).symm
 
 /-- The recommendation of Median Elimination: the action of the surviving arm (the smallest
 surviving arm if several survive, the arm `0` if none does). -/
@@ -160,7 +168,7 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [Measurabl
 bandit (blueprint `thm:median_elimination`, `cor:median_elimination_linear`): with probability at
 least `1 - δ`, the recommended arm `â` satisfies `⟪c â, θ⟫ ≥ ⟪c a, θ⟫ - ε` for every arm `a`. -/
 lemma isPAC_medianElim (hK : 0 < K) (c : Fin K → 𝒳) (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 0 1) :
-    ((medianElim 𝒳 hK c hε hδ).toIdentAlg (numRounds K) (meOut hK) (measurable_meOut hK)).IsPAC
+    ((medianElim 𝒳 hK c hε hδ).toIdentAlg (numPhases K) (meOut hK) (measurable_meOut hK)).IsPAC
       (LinearBandit.linearGaussianEnv 𝒳) (fun θ x ↦ ∃ a, ⟪(x : E), θ⟫ < ⟪(c a : E), θ⟫ - ε) δ := by
   refine PhasedAlg.isPAC_toIdentAlg _ (fun θ ↦ ?_) fun θ ↦ ?_
   · simp only [Set.ofPred_exists]
@@ -182,11 +190,11 @@ lemma isPAC_medianElim (hK : 0 < K) (c : Fin K → 𝒳) (hε : 0 < ε) (hδ : �
   · rintro ⟨c', S⟩ ⟨hc, hcard, b, hb, hMb⟩ ⟨a, ha⟩
     have hc' : c' = c := hc
     subst hc'
-    obtain ⟨b', rfl⟩ := Finset.card_eq_one.1 (hcard.trans (survivors_numRounds hK))
+    obtain ⟨b', rfl⟩ := Finset.card_eq_one.1 (hcard.trans (armsCount_numPhases hK))
     rw [mem_singleton] at hb
     subst hb
     rw [meOut_singleton] at ha
-    have h1 := sum_epsSched_le hε.le (numRounds K)
+    have h1 := sum_epsSched_le hε.le (numPhases K)
     have h2 := ha₁ a
     linarith
 
