@@ -377,7 +377,7 @@ agree on rectangles, hence everywhere, and (ii) applies with $g = f\times\mathrm
 \end{proof}
 
 \begin{lemma}[One step of an algorithm-environment pair]\label{lem:pi_kl_step}
-\lean{ProbabilityTheory.Kernel.compProd_prodMkLeft_apply, Learning.klDiv_compProd_compProd_prodMkLeft_eq_klDiv_comp_compProd, Learning.klDiv_compProd_compProd_prodMkLeft}\leanok
+\lean{ProbabilityTheory.Kernel.compProd_prodMkLeft_apply, InformationTheory.klDiv_compProd_compProd_prodMkLeft_eq_klDiv_comp_compProd, Learning.klDiv_compProd_compProd_prodMkLeft}\leanok
 \uses{lem:kl_compProd_kernel, lem:kl_sufficient_statistic}
 Let $P$ be a probability measure on a measurable space $\mathcal{H}$ (``histories''), $\pi$ a
 Markov kernel from $\mathcal{H}$ to a countably generated space $\mathcal{A}$ (``policy''),
@@ -446,7 +446,7 @@ probability space.
 \end{definition}
 
 \begin{theorem}[Divergence decomposition]\label{thm:divergence_decomposition}
-\lean{Learning.IsAlgEnvSeq.map_history_succ, Learning.IsAlgEnvSeq.klDiv_map_history, Learning.IsAlgEnvSeq.klDiv_map_history_compProd, Learning.IsAlgEnvSeq.klDiv_map_history_stepKernel}\leanok
+\lean{Learning.IsAlgEnvSeq.map_history_succ, Learning.IsAlgEnvSeq.klDiv_map_history_bandit, Learning.IsAlgEnvSeq.klDiv_map_history_compProd_bandit, Learning.IsAlgEnvSeq.klDiv_map_history_stepKernel}\leanok
 \uses{def:env_pair, lem:stopped_history_chain_rule}
 In the setting of Definition~\ref{def:env_pair}, for every $T \ge 0$,
 \[
@@ -587,7 +587,7 @@ DataProcessing, MapSequence, Restrict\}.lean} and of the fixed-round and traject
 decompositions of \texttt{LeanMachineLearning/SequentialLearning/DivergenceDecomposition.lean}.
 
 \begin{definition}[Histories of the first $n$ rounds, step kernels]\label{def:fin_history}
-\lean{Learning.history, Learning.stepKernel, Learning.IsAlgEnvSeq.hasCondDistrib_action, Learning.IsAlgEnvSeq.hasCondDistrib_feedback, Learning.IsAlgEnvSeq.hasCondDistrib_step, Learning.IsAlgEnvSeq.map_history_succ, Learning.map_history_succ_of_hasCondDistrib, Learning.feedback_stationaryEnv, Learning.stepKernel_stationaryEnv}\leanok
+\lean{Learning.history, Learning.stepKernel, Learning.IsAlgEnvSeq.hasCondDistrib_action, Learning.IsAlgEnvSeq.hasCondDistrib_feedback, Learning.IsAlgEnvSeq.hasCondDistrib_step, Learning.IsAlgEnvSeq.map_history_succ, Learning.map_history_succ_of_hasCondDistrib, Learning.feedback_bandit, Learning.stepKernel_bandit}\leanok
 \uses{def:env_pair}
 For action and feedback processes $X, Y$ on $\Omega$, the \emph{history of the first $n$ rounds}
 is $\mathrm{hist}_n := (X_t, Y_t)_{t < n} : \Omega \to (\{0,\dots,n-1\}\to\mathcal{A}\times\mathcal{Y})$
@@ -778,7 +778,7 @@ sets $B_n = g_n^{-1}(C_n)$, shows that the divergences of the images tend to inf
 \end{proof}
 
 \begin{theorem}[Divergence decomposition for trajectories]\label{thm:divergence_decomposition_trajectory}
-\lean{Learning.klDiv_map_trajectory_eq_iSup, Learning.IsAlgEnvSeq.klDiv_map_trajectory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_trajectory_compProd, Learning.IsAlgEnvSeq.klDiv_map_trajectory}\leanok
+\lean{Learning.klDiv_map_trajectory_eq_iSup, Learning.IsAlgEnvSeq.klDiv_map_trajectory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_trajectory_compProd_bandit, Learning.IsAlgEnvSeq.klDiv_map_trajectory_bandit}\leanok
 \uses{def:env_pair, thm:divergence_decomposition, lem:kl_iSup_map}
 In the setting of Definition~\ref{def:env_pair}, for two algorithm-environment sequences on
 $(\Omega,\Prob)$, $(\Omega',\Prob')$, the divergence between the laws of the whole trajectories
