@@ -7,19 +7,19 @@ version: "v0.4"
 project:
   name: "Maiti2026Power"
   description: >-
-    A Lean 4 / Mathlib formalization of "On the Power of Adaptivity for ε-Best Arm Identification
-    in Linear Bandits" (Maiti, Xu, Jamieson, COLT 2026): the fixed-design upper bound
-    O((d log(1/δ) + w(𝒳)²)/ε²) in terms of a Gaussian width term w(𝒳) of the action set, the
-    matching lower bounds Ω(d log(1/δ)/ε²) for every algorithm and Ω(w(𝒳)²/ε²) for non-adaptive
-    fixed designs, the properties of w(𝒳), the structured action sets on which adaptivity gives at
-    most logarithmic gains, the ℓ₂-norm estimation procedure, and the action set on which
-    adaptivity gives a polynomial improvement. The linear bandit model is built on the LML
-    (Lean Machine Learning) algorithm–environment framework; the objects (fixed-budget algorithms
-    with stopping and output rules, PAC guarantees, fixed designs, design matrices, Gaussian widths) are
-    introduced in library generality, to be contributed to LML and Mathlib. The development is
-    blueprint-driven and proceeds in two phases: phase 1 states the headline results (this file
-    lists them; their statements are `sorry`-ed challenge statements for leanprover/comparator),
-    phase 2 proves them.
+    A Lean 4 formalization of "On the Power of Adaptivity for ε-Best Arm Identification in Linear
+    Bandits" (Maiti, Xu, Jamieson, COLT 2026), built on LMLExplore (which brings LML, Tau Ceti and
+    Mathlib): the fixed-design upper bound O((d log(1/δ) + w(𝒳)²)/ε²) in terms of a Gaussian width
+    term w(𝒳) of the action set, the matching lower bounds Ω(d log(1/δ)/ε²) for every algorithm
+    and Ω(w(𝒳)²/ε²) for non-adaptive fixed designs, the properties of w(𝒳), the structured action
+    sets on which adaptivity gives at most logarithmic gains, the ℓ₂-norm estimation procedure,
+    and the action set on which adaptivity gives a polynomial improvement. Every headline result
+    (Theorems 1–3 and 5–8, Proposition 4 and the lower bounds of Table 1) is proved, with no
+    `sorry`, and verified by leanprover/comparator. The linear bandit model is built on LML's
+    algorithm–environment framework and identification algorithms. The development is
+    blueprint-driven; the library-shaped material (fixed budgets and fixed designs, PAC
+    guarantees, design matrices, Gaussian widths, Gaussian concentration, sub-exponential
+    variables, …) is in `Maiti2026Power/ForLMLExplore/`, for porting to LMLExplore.
   authors:
     - "Rémy Degenne"
   responsible_maintainers:
@@ -526,7 +526,7 @@ status:
   # 2, 3, 5, 6, 7, 8, Proposition 4 and the five Table 1 lower bounds).
   sorry_count: 0
   sorry_in_definitions: 0
-  axioms: []               # to be filled when the proofs are in (phase 2)
+  axioms: ["propext", "Classical.choice", "Quot.sound"]   # `#print axioms`, 2026-11-09
   size:
     lean_lines: 29175      # Maiti2026Power/ and Maiti2026Power.lean
     theorems_and_lemmas: 1536  # lines starting with theorem/lemma (possibly protected/private)
@@ -567,7 +567,7 @@ status:
         Bayesian argument (prior N(0, τ² Σ_T⁻¹) with τ = √2 - 1, orthogonal decomposition instead
         of the Gaussian posterior mean), with the singular-design case treated separately.
       sorry_count: 0
-      axioms: []
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator/le_budget_of_isFixedDesign_of_isPAC.json"
       literature_dependencies: []
     - declaration: "Maiti2026Power.gw_le_card"
@@ -614,7 +614,7 @@ status:
         the unit-ball bound is the Bayesian argument of the blueprint chapter `prereq_bayes`
         (`Maiti2026Power/MXJ2026/LowerBall.lean`, Gaussian posterior identities via Stein's identity).
       sorry_count: 0
-      axioms: []
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator/multitaskSet_lt_budget_of_isPAC.json"
       literature_dependencies: []
     - declaration: "Maiti2026Power.exists_isPAC_blockBallSet"
@@ -632,7 +632,7 @@ status:
         `Maiti2026Power.BlockParam.alg` (`Maiti2026Power.BlockParam.one_sub_le_seedMeasure_real_output`,
         `Maiti2026Power.BlockParam.T_le`).
       sorry_count: 0
-      axioms: []
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator/exists_isPAC_blockBallSet.json"
       literature_dependencies: []
     - declaration: "Maiti2026Power.exists_isAccurateNormEst"
@@ -645,7 +645,7 @@ status:
         `1 - 7δ/8` is `Maiti2026Power.NormEstParam.one_sub_le_seedMeasure_real_output` and its budget
         bound `Maiti2026Power.NormEstParam.T_le`.
       sorry_count: 0
-      axioms: []
+      axioms: ["propext", "Classical.choice", "Quot.sound"]
       comparator_config: "comparator/exists_isAccurateNormEst.json"
       literature_dependencies: []
 
@@ -726,15 +726,15 @@ review:
     (complete): all headline statements — Theorems 1, 2, 3, 5, 6, 7 and 8, Proposition 4 and
     the five lower bounds of Table 1 — are proved, with no `sorry` in the repository.
     Every headline statement is verified with leanprover/comparator (all 17 configs pass,
-    2026-09-06, run with `scripts/comparator-verify.sh --insecure`, i.e. without a landrun
-    sandbox): the `comparator/` challenge files restate the theorems with their definitional
-    dependencies inlined over a Mathlib-only import closure (configs listed as
-    `comparator_config` above), and comparator checks that the project proves exactly the
-    challenged statements with no axioms beyond `propext`, `Classical.choice` and `Quot.sound`.
-    The library layers (`Maiti2026Power/Mathlib/`, `Maiti2026Power/LeanMachineLearning/`) were reviewed for
-    generality and placement: the Gaussian integrability lemmas hold on separable Banach spaces,
-    the CFC and orthonormal-basis lemmas over `RCLike`; the remaining known restrictions are
-    recorded as `## TODO` sections in the file docstrings.
+    2026-11-09, run by `scripts/formalize.sh` through `scripts/comparator-verify.sh --insecure`,
+    i.e. without a landrun sandbox): the `comparator/` challenge files restate the theorems with
+    their project definitions inlined over library imports only (Mathlib, Tau Ceti, LML,
+    LMLExplore; configs listed as `comparator_config` above), and comparator checks that the
+    project proves exactly the challenged statements with no axioms beyond `propext`,
+    `Classical.choice` and `Quot.sound`. The library layer (`Maiti2026Power/ForLMLExplore/`) was
+    reviewed for generality and placement: the Gaussian integrability lemmas hold on separable
+    Banach spaces, the CFC and orthonormal-basis lemmas over `RCLike`; the remaining known
+    restrictions are recorded as `## TODO` sections in the file docstrings.
 
 alignment:
   namespace: "Maiti2026Power"
