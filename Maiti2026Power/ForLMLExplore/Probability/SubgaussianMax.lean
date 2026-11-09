@@ -9,13 +9,13 @@ public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianWidth
 public import Mathlib.Analysis.Convex.Integral
 public import Maiti2026Power.ForLMLExplore.Order.CiSupFinite
+public import LeanMachineLearning.ForMathlib.Probability.Moments.SubGaussian
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
+public import LMLExplore.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Expected maximum of finitely many sub-Gaussian random variables
 
-* `HasSubgaussianMGF.mono`: the sub-Gaussian constant can be increased.
-* `integrable_iSup_of_hasSubgaussianMGF`: the maximum of finitely many sub-Gaussian variables is
-  integrable.
 * `integral_iSup_le_of_hasSubgaussianMGF`: if `Z i`, `i ∈ ι` (finite, nonempty), have
   sub-Gaussian moment generating functions with constant `c` (no assumption on their joint law),
   then `E[max_i Z i] ≤ √(2 c log |ι|)`.
@@ -33,27 +33,11 @@ open scoped RealInnerProductSpace NNReal
 
 namespace ProbabilityTheory
 
-variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {X : Ω → ℝ} {c c' : ℝ≥0}
-
-/-- The sub-Gaussian constant of a random variable can be increased. -/
-lemma HasSubgaussianMGF.mono (h : HasSubgaussianMGF X c μ) (hc : c ≤ c') :
-    HasSubgaussianMGF X c' μ where
-  integrable_exp_mul := h.integrable_exp_mul
-  mgf_le t := (h.mgf_le t).trans (exp_le_exp.2 (by gcongr))
+variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {μ : Measure Ω} {c : ℝ≥0}
 
 section iSup
 
 variable {ι : Type*} [Finite ι] [Nonempty ι] {Z : ι → Ω → ℝ}
-
-/-- The maximum of finitely many sub-Gaussian random variables is integrable. -/
-lemma integrable_iSup_of_hasSubgaussianMGF (h : ∀ i, HasSubgaussianMGF (Z i) c μ) :
-    Integrable (fun ω ↦ ⨆ i, Z i ω) μ := by
-  have := Fintype.ofFinite ι
-  refine (integrable_finsetSum Finset.univ fun i _ ↦ (h i).integrable.abs).mono' ?_ ?_
-  · exact aestronglyMeasurable_iff_aemeasurable.2
-      (AEMeasurable.iSup fun i ↦ (h i).aemeasurable)
-  · exact Filter.Eventually.of_forall fun ω ↦ by
-      simpa [Real.norm_eq_abs] using abs_le_sum_abs_iSup (fun i ↦ Z i ω)
 
 /-- For every `β > 0`, `E[max_i Z i] ≤ log |ι| / β + c β / 2`. -/
 lemma integral_iSup_le_of_hasSubgaussianMGF_aux [IsProbabilityMeasure μ]
@@ -61,7 +45,7 @@ lemma integral_iSup_le_of_hasSubgaussianMGF_aux [IsProbabilityMeasure μ]
     μ[fun ω ↦ ⨆ i, Z i ω] ≤ log (Nat.card ι) / β + c * β / 2 := by
   have := Fintype.ofFinite ι
   set M : Ω → ℝ := fun ω ↦ ⨆ i, Z i ω with hM
-  have hMint : Integrable M μ := integrable_iSup_of_hasSubgaussianMGF h
+  have hMint : Integrable M μ := Integrable.iSup fun i ↦ (h i).integrable
   have hexp_le : ∀ ω, exp (β * M ω) ≤ ∑ i, exp (β * Z i ω) := fun ω ↦
     exp_mul_iSup_le_sum β fun i ↦ Z i ω
   have hsum_int : Integrable (fun ω ↦ ∑ i, exp (β * Z i ω)) μ :=
@@ -156,9 +140,15 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDim
 measure. -/
 lemma hasSubgaussianMGF_inner_stdGaussian (a : E) :
     HasSubgaussianMGF (fun x ↦ ⟪a, x⟫) (‖a‖₊ ^ 2) (stdGaussian E) where
-  integrable_exp_mul t := integrable_exp_mul_inner_stdGaussian a t
+  integrable_exp_mul t := by
+    have h : t ∈ integrableExpSet (innerSL ℝ a) (stdGaussian E) := by
+      rw [IsGaussian.integrableExpSet_dual]
+      exact Set.mem_univ t
+    simpa [integrableExpSet] using h
   mgf_le t := by
-    rw [mgf, integral_exp_mul_inner_stdGaussian]
+    have h : mgf (fun x ↦ ⟪a, x⟫) (stdGaussian E) t = _ :=
+      IsGaussian.mgf_dual (innerSL ℝ a) t
+    rw [h, integral_strongDual_stdGaussian, variance_dual_stdGaussian, innerSL_apply_norm]
     push_cast
     exact le_of_eq (by ring_nf)
 

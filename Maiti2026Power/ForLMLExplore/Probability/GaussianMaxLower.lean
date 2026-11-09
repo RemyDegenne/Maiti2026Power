@@ -9,12 +9,12 @@ public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.Complex.ExponentialBounds
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
 public import Maiti2026Power.ForLMLExplore.Order.CiSupFinite
+public import LMLExplore.Probability.Distributions.Gaussian.Tail
+public import LMLExplore.MeasureTheory.Integral.Bochner.Basic
 
 /-!
 # Lower bound on the expected maximum of i.i.d. standard Gaussians
 
-* `mul_gaussianPDFReal_le_measureReal_Ici`: the Mills-ratio lower bound
-  `t / (1 + t²) φ(t) ≤ P(ξ ≥ t)` for a standard Gaussian `ξ` and `t > 0`.
 * `integral_posPart_gaussianReal_zero_one`: `E[max ξ 0] = 1 / √(2π)`.
 * `integral_max_pi_gaussianReal`: `E[max ξ_i ξ_j] = 1 / √π` for two distinct coordinates of a
   product of standard Gaussians.
@@ -29,137 +29,17 @@ open scoped NNReal Topology
 
 namespace ProbabilityTheory
 
-/-! ### The standard Gaussian density -/
-
-/-- The standard Gaussian density: `φ x = exp (-x² / 2) / √(2π)`. -/
-lemma gaussianPDFReal_zero_one (x : ℝ) :
-    gaussianPDFReal 0 1 x = (√(2 * π))⁻¹ * exp (-x ^ 2 / 2) := by
-  simp [gaussianPDFReal]
-
-/-- The standard Gaussian density is bounded by `1 / √(2π)`. -/
-lemma gaussianPDFReal_zero_one_le (x : ℝ) : gaussianPDFReal 0 1 x ≤ (√(2 * π))⁻¹ := by
-  rw [gaussianPDFReal_zero_one]
-  calc (√(2 * π))⁻¹ * exp (-x ^ 2 / 2) ≤ (√(2 * π))⁻¹ * 1 := by
-        gcongr
-        exact exp_le_one_iff.2 (by linarith [sq_nonneg x])
-    _ = (√(2 * π))⁻¹ := mul_one _
-
-/-- Derivative of the standard Gaussian density: `φ' x = -x φ x`. -/
-lemma hasDerivAt_gaussianPDFReal_zero_one (x : ℝ) :
-    HasDerivAt (gaussianPDFReal 0 1) (-x * gaussianPDFReal 0 1 x) x := by
-  have h : HasDerivAt (fun x ↦ -x ^ 2 / 2) (-(↑(2 : ℕ) * x ^ (2 - 1)) / 2) x :=
-    ((hasDerivAt_pow 2 x).neg).div_const 2
-  have hfun : gaussianPDFReal 0 1 = fun x ↦ (√(2 * π))⁻¹ * exp (-x ^ 2 / 2) :=
-    funext gaussianPDFReal_zero_one
-  rw [hfun]
-  exact (h.exp.const_mul (√(2 * π))⁻¹).congr_deriv (by push_cast; ring)
-
-/-- The standard Gaussian density tends to `0` at `+∞`. -/
-lemma tendsto_gaussianPDFReal_zero_one_atTop :
-    Tendsto (gaussianPDFReal 0 1) atTop (𝓝 0) := by
-  have h : Tendsto (fun x : ℝ ↦ x ^ 2 / 2) atTop atTop :=
-    (tendsto_pow_atTop two_ne_zero).atTop_div_const two_pos
-  have := (tendsto_exp_neg_atTop_nhds_zero.comp h).const_mul (√(2 * π))⁻¹
-  rw [mul_zero] at this
-  refine this.congr fun x ↦ ?_
-  simp only [Function.comp_apply, gaussianPDFReal_zero_one, neg_div]
-
-/-! ### The Mills-ratio lower bound -/
-
-/-- The Gaussian tail probability as an integral of the density over `Ioi t`. -/
-lemma measureReal_Ici_gaussianReal_zero_one (t : ℝ) :
-    (gaussianReal 0 1).real (Ici t) = ∫ x in Ioi t, gaussianPDFReal 0 1 x := by
-  rw [measureReal_def, gaussianReal_apply_eq_integral 0 one_ne_zero,
-    ENNReal.toReal_ofReal (integral_nonneg (gaussianPDFReal_nonneg 0 1)),
-    restrict_Ioi_eq_restrict_Ici]
-
-/-- Derivative of `-φ x / x` for `x > 0`: it equals `φ x (1 + 1 / x²)`. -/
-lemma hasDerivAt_neg_gaussianPDFReal_div {x : ℝ} (hx : 0 < x) :
-    HasDerivAt (fun x ↦ -gaussianPDFReal 0 1 x / x)
-      (gaussianPDFReal 0 1 x * (1 + 1 / x ^ 2)) x := by
-  refine (((hasDerivAt_gaussianPDFReal_zero_one x).neg).div (hasDerivAt_id x)
-    hx.ne').congr_deriv ?_
-  simp only [id, Pi.neg_apply]
-  field_simp
-  ring
-
-/-- `-φ x / x` tends to `0` at `+∞`. -/
-lemma tendsto_neg_gaussianPDFReal_div_atTop :
-    Tendsto (fun x ↦ -gaussianPDFReal 0 1 x / x) atTop (𝓝 0) := by
-  refine squeeze_zero_norm' (a := fun x ↦ (√(2 * π))⁻¹ / x) ?_
-    (tendsto_const_nhds.div_atTop tendsto_id)
-  filter_upwards [eventually_gt_atTop 0] with x hx
-  rw [Real.norm_eq_abs, abs_div, abs_neg, abs_of_pos hx,
-    abs_of_nonneg (gaussianPDFReal_nonneg 0 1 x)]
-  gcongr
-  exact gaussianPDFReal_zero_one_le x
-
-/-- `φ x (1 + 1 / x²)` is integrable on `Ioi t` for `t > 0`. -/
-lemma integrableOn_gaussianPDFReal_mul_Ioi {t : ℝ} (ht : 0 < t) :
-    IntegrableOn (fun x ↦ gaussianPDFReal 0 1 x * (1 + 1 / x ^ 2)) (Ioi t) := by
-  refine ((integrable_gaussianPDFReal 0 1).restrict.const_mul (1 + 1 / t ^ 2)).mono' ?_ ?_
-  · exact ((measurable_gaussianPDFReal 0 1).mul (by fun_prop)).aestronglyMeasurable
-  · filter_upwards [ae_restrict_mem measurableSet_Ioi] with x hx
-    have hx' : t < x := hx
-    rw [Real.norm_eq_abs, abs_of_nonneg (mul_nonneg (gaussianPDFReal_nonneg 0 1 x) (by positivity)),
-      mul_comm]
-    gcongr
-    exact gaussianPDFReal_nonneg 0 1 x
-
-/-- The integral identity `∫ x in Ioi t, φ x (1 + 1 / x²) = φ t / t` for `t > 0`. -/
-lemma integral_gaussianPDFReal_mul_Ioi {t : ℝ} (ht : 0 < t) :
-    ∫ x in Ioi t, gaussianPDFReal 0 1 x * (1 + 1 / x ^ 2) = gaussianPDFReal 0 1 t / t := by
-  rw [integral_Ioi_of_hasDerivAt_of_tendsto
-    (hasDerivAt_neg_gaussianPDFReal_div ht).continuousAt.continuousWithinAt
-    (fun x hx ↦ hasDerivAt_neg_gaussianPDFReal_div (ht.trans hx))
-    (integrableOn_gaussianPDFReal_mul_Ioi ht) tendsto_neg_gaussianPDFReal_div_atTop]
-  ring
-
-/-- Mills-ratio lower bound: `t / (1 + t²) φ(t) ≤ P(ξ ≥ t)` for a standard Gaussian `ξ` and
-`t > 0`. -/
-lemma mul_gaussianPDFReal_le_measureReal_Ici {t : ℝ} (ht : 0 < t) :
-    t / (1 + t ^ 2) * gaussianPDFReal 0 1 t ≤ (gaussianReal 0 1).real (Ici t) := by
-  rw [measureReal_Ici_gaussianReal_zero_one]
-  have h : gaussianPDFReal 0 1 t / t ≤ (1 + 1 / t ^ 2) * ∫ x in Ioi t, gaussianPDFReal 0 1 x := by
-    rw [← integral_gaussianPDFReal_mul_Ioi ht, ← integral_const_mul]
-    refine setIntegral_mono_on (integrableOn_gaussianPDFReal_mul_Ioi ht)
-      ((integrable_gaussianPDFReal 0 1).restrict.const_mul _) measurableSet_Ioi fun x hx ↦ ?_
-    have hx' : t < x := hx
-    rw [mul_comm]
-    gcongr
-    exact gaussianPDFReal_nonneg 0 1 x
-  calc t / (1 + t ^ 2) * gaussianPDFReal 0 1 t
-      = t ^ 2 / (1 + t ^ 2) * (gaussianPDFReal 0 1 t / t) := by field_simp
-    _ ≤ t ^ 2 / (1 + t ^ 2) * ((1 + 1 / t ^ 2) * ∫ x in Ioi t, gaussianPDFReal 0 1 x) := by
-        gcongr
-    _ = ∫ x in Ioi t, gaussianPDFReal 0 1 x := by field_simp; ring
-
 /-! ### Positive and negative parts of a standard Gaussian -/
-
-/-- `∫ x in Ioi 0, x φ x = φ 0 = 1 / √(2π)`. -/
-lemma integral_Ioi_mul_gaussianPDFReal_zero_one :
-    ∫ x in Ioi 0, x * gaussianPDFReal 0 1 x = (√(2 * π))⁻¹ := by
-  have hderiv : ∀ x, HasDerivAt (fun x ↦ -gaussianPDFReal 0 1 x) (x * gaussianPDFReal 0 1 x) x :=
-    fun x ↦ (hasDerivAt_gaussianPDFReal_zero_one x).neg.congr_deriv (by ring)
-  have hint : IntegrableOn (fun x ↦ x * gaussianPDFReal 0 1 x) (Ioi 0) := by
-    have : (fun x ↦ x * gaussianPDFReal 0 1 x) =
-        fun x ↦ (√(2 * π))⁻¹ * (x * exp (-(1 / 2) * x ^ 2)) := by
-      funext x
-      rw [gaussianPDFReal_zero_one, show -x ^ 2 / 2 = -(1 / 2) * x ^ 2 by ring]
-      ring
-    rw [this]
-    exact ((integrable_mul_exp_neg_mul_sq (by norm_num)).const_mul _).integrableOn
-  have htend : Tendsto (fun x ↦ -gaussianPDFReal 0 1 x) atTop (𝓝 0) := by
-    simpa using tendsto_gaussianPDFReal_zero_one_atTop.neg
-  rw [integral_Ioi_of_hasDerivAt_of_tendsto (hderiv 0).continuousAt.continuousWithinAt
-    (fun x _ ↦ hderiv x) hint htend]
-  simp [gaussianPDFReal_zero_one]
 
 /-- The expectation of the positive part of a standard Gaussian is `1 / √(2π)`. -/
 lemma integral_posPart_gaussianReal_zero_one :
     ∫ x, max x 0 ∂gaussianReal 0 1 = (√(2 * π))⁻¹ := by
-  rw [integral_gaussianReal_eq_integral_smul one_ne_zero,
-    ← integral_Ioi_mul_gaussianPDFReal_zero_one, ← integral_indicator measurableSet_Ioi]
+  have h : ∫ x in Ioi 0, x * gaussianPDFReal 0 1 x = (√(2 * π))⁻¹ := by
+    have h := LMLExplore.integral_Ioi_sub_mul_gaussianPDFReal 0 1 0
+    rw [LMLExplore.gaussianPDFReal_zero_one 0] at h
+    simpa using h
+  rw [integral_gaussianReal_eq_integral_smul one_ne_zero, ← h,
+    ← integral_indicator measurableSet_Ioi]
   congr with x
   rw [indicator_apply, smul_eq_mul]
   split_ifs with hx
@@ -291,7 +171,7 @@ lemma one_le_mul_gaussianPDFReal_sqrt_log {m : ℝ} (hm : 128 ≤ m) :
     rw [ht2, log_pow]
     push_cast
     ring
-  rw [gaussianPDFReal_zero_one, hexp]
+  rw [LMLExplore.gaussianPDFReal_zero_one, hexp]
   have hsq : (1 + t ^ 2) * √(2 * π) ≤ s * t := by
     rw [← pow_le_pow_iff_left₀ (by positivity) (by positivity) two_ne_zero, mul_pow, mul_pow,
       sq_sqrt (x := 2 * π) (by positivity), ht2]
@@ -329,11 +209,6 @@ lemma pow_one_sub_le_exp_neg_one {p : ℝ} {m : ℕ} (hp1 : p ≤ 1) (h : 1 ≤ 
 
 /-! ### The main lower bound -/
 
-/-- `P(ξ < t) = 1 - P(ξ ≥ t)` for a standard Gaussian `ξ`. -/
-lemma measureReal_Iio_gaussianReal_zero_one (t : ℝ) :
-    (gaussianReal 0 1).real (Iio t) = 1 - (gaussianReal 0 1).real (Ici t) := by
-  rw [← compl_Ici, measureReal_compl measurableSet_Ici, probReal_univ]
-
 omit [Fintype ι] in
 /-- Pointwise lower bound on the maximum: `t 1_{t ≤ max_i x_i} - max (-x_{i₀}) 0 ≤ max_i x_i`. -/
 lemma indicator_sub_negPart_le_iSup [Finite ι] (i₀ : ι) (t : ℝ) (x : ι → ℝ) :
@@ -348,14 +223,6 @@ lemma indicator_sub_negPart_le_iSup [Finite ι] (i₀ : ι) (t : ℝ) (x : ι �
 section Nonempty
 
 variable [Nonempty ι]
-
-/-- The maximum of the coordinates is integrable under a product of standard Gaussians. -/
-lemma integrable_iSup_pi_gaussianReal :
-    Integrable (fun x : ι → ℝ ↦ ⨆ i, x i) (Measure.pi fun _ : ι ↦ gaussianReal 0 1) := by
-  refine (integrable_finsetSum Finset.univ fun i _ ↦
-    (integrable_eval (i := i) IsGaussian.integrable_id).abs).mono' ?_ ?_
-  · exact (Measurable.iSup fun i ↦ measurable_pi_apply i).aestronglyMeasurable
-  · exact Eventually.of_forall fun x ↦ by simpa [Real.norm_eq_abs] using abs_le_sum_abs_iSup x
 
 /-- The probability that all coordinates are below `t` is `P(ξ < t) ^ m`. -/
 lemma measureReal_iSup_lt_pi_gaussianReal (t : ℝ) :
@@ -380,14 +247,14 @@ lemma one_half_le_measureReal_le_iSup_pi_gaussianReal (hι : 128 ≤ Fintype.car
           one_le_mul_gaussianPDFReal_sqrt_log hm
       _ ≤ m * (gaussianReal 0 1).real (Ici t) := by
           gcongr
-          exact mul_gaussianPDFReal_le_measureReal_Ici ht
+          exact LMLExplore.div_mul_gaussianPDFReal_le_measureReal_Ici_gaussianReal_zero_one ht
   have hcompl : {x : ι → ℝ | t ≤ ⨆ i, x i} = {x | ⨆ i, x i < t}ᶜ := by
     ext x
     simp
   have hmeas : MeasurableSet {x : ι → ℝ | ⨆ i, x i < t} :=
     measurableSet_lt (Measurable.iSup fun i ↦ measurable_pi_apply i) measurable_const
   rw [hcompl, measureReal_compl hmeas, probReal_univ, measureReal_iSup_lt_pi_gaussianReal,
-    measureReal_Iio_gaussianReal_zero_one]
+    ← compl_Ici, probReal_compl_eq_one_sub measurableSet_Ici]
   have := pow_one_sub_le_exp_neg_one (m := m) measureReal_le_one hp1
   linarith [exp_neg_one_lt_d9]
 
@@ -424,8 +291,10 @@ lemma sqrt_log_div_four_le_integral_iSup_pi_gaussianReal_of_le (hι : 128 ≤ Fi
     _ = ∫ x, (S.indicator (fun _ ↦ t) x - max (-(x i₀)) 0)
           ∂(Measure.pi fun _ : ι ↦ gaussianReal 0 1) := h1.symm
     _ ≤ ∫ x, ⨆ i, x i ∂(Measure.pi fun _ : ι ↦ gaussianReal 0 1) :=
-        integral_mono hint integrable_iSup_pi_gaussianReal (indicator_sub_negPart_le_iSup i₀ t)
+        integral_mono hint (Integrable.iSup fun i ↦ integrable_eval IsGaussian.integrable_id)
+          (indicator_sub_negPart_le_iSup i₀ t)
 
+omit [Nonempty ι] in
 /-- The main lower bound in the case of `2 ≤ m ≤ 128` coordinates. -/
 lemma sqrt_log_div_four_le_integral_iSup_pi_gaussianReal_of_le' (hι : 2 ≤ Fintype.card ι)
     (hι' : Fintype.card ι ≤ 128) :
@@ -440,7 +309,8 @@ lemma sqrt_log_div_four_le_integral_iSup_pi_gaussianReal_of_le' (hι : 2 ≤ Fin
     _ = ∫ x, max (x i) (x j) ∂(Measure.pi fun _ : ι ↦ gaussianReal 0 1) :=
         (integral_max_pi_gaussianReal hij).symm
     _ ≤ ∫ x, ⨆ i, x i ∂(Measure.pi fun _ : ι ↦ gaussianReal 0 1) :=
-        integral_mono hint integrable_iSup_pi_gaussianReal fun x ↦
+        integral_mono hint (Integrable.iSup fun i ↦ integrable_eval IsGaussian.integrable_id)
+          fun x ↦
           max_le (le_ciSup (Finite.bddAbove_range _) i) (le_ciSup (Finite.bddAbove_range _) j)
 
 end Nonempty

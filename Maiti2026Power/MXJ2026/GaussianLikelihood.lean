@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.EnvDensity
-public import Maiti2026Power.ForLMLExplore.Probability.GaussianDensityRatio
+public import TauCeti.Probability.Distributions.Tilted
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Inner
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 
@@ -51,8 +51,15 @@ lemma linearGaussianKernel_eq_withDensity (θ : E) :
   ext x : 1
   rw [Kernel.withDensity_apply _ (measurable_uncurry_stepLR θ)]
   change gaussianReal ⟪(x : E), θ⟫ 1 = (gaussianReal ⟪(x : E), 0⟫ 1).withDensity (stepLR θ x)
-  rw [inner_zero_right, gaussianReal_eq_withDensity_exp]
-  rfl
+  rw [inner_zero_right]
+  set m := ⟪(x : E), θ⟫
+  have hZ : ∫ y, rexp (m * y) ∂gaussianReal 0 1 = rexp (m ^ 2 / 2) := by
+    simpa [mgf] using congrFun (mgf_id_gaussianReal (μ := 0) (v := 1)) m
+  have h := TauCeti.Probability.gaussianReal_tilted_mul 0 1 m
+  rw [zero_add, NNReal.coe_one, one_mul, Measure.tilted, hZ] at h
+  rw [← h]
+  congr with y
+  rw [stepLR, stepLogLR, ← exp_sub, mul_comm m y]
 
 /-- The likelihood ratio of the history `h` of `T` rounds under the reward vector `θ` with
 respect to pure noise: `exp (∑ t, (y t ⟪x t, θ⟫ - ⟪x t, θ⟫² / 2))`. -/

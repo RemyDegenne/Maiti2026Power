@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Mathlib.Probability.Distributions.Gaussian.Real
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-!
 # Stein's identity for real Gaussian measures
@@ -15,8 +16,6 @@ integration by parts gives `E[(ξ - μ) f(ξ)] = v E[f'(ξ)]`.
 
 ## Main results
 
-* `hasDerivAt_gaussianPDFReal`: the derivative of the Gaussian density `φ` is
-  `φ' x = -((x - μ) / v) * φ x`.
 * `integrable_sub_mul_gaussianReal`, `integrable_deriv_gaussianReal`: integrability of
   `x ↦ (x - μ) * f x` and of `deriv f` under `gaussianReal μ v` when `deriv f` is bounded.
 * `integral_sub_mul_gaussianReal`: **Stein's identity** `E[(ξ - μ) f(ξ)] = v E[f'(ξ)]` for
@@ -31,19 +30,6 @@ open MeasureTheory Real
 open scoped NNReal
 
 namespace ProbabilityTheory
-
-/-- The derivative of the Gaussian density `φ = gaussianPDFReal μ v` is
-`φ' x = -((x - μ) / v) * φ x`. Also true (as `0 = 0`) for `v = 0`. -/
-lemma hasDerivAt_gaussianPDFReal (μ : ℝ) (v : ℝ≥0) (x : ℝ) :
-    HasDerivAt (gaussianPDFReal μ v) (-((x - μ) / v) * gaussianPDFReal μ v x) x := by
-  simp only [gaussianPDFReal]
-  have h : HasDerivAt (fun y ↦ -(y - μ) ^ 2 / (2 * v)) (-(x - μ) / v) x := by
-    refine ((((hasDerivAt_id' x).sub_const μ).fun_pow 2).fun_neg.div_const
-      (2 * (v : ℝ))).congr_deriv ?_
-    norm_num
-    ring
-  refine (h.exp.const_mul (√(2 * π * v))⁻¹).congr_deriv ?_
-  ring
 
 /-- For `v ≠ 0`, a function is integrable under `gaussianReal μ v` iff its product with the
 Gaussian density is integrable under the Lebesgue measure. -/
@@ -116,7 +102,8 @@ lemma integral_sub_mul_gaussianReal (hf : Differentiable ℝ f) (hL : ∀ x, |de
   have h_ibp : ∫ x, gaussianPDFReal μ v x * deriv f x
       = - ∫ x, (-((x - μ) / v) * gaussianPDFReal μ v x) * f x := by
     refine integral_mul_deriv_eq_deriv_mul_of_integrable
-      (fun x _ ↦ hasDerivAt_gaussianPDFReal μ v x) (fun x _ ↦ (hf x).hasDerivAt) ?_ ?_ ?_
+      (fun x _ ↦ LMLExplore.hasDerivAt_gaussianPDFReal μ v x) (fun x _ ↦ (hf x).hasDerivAt)
+      ?_ ?_ ?_
     · exact (integrable_gaussianReal_iff hv).mp (integrable_deriv_gaussianReal hL μ v)
     · have h := ((integrable_gaussianReal_iff hv).mp
         (integrable_sub_mul_gaussianReal hf hL μ v)).const_mul (-(v : ℝ)⁻¹)

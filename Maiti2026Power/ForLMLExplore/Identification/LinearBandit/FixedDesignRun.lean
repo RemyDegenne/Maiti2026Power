@@ -7,6 +7,7 @@ module
 
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.GaussianNoise
 public import Maiti2026Power.ForLMLExplore.Probability.IidOfCondDistrib
+public import Mathlib.Probability.Distributions.Gaussian.Multivariate
 
 /-!
 # The noise of a linear Gaussian run is i.i.d.; fixed-design runs

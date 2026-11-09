@@ -113,7 +113,7 @@ lemma integral_diffSup_bayesParam (hne : 𝒳.Nonempty) (hR : ∀ z ∈ 𝒳, �
       (integral_map (by fun_prop) ((continuous_supportFn hne hR).add
         ((continuous_supportFn hne hR).comp continuous_neg) |>.aestronglyMeasurable)).symm,
     map_sqrtInvDesign_stdGaussian x hS]
-  have := integral_diffSup_multivariateGaussian hne hR hS.inv.posSemidef
+  have := integral_diffSup_multivariateGaussian (S := (∑ t, outerSelf (x t))⁻¹) hne hR
   simp only [diffSup] at this
   rw [this, gwMat]
   ring

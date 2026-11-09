@@ -7,6 +7,7 @@ module
 
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
 public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.QuarterCircle
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
 
 /-!
 # Gaussian concentration for smooth Lipschitz functions (Maurey–Pisier)
@@ -88,7 +89,14 @@ lemma integral_exp_inner_gradient_prod_stdGaussian_le (hf : ContDiff ℝ 1 f)
           mul_le_mul_of_nonneg_left (abs_inner_gradient_le hL _ _) (abs_nonneg _)
       _ = |s| * L * ‖p.2‖ := by ring
   rw [integral_prod _ hint]
-  simp_rw [integral_exp_mul_inner_stdGaussian]
+  have hmgf : ∀ u, ∫ v, exp (s * ⟪gradient f u, v⟫) ∂stdGaussian E =
+      exp (s ^ 2 * ‖gradient f u‖ ^ 2 / 2) := fun u ↦ by
+    have h : ∫ v, exp (s * ⟪gradient f u, v⟫) ∂stdGaussian E = _ :=
+      IsGaussian.mgf_dual (innerSL ℝ (gradient f u)) s
+    rw [h, integral_strongDual_stdGaussian, variance_dual_stdGaussian, innerSL_apply_norm]
+    congr 1
+    ring
+  simp_rw [hmgf]
   calc ∫ u, exp (s ^ 2 * ‖gradient f u‖ ^ 2 / 2) ∂stdGaussian E
       ≤ ∫ _, exp (s ^ 2 * L ^ 2 / 2) ∂stdGaussian E :=
         integral_mono_of_nonneg (Filter.Eventually.of_forall fun _ ↦ (exp_pos _).le)

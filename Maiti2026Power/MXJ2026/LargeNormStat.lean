@@ -7,6 +7,7 @@ module
 
 public import Maiti2026Power.MXJ2026.RademacherEst
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-!
 # The large-norm estimator (norm estimation, Algorithm 3 of the paper)
@@ -128,7 +129,7 @@ lemma hasLaw_two_mul_inner_lnDelta (hn : 0 < n) :
     have h := HasLaw.comp (hasLaw_const_add_const_mul_sum_pi_gaussianReal 0 (2 * θ i / n))
       ⟨(measurable_pi_apply i).aemeasurable, hmap⟩
     exact h
-  have hsum := hasLaw_finset_sum_gaussianReal h_indep hX Finset.univ
+  have hsum := h_indep.hasLaw_sum_gaussianReal hX Finset.univ
   simp only [Finset.sum_const, Finset.card_univ, smul_zero] at hsum
   have hv : ∑ i, ‖2 * θ i / n‖₊ ^ 2 * (n : ℝ≥0) = 4 * ‖θ‖₊ ^ 2 / n := by
     apply NNReal.eq
@@ -138,11 +139,11 @@ lemma hasLaw_two_mul_inner_lnDelta (hn : 0 < n) :
     refine Finset.sum_congr rfl fun i _ ↦ ?_
     field_simp
     ring
-  have h2 : HasLaw (∑ i, fun e : ι → Fin n → ℝ ↦ 0 + (2 * θ i / n) * ∑ ℓ, e i ℓ)
+  have h2 : HasLaw (fun e : ι → Fin n → ℝ ↦ ∑ i, (0 + (2 * θ i / n) * ∑ ℓ, e i ℓ))
       (gaussianReal 0 (4 * ‖θ‖₊ ^ 2 / n)) (lnNoise ι n) :=
     ⟨hsum.aemeasurable, hsum.map_eq.trans (congrArg (gaussianReal _) hv)⟩
   refine h2.congr (ae_of_all _ fun e ↦ ?_)
-  simp only [Finset.sum_apply, zero_add]
+  simp only [zero_add]
   rw [real_inner_comm, lnDelta, inner_toLp_eq_sum, Finset.mul_sum]
   refine Finset.sum_congr rfl fun i _ ↦ ?_
   field_simp
@@ -151,10 +152,10 @@ lemma hasLaw_two_mul_inner_lnDelta (hn : 0 < n) :
 lemma lnNoise_real_abs_two_mul_inner_ge_le (hn : 0 < n) {u : ℝ} (hu : 0 ≤ u) :
     (lnNoise ι n).real {e | u ≤ |2 * inner ℝ θ (lnDelta n e)|}
       ≤ 2 * exp (-u ^ 2 / (2 * (4 * ‖θ‖ ^ 2 / n))) := by
-  have hlaw := hasLaw_two_mul_inner_lnDelta θ hn
-  have hsg := hasSubgaussianMGF_fun_id_gaussianReal (4 * ‖θ‖₊ ^ 2 / n)
-  rw [← hlaw.map_eq] at hsg
-  have h1 := (HasSubgaussianMGF.of_map hlaw.aemeasurable hsg).measureReal_abs_ge_le hu
+  have hsg := LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal
+    (hasLaw_two_mul_inner_lnDelta θ hn)
+  simp only [sub_zero] at hsg
+  have h1 := hsg.measureReal_abs_ge_le hu
   push_cast at h1
   exact h1
 

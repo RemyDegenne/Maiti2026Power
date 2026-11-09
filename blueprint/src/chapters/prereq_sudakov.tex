@@ -293,7 +293,7 @@ Lemma~\ref{lem:sup_countable_dense}, but is not needed.
 \label{sec:pre_sudakov_max}
 
 \begin{lemma}[Lower Mills-ratio bound]\label{lem:gauss_tail_lower}
-\lean{ProbabilityTheory.mul_gaussianPDFReal_le_measureReal_Ici}\leanok
+\lean{LMLExplore.div_mul_gaussianPDFReal_le_measureReal_Ici_gaussianReal_zero_one}\leanok
 Let $\xi\sim\Normal(0,1)$ and $\varphi(t) := (2\pi)^{-1/2}e^{-t^2/2}$. For every $t \ge 0$,
 \[
   \Prob(\xi\ge t) \ge \frac{t}{1+t^2}\,\varphi(t) = \frac{t}{1+t^2}\cdot\frac{e^{-t^2/2}}{\sqrt{2\pi}} .

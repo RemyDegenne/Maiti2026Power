@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Data.Finset.TopBy
-public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-!
 # One round of Median Elimination
@@ -106,10 +106,8 @@ lemma measurable_roundScore (a : Fin K) :
 lemma hasSubgaussianMGF_eval (j : Fin (s * n)) :
     HasSubgaussianMGF (fun η : Fin (s * n) → ℝ ↦ η j) 1
       (Measure.pi fun _ : Fin (s * n) ↦ gaussianReal 0 1) := by
-  have h := hasSubgaussianMGF_fun_id_gaussianReal 1
-  rw [← (measurePreserving_eval (fun _ : Fin (s * n) ↦ gaussianReal 0 1) j).map_eq] at h
-  exact HasSubgaussianMGF.of_map (Y := fun η : Fin (s * n) → ℝ ↦ η j)
-    (measurable_pi_apply j).aemeasurable h
+  simpa using LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal
+    (measurePreserving_eval (fun _ : Fin (s * n) ↦ gaussianReal 0 1) j).hasLaw
 
 /-- The coordinates of the product of standard Gaussians are independent. -/
 lemma iIndepFun_eval :

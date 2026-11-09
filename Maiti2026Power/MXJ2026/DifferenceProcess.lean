@@ -70,22 +70,24 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι] {𝒳 : Set (EuclideanSpace 
 
 /-- The mean of the difference process under `N(0, Σ⁻¹)` is `2 gwMat 𝒳 Σ`. -/
 lemma integral_diffSup_multivariateGaussian (hne : 𝒳.Nonempty) (hR : ∀ x ∈ 𝒳, ‖x‖ ≤ R)
-    {S : Matrix ι ι ℝ} (hS : S.PosSemidef) :
+    {S : Matrix ι ι ℝ} :
     ∫ v, diffSup 𝒳 v ∂multivariateGaussian 0 S =
       2 * gaussianWidth 𝒳 (multivariateGaussian 0 S) := by
+  have hneg := IsGaussian.map_neg_eq_self (multivariateGaussian 0 S)
+    integral_id_multivariateGaussian
   have hnorm : Integrable (fun ξ : EuclideanSpace ℝ ι ↦ ‖ξ‖) (multivariateGaussian 0 S) :=
     IsGaussian.integrable_id.norm
   have h1 : Integrable (supportFn 𝒳) (multivariateGaussian 0 S) := integrable_supportFn hne hR hnorm
   have h2 : Integrable (fun v ↦ supportFn 𝒳 (-v)) (multivariateGaussian 0 S) := by
     have := (integrable_map_measure (continuous_supportFn hne hR).aestronglyMeasurable
-      continuous_neg.measurable.aemeasurable).1 (by rwa [multivariateGaussian_zero_map_neg hS])
+      continuous_neg.measurable.aemeasurable).1 (by rwa [hneg])
     exact this
   simp_rw [diffSup]
   rw [integral_add h1 h2, two_mul, gaussianWidth]
   congr 1
-  rw [← multivariateGaussian_zero_map_neg hS, integral_map continuous_neg.measurable.aemeasurable
+  rw [← hneg, integral_map continuous_neg.measurable.aemeasurable
     (continuous_supportFn hne hR).aestronglyMeasurable]
-  rw [multivariateGaussian_zero_map_neg hS]
+  rw [hneg]
 
 /-- **Concentration of the difference process** (blueprint `lem:difference_process_concentration`):
 for `Δ ~ N(0, Σ⁻¹)` with `xᵀ Σ⁻¹ x ≤ σ²` on the compact set `𝒳`, `D(Δ)` exceeds
@@ -126,7 +128,7 @@ lemma measureReal_diffSup_gt_le (h𝒳 : IsCompact 𝒳) (hne : 𝒳.Nonempty) {
     exact Real.log_pos (one_lt_inv₀ hδ.1 |>.2 hδ.2)
   have hu : 0 ≤ u := by positivity
   have hmean : ∫ v, supportFn (𝒳 + -𝒳) v ∂multivariateGaussian 0 S = 2 * gwMat 𝒳 A := by
-    rw [gwMat, ← hS, ← integral_diffSup_multivariateGaussian hne hR hSpsd]
+    rw [gwMat, ← hS, ← integral_diffSup_multivariateGaussian hne hR]
     exact integral_congr_ae (Filter.Eventually.of_forall fun v ↦
       (diffSup_eq_supportFn_add_neg hne hR v).symm)
   have htail := hsg.measure_ge_le hu

@@ -202,7 +202,8 @@ lemma gaussianWidth_multivariateGaussian_le (hK : IsCompact K) (hne : K.Nonempty
     gaussianWidth K (multivariateGaussian 0 S₁) ≤ gaussianWidth K (multivariateGaussian 0 S₂) := by
   have h2 : multivariateGaussian 0 S₂ =
       multivariateGaussian 0 S₁ ∗ multivariateGaussian 0 (S₂ - S₁) := by
-    rw [multivariateGaussian_conv hS₁ (Matrix.le_iff.1 h)]
+    rw [TauCeti.Probability.multivariateGaussian_conv_multivariateGaussian 0 0 hS₁
+      (Matrix.le_iff.1 h)]
     simp
   rw [h2]
   exact gaussianWidth_le_gaussianWidth_conv hK hne IsGaussian.integrable_id

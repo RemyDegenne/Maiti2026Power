@@ -7,7 +7,7 @@ module
 
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 public import LMLExplore.Probability.Moments.SubGaussian.Basic
-public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-!
 # Sub-Gaussian noise of linear Gaussian environments
@@ -23,8 +23,8 @@ inequality bounds the noise sums of any block of rounds:
 `P (ε ≤ |∑_{s < m} η (n + s)|) ≤ 2 exp (-ε² / (2 m))`
 (`IsAlgEnvSeq.measureReal_abs_sum_noise_ge_le`).
 
-The general ingredients are `hasSubgaussianMGF_fun_id_gaussianReal` (a centered real Gaussian
-is sub-Gaussian, in `Maiti2026Power.ForLMLExplore.Probability.GaussianMGF`) and
+The general ingredients are LMLExplore's `hasSubgaussianMGF_sub_of_hasLaw_gaussianReal` (a real
+Gaussian is sub-Gaussian around its mean) and
 LMLExplore's `HasCondDistrib.hasCondSubgaussianMGF_sub` (a variable whose conditional law is
 sub-Gaussian is conditionally sub-Gaussian).
 -/
@@ -107,8 +107,7 @@ lemma _root_.Learning.IsAlgEnvSeq.hasLaw_noise (t : ℕ) :
 /-- The noise at time `t` is sub-Gaussian with variance proxy `1`. -/
 lemma _root_.Learning.IsAlgEnvSeq.hasSubgaussianMGF_noise (t : ℕ) :
     HasSubgaussianMGF (noise θ X Y t) 1 P := by
-  rw [← HasSubgaussianMGF.id_map_iff (h.hasLaw_noise t).aemeasurable, (h.hasLaw_noise t).map_eq]
-  exact hasSubgaussianMGF_fun_id_gaussianReal 1
+  simpa using LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal (h.hasLaw_noise t)
 
 variable [StandardBorelSpace Ω]
 
@@ -120,7 +119,9 @@ lemma _root_.Learning.IsAlgEnvSeq.hasCondSubgaussianMGF_noise (n : ℕ) :
   have hZ : Measurable fun ω ↦ ((history O X Y n ω, O n ω), X n ω) :=
     ((h.measurable_history n).prodMk (h.measurable_obs n)).prodMk (h.measurable_action n)
   have key := (h.hasCondDistrib_noise n).hasCondSubgaussianMGF_sub hZ (g := fun _ ↦ 0)
-    measurable_const (ae_of_all _ fun _ ↦ by simpa using hasSubgaussianMGF_fun_id_gaussianReal 1)
+    measurable_const (ae_of_all _ fun _ ↦ by
+      simpa using LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal
+        (HasLaw.id (μ := gaussianReal 0 1)))
   simp only [sub_zero] at key
   have heq : h.filtrationAction n =
       MeasurableSpace.comap (fun ω ↦ ((history O X Y n ω, O n ω), X n ω)) inferInstance :=

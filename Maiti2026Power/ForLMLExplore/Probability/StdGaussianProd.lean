@@ -8,14 +8,13 @@ module
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Independence
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
+public import TauCeti.Probability.Distributions.Gaussian.L2
 
 /-!
 # Products of standard Gaussian measures and independence of uncorrelated linear images
 
 * `map_toLp_prod_stdGaussian`: a pair of independent standard Gaussian vectors of `E` and `F` is a
   standard Gaussian vector of the product space `WithLp 2 (E × F)`.
-* `isGaussian_prod_stdGaussian`: the product of two standard Gaussian measures is a Gaussian
-  measure on the product space.
 * `covariance_inner_add_prod_stdGaussian`: the covariance of the linear forms
   `⟪a, A₁ p.1 + A₂ p.2⟫` and `⟪b, B₁ p.1 + B₂ p.2⟫` under the product of two standard Gaussian
   measures is `⟪a, (A₁ ∘L B₁† + A₂ ∘L B₂†) b⟫`.
@@ -60,31 +59,12 @@ lemma map_toLp_prod_stdGaussian :
   simp only [WithLp.ofLp_fst, WithLp.ofLp_snd]
   linarith [WithLp.prod_norm_sq_eq_of_L2 t]
 
-/-- The product of two standard Gaussian measures is a Gaussian measure on the product space. -/
-instance isGaussian_prod_stdGaussian : IsGaussian ((stdGaussian E).prod (stdGaussian F)) := by
-  have h : (stdGaussian E).prod (stdGaussian F)
-      = (stdGaussian (WithLp 2 (E × F))).map (WithLp.prodContinuousLinearEquiv 2 ℝ E F) := by
-    rw [← map_toLp_prod_stdGaussian, Measure.map_map (by fun_prop) (by fun_prop)]
-    simp [Function.comp_def]
-  rw [h]
-  infer_instance
-
 end Prod
 
 section Covariance
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
   [MeasurableSpace E] [BorelSpace E]
-
-/-- Linear forms are square integrable under the standard Gaussian measure. -/
-lemma memLp_two_inner_stdGaussian (a : E) : MemLp (fun g ↦ ⟪a, g⟫) 2 (stdGaussian E) :=
-  IsGaussian.memLp_two_id.const_inner a
-
-/-- The covariance of two linear forms under the standard Gaussian measure. -/
-lemma covariance_inner_stdGaussian (a b : E) :
-    cov[fun g ↦ ⟪a, g⟫, fun g ↦ ⟪b, g⟫; stdGaussian E] = ⟪a, b⟫ := by
-  rw [← covarianceBilin_apply_eq_cov IsGaussian.memLp_two_id, covarianceBilin_stdGaussian,
-    innerSL_apply_apply]
 
 variable {Ω Ω' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
   {μ : Measure Ω} {ν : Measure Ω'}
@@ -125,14 +105,14 @@ omit [BorelSpace E₂] in
 Gaussian measures. -/
 lemma memLp_two_inner_fst_prod_stdGaussian (a : E₁) :
     MemLp (fun p : E₁ × E₂ ↦ ⟪a, p.1⟫) 2 ((stdGaussian E₁).prod (stdGaussian E₂)) :=
-  (memLp_two_inner_stdGaussian a).comp_fst _
+  (TauCeti.Probability.memLp_inner_stdGaussian a 2 (by simp)).comp_fst _
 
 omit [BorelSpace E₁] in
 /-- Linear forms of the second coordinate are square integrable under a product of standard
 Gaussian measures. -/
 lemma memLp_two_inner_snd_prod_stdGaussian (a : E₂) :
     MemLp (fun p : E₁ × E₂ ↦ ⟪a, p.2⟫) 2 ((stdGaussian E₁).prod (stdGaussian E₂)) :=
-  (memLp_two_inner_stdGaussian a).comp_snd _
+  (TauCeti.Probability.memLp_inner_stdGaussian a 2 (by simp)).comp_snd _
 
 /-- The covariance of two linear forms of a pair of independent standard Gaussian vectors. -/
 lemma covariance_inner_add_prod_stdGaussian (a : F) (b : G) :
@@ -155,12 +135,16 @@ lemma covariance_inner_add_prod_stdGaussian (a : F) (b : G) :
       (memLp_two_inner_fst_prod_stdGaussian _) (memLp_two_inner_snd_prod_stdGaussian _),
     covariance_add_right (memLp_two_inner_snd_prod_stdGaussian _)
       (memLp_two_inner_fst_prod_stdGaussian _) (memLp_two_inner_snd_prod_stdGaussian _),
-    covariance_fst_snd_prod (memLp_two_inner_stdGaussian _) (memLp_two_inner_stdGaussian _),
+    covariance_fst_snd_prod (TauCeti.Probability.memLp_inner_stdGaussian _ 2 (by simp))
+      (TauCeti.Probability.memLp_inner_stdGaussian _ 2 (by simp)),
     covariance_comm (fun p : E₁ × E₂ ↦ ⟪(A₂†) a, p.2⟫),
-    covariance_fst_snd_prod (memLp_two_inner_stdGaussian _) (memLp_two_inner_stdGaussian _),
+    covariance_fst_snd_prod (TauCeti.Probability.memLp_inner_stdGaussian _ 2 (by simp))
+      (TauCeti.Probability.memLp_inner_stdGaussian _ 2 (by simp)),
     covariance_comp_fst_prod (by fun_prop) (by fun_prop),
     covariance_comp_snd_prod (by fun_prop) (by fun_prop),
-    covariance_inner_stdGaussian, covariance_inner_stdGaussian]
+    ← covarianceBilin_apply_eq_cov IsGaussian.memLp_two_id,
+    ← covarianceBilin_apply_eq_cov IsGaussian.memLp_two_id, covarianceBilin_stdGaussian,
+    covarianceBilin_stdGaussian, innerSL_apply_apply, innerSL_apply_apply]
   simp [ContinuousLinearMap.adjoint_inner_left]
 
 /-- The linear images `A₁ p.1 + A₂ p.2` and `B₁ p.1 + B₂ p.2` of a pair of independent standard

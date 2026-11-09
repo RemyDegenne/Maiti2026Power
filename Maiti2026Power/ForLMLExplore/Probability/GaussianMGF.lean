@@ -13,8 +13,8 @@ public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.Gradient
 /-!
 # Exponential moments of Gaussian measures
 
-* `integral_exp_inner_stdGaussian`: the moment generating function of a linear form
-  `⟪a, ·⟫` under the standard Gaussian measure is `exp (t² ‖a‖² / 2)`.
+* `stdGaussian_map_toDual`: the law of a linear form `⟪a, ·⟫` under the standard Gaussian
+  measure is `N(0, ‖a‖²)`.
 * `IsGaussian.integrable_exp_mul_norm`: `exp (c ‖x‖)` is integrable for every Gaussian measure
   on a separable Banach space (a consequence of Fernique's theorem), and therefore `exp (t F x)`
   is integrable for every function `F` of linear growth
@@ -42,26 +42,6 @@ lemma stdGaussian_map_toDual (a : E) :
     variance_dual_stdGaussian, LinearIsometryEquiv.norm_map]
   congr
   rw [← coe_nnnorm, ← NNReal.coe_pow, Real.toNNReal_coe]
-
-lemma integrable_exp_mul_inner_stdGaussian (a : E) (t : ℝ) :
-    Integrable (fun x ↦ exp (t * ⟪a, x⟫)) (stdGaussian E) := by
-  have h := integrable_exp_mul_gaussianReal (μ := 0) (v := ‖a‖₊ ^ 2) t
-  rw [← stdGaussian_map_toDual a, integrable_map_measure (by fun_prop) (by fun_prop)] at h
-  exact h
-
-/-- The moment generating function of `⟪a, ·⟫` under the standard Gaussian measure. -/
-lemma integral_exp_mul_inner_stdGaussian (a : E) (t : ℝ) :
-    ∫ x, exp (t * ⟪a, x⟫) ∂stdGaussian E = exp (t ^ 2 * ‖a‖ ^ 2 / 2) := by
-  have h : ∫ x, exp (t * ⟪a, x⟫) ∂stdGaussian E =
-      exp (0 * t + ((‖a‖₊ ^ 2 : ℝ≥0) : ℝ) * t ^ 2 / 2) :=
-    mgf_gaussianReal ⟨by fun_prop, stdGaussian_map_toDual a⟩ t
-  rw [h]
-  push_cast
-  ring_nf
-
-lemma integral_exp_inner_stdGaussian (a : E) :
-    ∫ x, exp ⟪a, x⟫ ∂stdGaussian E = exp (‖a‖ ^ 2 / 2) := by
-  simpa using integral_exp_mul_inner_stdGaussian a 1
 
 end stdGaussian
 
@@ -139,17 +119,5 @@ lemma IsGaussian.integrable_of_norm_gradient_le {μ : Measure E} [IsGaussian μ]
     (abs_le_of_norm_gradient_le (hf.differentiable one_ne_zero) hL)
 
 end gradient
-
-section real
-
-/-- A centered real Gaussian with variance `v` is sub-Gaussian with variance proxy `v`. -/
-lemma hasSubgaussianMGF_fun_id_gaussianReal (v : ℝ≥0) :
-    HasSubgaussianMGF (fun x ↦ x) v (gaussianReal 0 v) where
-  integrable_exp_mul t := integrable_exp_mul_gaussianReal t
-  mgf_le t := by
-    rw [mgf_fun_id_gaussianReal]
-    simp
-
-end real
 
 end ProbabilityTheory

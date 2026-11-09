@@ -60,7 +60,8 @@ lemma integral_sub_mul_gaussianReal_of_integrable (hf : Differentiable ℝ f)
   have h_ibp : ∫ x, gaussianPDFReal μ v x * deriv f x
       = - ∫ x, (-((x - μ) / v) * gaussianPDFReal μ v x) * f x := by
     refine integral_mul_deriv_eq_deriv_mul_of_integrable
-      (fun x _ ↦ hasDerivAt_gaussianPDFReal μ v x) (fun x _ ↦ (hf x).hasDerivAt) ?_ ?_ ?_
+      (fun x _ ↦ LMLExplore.hasDerivAt_gaussianPDFReal μ v x) (fun x _ ↦ (hf x).hasDerivAt)
+      ?_ ?_ ?_
     · exact (integrable_gaussianReal_iff hv).mp h3
     · have h := ((integrable_gaussianReal_iff hv).mp h2).const_mul (-(v : ℝ)⁻¹)
       refine h.congr (Filter.Eventually.of_forall fun x ↦ ?_)
