@@ -1,0 +1,36 @@
+{
+  "MXJ26": {
+    "uri": "https://arxiv.org/abs/2605.15663",
+    "identifiers": {
+      "arxiv": "2605.15663"
+    },
+    "citation": {
+      "id": "MXJ26",
+      "type": "paper-conference",
+      "title": "On the Power of Adaptivity for ε-Best Arm Identification in Linear Bandits",
+      "author": [
+        {
+          "family": "Maiti",
+          "given": "Arnab"
+        },
+        {
+          "family": "Xu",
+          "given": "Yunbei"
+        },
+        {
+          "family": "Jamieson",
+          "given": "Kevin"
+        }
+      ],
+      "container-title": "Proceedings of the 39th Conference on Learning Theory (COLT)",
+      "issued": {
+        "date-parts": [
+          [
+            2026
+          ]
+        ]
+      }
+    },
+    "version": "v1"
+  }
+}

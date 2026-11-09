@@ -1,19 +1,44 @@
-# Formalization of "On the Power of Adaptivity for ε-Best Arm Identification in Linear Bandits" (Maiti, Xu, Jamieson, COLT 2026)
+# Maiti2026Power
 
-A Lean 4 formalization, built on Mathlib and the [Lean Machine Learning](https://github.com/LeanMachineLearning/LML) library (LML), of the minimax sample-complexity results of the paper: the non-adaptive fixed-design upper bound in terms of a Gaussian width of the action set, the matching lower bounds, the structured action sets on which adaptivity only gives logarithmic gains, the $\ell_2$-norm estimation procedure and the action set on which adaptivity gives a polynomial improvement.
+A Lean 4 formalization of *On the Power of Adaptivity for ε-Best Arm Identification in Linear
+Bandits* (Arnab Maiti, Yunbei Xu and Kevin Jamieson, COLT 2026,
+[arXiv:2605.15663](https://arxiv.org/abs/2605.15663)), on top of
+[LMLExplore](https://github.com/LeanMachineLearning/LMLExplore), and so of
+[LML](https://github.com/LeanMachineLearning/LML), [Tau Ceti](https://github.com/TauCetiProject/TauCeti)
+and [Mathlib](https://github.com/leanprover-community/mathlib4). It follows the layout of
+[lml-paper-template](https://github.com/LeanMachineLearning/lml-paper-template).
 
-The development is blueprint-driven: `blueprint/src/` contains a detailed proof document (a [leanblueprint](https://github.com/PatrickMassot/leanblueprint)) that decomposes the paper into lemmas whose proofs go from what Mathlib/LML already provide to the paper's results. Part II of the blueprint collects the prerequisites that are meant to be contributed upstream (Gaussian concentration, sub-exponential variables, divergence decompositions of algorithm-environment sequences, Median Elimination, ...).
+It formalizes the minimax sample-complexity results of the paper: the non-adaptive fixed-design
+upper bound in terms of a Gaussian width of the action set, the matching lower bounds, the
+structured action sets on which adaptivity only gives logarithmic gains, the `ℓ₂`-norm estimation
+procedure, and the action set on which adaptivity gives a polynomial improvement (Theorems 1–3,
+5–8, Proposition 4 and the lower bounds of Table 1). Every headline result is proved, with no
+`sorry`, and comparator verifies them.
 
-* Paper source: `source/`
-* Blueprint: `blueprint/src/` (build with `leanblueprint pdf` / `leanblueprint web` from `blueprint/`)
-* Lean library: `Maiti2026Power/`
-* Blueprint outline, design decisions and upstreaming candidates: `notes/`
+- Website: https://RemyDegenne.github.io/Maiti2026Power/, with the blueprint, the referee site and
+  the literature links (which declarations formalize which results of the paper). CI builds it on
+  each push to `master`. `scripts/formalize.sh` also commits the literature links, as
+  `literature/annotations.jsonl`, when the paper is formalized and after the final bump.
+- The paper: `source/`. Errors found in it, with their corrections: `notes/paper-errata.md`.
+- The paper's results: `Maiti2026Power/MXJ2026/`, one file per result, listed with their status in
+  `formalization.yaml`; comparator challenges in `comparator/`.
+- Library-shaped material: `Maiti2026Power/ForLMLExplore/`, which Tau Ceti workers port to
+  LMLExplore; `PAPER_ROADMAP.md` says where each item goes.
+- The blueprint outline and the design decisions: `notes/`.
 
-## Status and layout
+## Building
 
-The formalization proceeds in two phases. **Phase 1 (done)** states the headline results of the paper in Lean — Theorems 1–3, 5–8, Proposition 4 and the adaptive lower bounds of Table 1 — as `sorry`-ed theorems over definitions written in library generality; they are listed in `formalization.yaml` and each has a self-contained [comparator](https://github.com/leanprover/comparator) challenge file in `comparator/` (see `comparator/README.md`). **Phase 2** proves them, following the blueprint: all of them are now proved (Theorems 1–3, 5–8, Proposition 4 and the five lower bounds of Table 1), with no `sorry` left in the repository, and every challenge is verified by comparator (`scripts/comparator-verify.sh`, all 17 configs pass) (see the `status` section of `formalization.yaml`).
+```bash
+scripts/build.sh
+```
 
-* `Maiti2026Power/LeanMachineLearning/`: material for LML, on top of LML's identification algorithms (`Learning.IdentAlg`: sampling rule, stopping rule, output rule; their runs on a probability space in the LML `IsAlgEnvSeq` framework and PAC guarantees) — fixed budgets and fixed designs (`IdentAlg.lean`), the canonical run of any identification algorithm (`Run.lean`); the linear Gaussian bandit, simple regret and `(ε, δ)`-PAC identification (`LinearBandit.lean`).
-* `Maiti2026Power/Mathlib/`: material for Mathlib — the Gaussian width of a set for a measure, measurability on sigma types.
-* `Maiti2026Power/MXJ2026/`: the paper — design matrices and the Gaussian width term (`Width.lean`), the structured action sets (`StructuredSets.lean`), and one file per result (`Upper`, `LowerAdaptive`, `LowerNonadaptive`, `WidthBounds`, `LogGains`, `Separation`, `NormEstimation`).
-* `comparator/`: challenge files and configs, generated by `scripts/make-challenges.py`; `scripts/comparator-verify.sh` runs comparator.
+The script fetches Mathlib's and Tau Ceti's prebuilt files, then runs `lake build`; its arguments go
+to `lake build`.
+
+## Working on it
+
+The workflow is the `formalize-paper` skill of the `lml` Claude Code plugin
+([lml-claude](https://github.com/LeanMachineLearning/lml-claude)). The paper is formalized; what is
+left is to contribute its library-shaped part. `scripts/formalize.sh`, in a terminal or tmux, tags
+`PAPER_ROADMAP.md`, sends the reusable parts to LMLExplore, and once they are merged moves the paper
+to the current LMLExplore.
