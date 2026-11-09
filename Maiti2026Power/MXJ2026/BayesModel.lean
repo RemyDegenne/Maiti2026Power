@@ -10,7 +10,7 @@ public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
 public import Maiti2026Power.ForLMLExplore.Probability.StdGaussianProd
 public import Maiti2026Power.ForLMLExplore.Probability.Kernel.PriorAverage
-public import Maiti2026Power.ForLMLExplore.Probability.IndepIntegral
+public import Mathlib.Probability.Independence.Integration
 
 /-!
 # The Bayesian model of the non-adaptive lower bound
@@ -448,9 +448,15 @@ lemma integral_inner_bayesW_bayesJoint (hR : ∀ z ∈ 𝒳, ‖z‖ ≤ R)
     exact congrArg (meanOutput A) (bayesHist_eq_comp x hx τ p)
   rw [h1]
   -- `W` is centered and independent of `y`
-  exact ((indepFun_bayesW_bayesY x τ hS).symm.integral_inner_comp_eq_zero
-    (bayesYclm x τ).continuous.measurable.aemeasurable hGm hGb
-    ((bayesWclm x τ).integrable_comp IsGaussian.integrable_id) integral_add_prod_stdGaussian)
+  have hW : Integrable (fun p ↦ bayesWclm x τ p) μ₀ :=
+    (bayesWclm x τ).integrable_comp IsGaussian.integrable_id
+  have h2 := (indepFun_bayesW_bayesY x τ hS).symm.integral_bilin_comp_comp (g := id)
+    (bayesYclm x τ).continuous.measurable.aemeasurable hW.aemeasurable
+    (Integrable.of_bound hGm.aestronglyMeasurable R (ae_of_all _ hGb))
+    ((integrable_map_measure aestronglyMeasurable_id hW.aemeasurable).2 hW) (innerSL ℝ)
+  simp only [id_eq] at h2
+  rw [integral_add_prod_stdGaussian, map_zero] at h2
+  exact h2
 
 /-- **Bayes identity** (blueprint `lem:bayes_regret_identity`):
 `E⟪rec, θ⟫ = c E⟪rec, Σ⁻¹ Xᵀ y⟫` with `c = τ² / (1 + τ²)`. -/
@@ -645,7 +651,6 @@ lemma measureReal_lt_simpleRegret_comap_eq (g : EuclideanSpace ℝ ι) {ε : ℝ
     exact (continuous_const.sub (continuous_subtype_val.inner continuous_const)).measurable
   have hmap := map_snd_compProd_comap (stdGaussian (EuclideanSpace ℝ (Fin T)))
     (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) hg
-    (fun _ ↦ inferInstance)
   rw [bayesKernel_comap A x hx τ g, fixedDesignPairLaw, ← map_bayesHist_stdGaussian x hx τ g]
   have h1 : ∀ (μ : Measure (Hist Unit 𝒳 ℝ T × 𝒳)),
       μ.real {p | ε < simpleRegret 𝒳 (bayesParam x τ g) (p.2 : EuclideanSpace ℝ ι)} =

@@ -8,7 +8,7 @@ module
 public import LeanMachineLearning.SequentialLearning.DivergenceDecomposition
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.StoppedHistory
-public import Maiti2026Power.ForLMLExplore.Probability.KLGaussian
+public import LMLExplore.InformationTheory.KullbackLeibler.Gaussian
 
 /-!
 # The divergence decomposition at a stopping time
@@ -381,7 +381,8 @@ lemma klDiv_linearGaussianKernel (x : 𝒳) :
     klDiv (linearGaussianKernel 𝒳 θ x) (linearGaussianKernel 𝒳 θ' x) =
       ENNReal.ofReal (⟪(x : E), θ - θ'⟫ ^ 2 / 2) := by
   change klDiv (gaussianReal ⟪(x : E), θ⟫ 1) (gaussianReal ⟪(x : E), θ'⟫ 1) = _
-  rw [klDiv_gaussianReal_one, inner_sub_right]
+  rw [LMLExplore.klDiv_gaussianReal_gaussianReal_same_var one_ne_zero, inner_sub_right,
+    NNReal.coe_one, mul_one]
 
 omit [IsProbabilityMeasure P] in
 lemma measurable_inner_action (h : IsAlgEnvSeq O X Y alg (linearGaussianEnv 𝒳 θ) P) (t : ℕ)

@@ -42,8 +42,6 @@ public import Maiti2026Power.ForLMLExplore.Order.CiSupFinite
 public import Maiti2026Power.ForLMLExplore.Probability.BorellTIS
 public import Maiti2026Power.ForLMLExplore.Probability.CondDistrib
 public import Maiti2026Power.ForLMLExplore.Probability.CondDistribConst
-public import Maiti2026Power.ForLMLExplore.Probability.CondSubgaussian
-public import Maiti2026Power.ForLMLExplore.Probability.Distributions.Bernoulli
 public import Maiti2026Power.ForLMLExplore.Probability.Distributions.ChiSquared
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianAbsMoment
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianDensityRatio
@@ -56,10 +54,8 @@ public import Maiti2026Power.ForLMLExplore.Probability.GaussianWidth
 public import Maiti2026Power.ForLMLExplore.Probability.IidOfCondDistrib
 public import Maiti2026Power.ForLMLExplore.Probability.IndepIntegral
 public import Maiti2026Power.ForLMLExplore.Probability.InfinitePiWindow
-public import Maiti2026Power.ForLMLExplore.Probability.KLGaussian
 public import Maiti2026Power.ForLMLExplore.Probability.Kernel.PriorAverage
 public import Maiti2026Power.ForLMLExplore.Probability.MaureyPisier
-public import Maiti2026Power.ForLMLExplore.Probability.Moments.ExtOfMGF
 public import Maiti2026Power.ForLMLExplore.Probability.MultivariateGaussian
 public import Maiti2026Power.ForLMLExplore.Probability.Rademacher
 public import Maiti2026Power.ForLMLExplore.Probability.StdGaussianProd

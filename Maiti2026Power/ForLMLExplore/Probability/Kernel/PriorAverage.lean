@@ -61,21 +61,14 @@ lemma integral_fst_fst_compProd_prod (π : Measure Θ) [SFinite π] (ν : Measur
   conv_rhs => rw [← h]
   rw [integral_map (by fun_prop) (by rw [h]; exact hf.aestronglyMeasurable)]
 
-/-- The joint law `(π.prod ν) ⊗ₘ κ` is the composition-product of `π` with the kernel
-`θ ↦ ν ⊗ₘ κ.comap (Prod.mk θ) _`, up to reassociation of the product. -/
-lemma compProd_prod_eq_map_compProd_compProd_const (π : Measure Θ) [SFinite π] (ν : Measure B)
-    [SFinite ν] (κ : Kernel (Θ × B) O) :
-    (π.prod ν) ⊗ₘ κ =
-      (π ⊗ₘ (Kernel.const Θ ν ⊗ₖ κ)).map MeasurableEquiv.prodAssoc.symm := by
-  rw [Measure.compProd_assoc, Measure.compProd_const]
-
 /-- The joint integral of a function `F ((θ, b), o)`, integrating first over `(b, o)` given `θ`. -/
 lemma integral_compProd_prod_eq_integral_compProd_comap (π : Measure Θ) [SFinite π]
     (ν : Measure B) [SFinite ν] (κ : Kernel (Θ × B) O) [IsSFiniteKernel κ]
     {F : (Θ × B) × O → ℝ} (hF : Integrable F ((π.prod ν) ⊗ₘ κ)) :
     ∫ p, F p ∂((π.prod ν) ⊗ₘ κ) =
       ∫ θ, ∫ q, F ((θ, q.1), q.2) ∂(ν ⊗ₘ κ.comap (Prod.mk θ) measurable_prodMk_left) ∂π := by
-  rw [compProd_prod_eq_map_compProd_compProd_const] at hF ⊢
+  -- `(π.prod ν) ⊗ₘ κ` is `π ⊗ₘ (Kernel.const Θ ν ⊗ₖ κ)` up to reassociation
+  rw [← Measure.compProd_const, ← Measure.compProd_assoc] at hF ⊢
   have hF' : Integrable (fun x ↦ F (MeasurableEquiv.prodAssoc.symm x))
       (π ⊗ₘ (Kernel.const Θ ν ⊗ₖ κ)) := (integrable_map_equiv _ _).mp hF
   rw [integral_map_equiv, Measure.integral_compProd hF']

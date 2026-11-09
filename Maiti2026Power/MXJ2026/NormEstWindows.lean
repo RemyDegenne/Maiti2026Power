@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Probability.InfinitePiWindow
+public import TauCeti.MeasureTheory.Constructions.Pi
 public import Maiti2026Power.MXJ2026.LargeNormStat
 
 /-!
@@ -127,16 +128,16 @@ theorem nsMeasure_map_rbProj (hs : 0 < s) :
     (measurable_blockSeeds hs).prodMap hcurry
   rw [rbProj_eq hs, ← Measure.map_map hg (measurable_splitPairs.comp hproj),
     ← Measure.map_map measurable_splitPairs hproj, nsMeasure,
-    Measure.infinitePi_map_eval_comp _ winIdx_injective]
+    Measure.map_infinitePi_infinitePi_of_inj winIdx_injective, Measure.infinitePi_eq_pi]
   rw [show (splitPairs : ((_ : Fin K) × Fin s → (ι → Bool) × ℝ) → _)
-      = fun v ↦ (fun p ↦ (v p).1, fun p ↦ (v p).2) from rfl,
-    Measure.pi_prod_map_split, ← Measure.map_prod_map _ _ (measurable_blockSeeds hs) hcurry,
-    rbMeasure]
+      = MeasurableEquiv.arrowProdEquivProdArrow _ _ _ from rfl,
+    (measurePreserving_arrowProdEquivProdArrow _ _ _ _ _).map_eq,
+    ← Measure.map_prod_map _ _ (measurable_blockSeeds hs) hcurry, rbMeasure]
   congr 1
   · rw [← Measure.infinitePi_eq_pi]
-    exact Measure.infinitePi_map_eval_comp _ fun k k' h ↦ by
-      simpa using congrArg Sigma.fst h
-  · exact Measure.pi_sigma_map_curry _
+    exact (Measure.map_infinitePi_infinitePi_of_inj fun k k' h ↦ by
+      simpa using congrArg Sigma.fst h).trans (Measure.infinitePi_eq_pi _)
+  · exact (TauCeti.measurePreserving_piCurry fun _ _ ↦ gaussianReal 0 1).map_eq
 
 /-- The RB window starting at round `a ≥ T` is independent of the first `T` coordinates. -/
 theorem indepFun_prefix_rbProj (hs : 0 < s) {T : ℕ} (haT : T ≤ a) :
@@ -206,14 +207,15 @@ theorem nsMeasure_map_lnProj :
   rw [lnProj_eq, ← Measure.map_map hcurry (measurable_snd.comp (measurable_splitPairs.comp hproj)),
     ← Measure.map_map measurable_snd (measurable_splitPairs.comp hproj),
     ← Measure.map_map measurable_splitPairs hproj, nsMeasure,
-    Measure.infinitePi_map_eval_comp _ lnIdx_injective]
+    Measure.map_infinitePi_infinitePi_of_inj lnIdx_injective, Measure.infinitePi_eq_pi]
   rw [show (splitPairs : ((_ : ι) × Fin n → (ι → Bool) × ℝ) → _)
-      = fun v ↦ (fun p ↦ (v p).1, fun p ↦ (v p).2) from rfl,
-    Measure.pi_prod_map_split]
+      = MeasurableEquiv.arrowProdEquivProdArrow _ _ _ from rfl,
+    (measurePreserving_arrowProdEquivProdArrow _ _ _ _ _).map_eq]
   have hsnd : ((Measure.pi fun _ : (_ : ι) × Fin n ↦ uniformBoolVec ι).prod
       (Measure.pi fun _ : (_ : ι) × Fin n ↦ gaussianReal 0 1)).map Prod.snd
       = Measure.pi fun _ : (_ : ι) × Fin n ↦ gaussianReal 0 1 := Measure.snd_prod
-  rw [hsnd, Measure.pi_sigma_map_curry, lnNoise]
+  rw [hsnd, lnNoise]
+  exact (TauCeti.measurePreserving_piCurry fun _ _ ↦ gaussianReal 0 1).map_eq
 
 /-- The basis-design window starting at round `a ≥ T` is independent of the first `T`
 coordinates. -/

@@ -300,7 +300,7 @@ Mathlib: \texttt{HasGaussianLaw.indepFun\_of\_covariance\_eval} (coordinates) or
 
 \begin{lemma}[Expectation of an inner product with an independent centered vector]
 \label{lem:indep_integral_zero}
-\lean{ProbabilityTheory.IndepFun.integral_inner_comp_eq_zero, ProbabilityTheory.integrable_inner_comp}\leanok
+\lean{ProbabilityTheory.IndepFun.integral_bilin_comp_comp, ProbabilityTheory.integrable_inner_comp}\leanok
 Let $W : \Omega \to \R^d$ be integrable with $\E W = 0$, let $V : \Omega \to \mathcal V$ be a
 random variable with values in a measurable space, independent of $W$, and let
 $f : \mathcal V \to \R^d$ be bounded and measurable. Then $\ip{f(V)}{W}$ is integrable and
@@ -309,8 +309,8 @@ $\E\ip{f(V)}{W} = 0$.
 
 \begin{proof}
 \leanok
-(The Lean proof is basis-free: the law of $(V, W)$ is the product of the marginals, so by
-Fubini $\E\ip{f(V)}{W} = \int\ip{f(v)}{\E W}\,\Prob_V(dv) = 0$.)
+(The Lean proof is basis-free: it is Mathlib's \texttt{IndepFun.integral\_bilin\_comp\_comp}
+with the bilinear map \texttt{innerSL ℝ}, which gives $\E\ip{f(V)}{W} = \ip{\E f(V)}{\E W} = 0$.)
 $\ip{f(V)}{W} = \sum_{i<d} f_i(V)\,W_i$. For each $i$, $f_i(V)$ is bounded and measurable and
 $W_i$ is integrable, so their product is integrable; $f_i(V)$ and $W_i$ are independent
 (compositions of independent variables with measurable maps, Mathlib \texttt{IndepFun.comp}),

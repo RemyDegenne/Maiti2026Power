@@ -8,6 +8,8 @@ module
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
 public import LeanMachineLearning.ForMathlib.Probability.Moments.SubExponential
 public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.OrthonormalBasisSubmodule
+public import TauCeti.Analysis.SpecialFunctions.Exp.QuadraticBound
+public import TauCeti.Analysis.SpecialFunctions.Log.NegLogOneSub
 
 /-!
 # The moment generating function of the square of a Gaussian variable
@@ -22,30 +24,14 @@ public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.Orthonorma
   and the chi-square tail bounds
   `measureReal_norm_sq_sub_ge_le_stdGaussian`, `measureReal_norm_sq_ge_le_stdGaussian`.
 
-The law of `‖g‖²` is the chi-squared distribution with `d` degrees of freedom, defined in
-`Maiti2026Power/ForLMLExplore/Probability/Distributions/ChiSquared.lean`; the identification of
-the two (at the level of moment generating functions) is `mgf_norm_sq_stdGaussian` there.
-* `Real.exp_le_one_add_add_sq_div_two_of_nonpos`: `exp x ≤ 1 + x + x² / 2` for `x ≤ 0`.
+The law of `‖g‖²` is the chi-squared distribution with `d` degrees of freedom: Tau Ceti's
+`TauCeti.Probability.stdGaussian_map_norm_sq`.
 -/
 
 @[expose] public section
 
 open MeasureTheory Real Finset
 open scoped ENNReal NNReal
-
-/-- For `x ≤ 0`, `exp x ≤ 1 + x + x ^ 2 / 2`. -/
-lemma Real.exp_le_one_add_add_sq_div_two_of_nonpos {x : ℝ} (hx : x ≤ 0) :
-    exp x ≤ 1 + x + x ^ 2 / 2 := by
-  have h1 : 1 + (-x) + (-x) ^ 2 / 2 ≤ exp (-x) := quadratic_le_exp_of_nonneg (by linarith)
-  have h2 : 0 < 1 + x + x ^ 2 / 2 := by nlinarith [sq_nonneg (1 + x)]
-  have h3 : 0 < 1 + (-x) + (-x) ^ 2 / 2 := by nlinarith [sq_nonneg (1 - x)]
-  rw [exp_neg] at h1
-  have h4 : exp x ≤ (1 + (-x) + (-x) ^ 2 / 2)⁻¹ := by
-    rw [le_inv_comm₀ (exp_pos x) h3]
-    exact h1
-  refine h4.trans ?_
-  rw [inv_le_iff_one_le_mul₀ h3]
-  nlinarith [pow_nonneg (sq_nonneg x) 2]
 
 section Quadratic
 
@@ -148,32 +134,20 @@ lemma integral_exp_mul_sq_gaussianReal (m : ℝ) (v : ℝ≥0) {a : ℝ} (ha : 2
     ring
   rw [← mul_assoc, h2, h3]
 
-/-- For `|ν| ≤ 1 / 2`, `-log (1 - ν) ≤ ν + ν ^ 2`.
+/-- For `|ν| ≤ 1 / 2`, `-log (1 - ν) ≤ ν + ν ^ 2`: the real case of Tau Ceti's
+`Complex.norm_neg_log_one_sub_sub_le`.
 
 This is sharp enough to give the optimal order of the sub-exponential parameters below: the
 series `-log (1 - ν) = ν + ∑_{k ≥ 2} ν ^ k / k` has remainder `≤ ν ^ 2 / (2 (1 - ν)) ≤ ν ^ 2`
 on `[0, 1/2]`. -/
 lemma neg_log_one_sub_le_add_sq {ν : ℝ} (hν : |ν| ≤ 1 / 2) : -log (1 - ν) ≤ ν + ν ^ 2 := by
-  have hν1 : ν ≤ 1 / 2 := (le_abs_self ν).trans hν
-  have hν2 : -(1 / 2 : ℝ) ≤ ν := neg_le_of_abs_le hν
-  have hpos : (0 : ℝ) < 1 - ν := by linarith
-  have key : (1 : ℝ) ≤ (1 - ν) * exp (ν + ν ^ 2) := by
-    rcases le_or_gt 0 ν with hν0 | hν0
-    · have hq := Real.quadratic_le_exp_of_nonneg (x := ν + ν ^ 2) (by positivity)
-      have he : (1 - ν) * (1 + (ν + ν ^ 2) + (ν + ν ^ 2) ^ 2 / 2)
-          = 1 + ν ^ 2 / 2 * (1 - ν - ν ^ 2 - ν ^ 3) := by ring
-      have hcube : ν ^ 2 + ν ^ 3 ≤ 1 / 2 := by nlinarith
-      calc (1 : ℝ) ≤ 1 + ν ^ 2 / 2 * (1 - ν - ν ^ 2 - ν ^ 3) := by nlinarith
-        _ = (1 - ν) * (1 + (ν + ν ^ 2) + (ν + ν ^ 2) ^ 2 / 2) := he.symm
-        _ ≤ (1 - ν) * exp (ν + ν ^ 2) := by gcongr
-    · have hl := Real.add_one_le_exp (ν + ν ^ 2)
-      have he : (1 - ν) * (1 + (ν + ν ^ 2)) = 1 - ν ^ 3 := by ring
-      calc (1 : ℝ) ≤ 1 - ν ^ 3 := by nlinarith
-        _ = (1 - ν) * ((ν + ν ^ 2) + 1) := by rw [← he]; ring
-        _ ≤ (1 - ν) * exp (ν + ν ^ 2) := by gcongr
-  have hlog := Real.log_le_log (by norm_num) key
-  rw [Real.log_one, Real.log_mul hpos.ne' (exp_ne_zero _), Real.log_exp] at hlog
-  linarith
+  have hpos : 0 ≤ 1 - ν := by linarith [le_abs_self ν]
+  have h := Complex.norm_neg_log_one_sub_sub_le (z := ν)
+    (by rwa [Complex.norm_real, Real.norm_eq_abs])
+  rw [← Complex.ofReal_one, ← Complex.ofReal_sub, ← Complex.ofReal_log hpos, ← Complex.ofReal_neg,
+    ← Complex.ofReal_sub, Complex.norm_real, Complex.norm_real, Real.norm_eq_abs,
+    Real.norm_eq_abs, sq_abs] at h
+  linarith [le_abs_self (-log (1 - ν) - ν)]
 
 /-- For `|ν| ≤ 1 / 2`, `1 / (1 - ν) ≤ 2`. -/
 lemma one_div_one_sub_le_two {ν : ℝ} (hν : |ν| ≤ 1 / 2) : 1 / (1 - ν) ≤ 2 := by

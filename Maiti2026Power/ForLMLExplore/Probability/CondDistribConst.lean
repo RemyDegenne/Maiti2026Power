@@ -6,13 +6,15 @@ Authors: Rémy Degenne
 module
 
 public import Mathlib.Probability.HasCondDistrib
+public import TauCeti.Probability.Kernel.Randomization
 
 /-!
 # Constant conditional distributions and functions of a variable and an independent noise
 
 * `Kernel.mapOfConst Q G`: the kernel `x ↦ Q.map (G x)`.
 * `HasLaw.hasCondDistrib_snd_const`: if `(X, Y) ~ Q ⊗ R` then `Y | X ~ R`.
-* `HasCondDistrib.mapOfConst`: if `Y | X ~ Q` then `G X Y | X ~ Q.map (G X)`.
+* `HasCondDistrib.mapOfConst`: if `Y | X ~ Q` then `G X Y | X ~ Q.map (G X)` (through Tau Ceti's
+  `Kernel.map_prod_eq_compProd_of_map`).
 * `HasCondDistrib.snd_of_const_prod`: if `(Y, Z) | X ~ Q ⊗ R` then `Z | (X, Y) ~ R`.
 -/
 
@@ -78,22 +80,6 @@ lemma HasLaw.hasCondDistrib_snd_const [IsFiniteMeasure P] {X : Ω → 𝓧} {Y :
   rw [hX]
   exact h
 
-/-- The law of a map `(x, y) ↦ (x, G x y)` applied to `μ ⊗ Q`. -/
-lemma Measure.prod_map_mapOfConst {μ : Measure 𝓧} [SFinite μ] (Q : Measure 𝓨) [SFinite Q]
-    {G : 𝓧 → 𝓨 → 𝓩} (hG : Measurable (Function.uncurry G)) :
-    (μ.prod Q).map (fun p ↦ (p.1, G p.1 p.2)) = μ ⊗ₘ Kernel.mapOfConst Q G hG := by
-  have hΦ : Measurable (fun p : 𝓧 × 𝓨 ↦ (p.1, G p.1 p.2)) := measurable_fst.prodMk hG
-  rw [← Measure.compProd_const, Measure.compProd_eq_comp_prod, Measure.compProd_eq_comp_prod,
-    ← Measure.deterministic_comp_eq_map hΦ, Measure.comp_assoc]
-  congr 1
-  ext x : 1
-  rw [Kernel.comp_apply, Kernel.prod_apply, Kernel.id_apply, Kernel.const_apply,
-    Measure.dirac_prod, Measure.deterministic_comp_eq_map hΦ, Kernel.prod_apply, Kernel.id_apply,
-    Kernel.mapOfConst_apply hG, Measure.dirac_prod, Measure.map_map hΦ measurable_prodMk_left]
-  have hGx : Measurable (G x) := hG.comp measurable_prodMk_left
-  rw [Measure.map_map measurable_prodMk_left hGx]
-  rfl
-
 /-- If the conditional law of `Y` given `X` is the constant `Q`, then the conditional law of
 `G X Y` given `X` is `x ↦ Q.map (G x)`. -/
 lemma HasCondDistrib.mapOfConst [IsFiniteMeasure P] {X : Ω → 𝓧} {Y : Ω → 𝓨} {Q : Measure 𝓨}
@@ -110,7 +96,9 @@ lemma HasCondDistrib.mapOfConst [IsFiniteMeasure P] {X : Ω → 𝓧} {Y : Ω �
         rw [AEMeasurable.map_map_of_aemeasurable (by fun_prop) (by fun_prop)]
         rfl
     _ = ((P.map X).prod Q).map (fun p ↦ (p.1, G p.1 p.2)) := by rw [h1]
-    _ = P.map X ⊗ₘ Kernel.mapOfConst Q G hG := Measure.prod_map_mapOfConst Q hG
+    _ = P.map X ⊗ₘ Kernel.mapOfConst Q G hG :=
+        (Kernel.mapOfConst Q G hG).map_prod_eq_compProd_of_map Q G hG
+          fun x ↦ (Kernel.mapOfConst_apply hG x).symm
 
 /-- If the conditional law of `(Y, Z)` given `X` is the constant `Q ⊗ R`, then the conditional
 law of `Z` given `(X, Y)` is the constant `R`. -/

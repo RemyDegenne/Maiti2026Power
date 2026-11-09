@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
-public import Maiti2026Power.ForLMLExplore.Probability.CondSubgaussian
+public import LMLExplore.Probability.Moments.SubGaussian.Basic
 public import Maiti2026Power.ForLMLExplore.Probability.GaussianMGF
 
 /-!
@@ -25,8 +25,8 @@ inequality bounds the noise sums of any block of rounds:
 
 The general ingredients are `hasSubgaussianMGF_fun_id_gaussianReal` (a centered real Gaussian
 is sub-Gaussian, in `Maiti2026Power.ForLMLExplore.Probability.GaussianMGF`) and
-`HasCondDistrib.hasCondSubgaussianMGF_of_const`
-(in `Maiti2026Power.ForLMLExplore.Probability.CondSubgaussian`).
+LMLExplore's `HasCondDistrib.hasCondSubgaussianMGF_sub` (a variable whose conditional law is
+sub-Gaussian is conditionally sub-Gaussian).
 -/
 
 @[expose] public section
@@ -119,8 +119,9 @@ lemma _root_.Learning.IsAlgEnvSeq.hasCondSubgaussianMGF_noise (n : ℕ) :
       (noise θ X Y n) 1 P := by
   have hZ : Measurable fun ω ↦ ((history O X Y n ω, O n ω), X n ω) :=
     ((h.measurable_history n).prodMk (h.measurable_obs n)).prodMk (h.measurable_action n)
-  have key := (h.hasCondDistrib_noise n).hasCondSubgaussianMGF_of_const (h.measurable_noise n)
-    hZ (hasSubgaussianMGF_fun_id_gaussianReal 1)
+  have key := (h.hasCondDistrib_noise n).hasCondSubgaussianMGF_sub hZ (g := fun _ ↦ 0)
+    measurable_const (ae_of_all _ fun _ ↦ by simpa using hasSubgaussianMGF_fun_id_gaussianReal 1)
+  simp only [sub_zero] at key
   have heq : h.filtrationAction n =
       MeasurableSpace.comap (fun ω ↦ ((history O X Y n ω, O n ω), X n ω)) inferInstance :=
     h.filtrationAction_eq_comap n

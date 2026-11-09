@@ -80,7 +80,7 @@ both sides vanish; otherwise such a $g$ is given by \texttt{MeasurableEmbedding.
 \end{proof}
 
 \begin{lemma}[Divergence of two Gaussians with the same variance]\label{lem:kl_gaussian}
-\lean{ProbabilityTheory.gaussianReal_absolutelyContinuous_gaussianReal, ProbabilityTheory.llr_gaussianReal, ProbabilityTheory.integrable_llr_gaussianReal, ProbabilityTheory.klDiv_gaussianReal, ProbabilityTheory.klDiv_gaussianReal_one}\leanok
+\lean{LMLExplore.gaussianReal_absolutelyContinuous_gaussianReal, LMLExplore.llr_gaussianReal_gaussianReal, LMLExplore.integrable_llr_gaussianReal_gaussianReal, LMLExplore.klDiv_gaussianReal_gaussianReal_same_var}\leanok
 \uses{lem:gauss_1d_moments}
 Let $m_1, m_2 \in \R$ and $v > 0$. Then $\Normal(m_1, v) \ll \Normal(m_2,v)$, the log-likelihood
 ratio is $\mathrm{llr}(y) = \frac{(m_1 - m_2)}{v}\big(y - \frac{m_1+m_2}{2}\big)$ for Lebesgue-a.e.\
@@ -90,6 +90,11 @@ $y$, it is integrable, and
 \]
 In particular $\KL(\Normal(m_1,1)\|\Normal(m_2,1)) = (m_1-m_2)^2/2$.
 \end{lemma}
+
+\textbf{Lean remark.} These are LMLExplore's lemmas on two Gaussians, stated for arbitrary
+variances $v_1, v_2 > 0$; the log-likelihood ratio is given there in the quadratic form
+$\frac12\log\frac{v_2}{v_1} + \frac{(y-m_2)^2}{2v_2} - \frac{(y-m_1)^2}{2v_1}$, which is the
+affine function above when $v_1 = v_2$.
 
 \begin{proof}
 \leanok
@@ -114,7 +119,7 @@ term $\nu(\Omega)-\mu(\Omega)$ vanishes).
 \end{proof}
 
 \begin{lemma}[Divergence of two Bernoulli measures]\label{lem:pi_kl_bernoulli}
-\lean{ProbabilityTheory.lintegral_bernoulliMeasure, ProbabilityTheory.bernoulliMeasure_eq_withDensity}\leanok
+\leanok
 For $p \in [0,1]$ write $\mathrm{B}(p) := p\,\delta_1 + (1-p)\,\delta_0$ for the Bernoulli
 measure on $\{0,1\}$. Let $p \in [0,1]$ and $q \in (0,1)$. Then
 \[
@@ -352,7 +357,7 @@ last claim is Mathlib \texttt{klDiv\_compProd\_eq\_add} followed by the equality
 \end{proof}
 
 \begin{lemma}[Sufficient statistics and the divergence]\label{lem:kl_sufficient_statistic}
-\lean{InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.prodMk_const_left, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.restrict_compProd_prod_univ}\leanok
+\lean{InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.comp_right, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.compProd_restrict_left}\leanok
 \uses{lem:pi_kl_measurable_equiv}
 Let $\mu,\nu$ be finite measures on $\Omega$.
 \begin{enumerate}

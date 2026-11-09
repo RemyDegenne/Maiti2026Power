@@ -5,29 +5,28 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Mathlib.Probability.HasCondDistrib
 public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.Kernel.Composition.MapComap
+public import LMLExplore.Probability.HasCondDistrib
 
 /-!
 # Lemmas on conditional distributions and kernels
 
-General facts about `HasCondDistrib` (and a few kernel identities) used throughout the
-sequential-learning developments:
+General facts about `HasCondDistrib` used throughout the sequential-learning developments:
 
-* `Kernel.const_comap_eq`: a kernel identity;
 * `HasCondDistrib.const_comp_right`: a constant conditional law given `Z` is a constant
-  conditional law given any measurable function of `Z`;
-* `hasCondDistrib_snd_compProd_comap`: the conditional law of the second coordinate under
-  `μ ⊗ₘ η.comap f`, and the transport `map_prodMk_compProd_comap`,
-  `map_snd_compProd_comap` of that measure along `f`;
+  conditional law given any measurable function of `Z` (Mathlib's `HasCondDistrib.comp_right`
+  with LML's `Kernel.comap_const`);
+* `map_snd_compProd_comap`: the law of the second coordinate under `μ ⊗ₘ η.comap f` (through Tau
+  Ceti's `Measure.map_prodMap_compProd_comap`; the conditional law of that coordinate is
+  LMLExplore's `hasCondDistrib_snd_compProd_comap`);
 * `HasCondDistrib.measureReal_le_mul`, `HasCondDistrib.measureReal_sub_le`: a uniform bound on
   the conditional probability of an event given `Z` bounds its probability (Fubini);
 * `Measure.map_compProd_of_forall_map_eq`, `HasCondDistrib.map_of_forall_map_eq`: the image of a
   composition-product `μ ⊗ₘ κ` by a map `(a, b) ↦ (G a, F a b)` is the composition-product
   `μ.map G ⊗ₘ K` when `K (G a) = (κ a).map (F a)`;
 * `HasCondDistrib.restrict_preimage`: a conditional law given `X` is preserved by restricting the
-  measure to an event determined by `X`;
-* `Measure.restrict_compProd_prod_univ`: `(μ ⊗ₘ κ).restrict (s ×ˢ univ) = μ.restrict s ⊗ₘ κ`.
+  measure to an event determined by `X` (through Tau Ceti's `Measure.compProd_restrict_left`).
 -/
 
 @[expose] public section
@@ -35,18 +34,6 @@ sequential-learning developments:
 open MeasureTheory
 
 namespace ProbabilityTheory
-
-section kernel
-
-variable {α β γ 𝓧 𝓩 : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
-  {mγ : MeasurableSpace γ} {m𝓧 : MeasurableSpace 𝓧} {m𝓩 : MeasurableSpace 𝓩}
-
-lemma Kernel.const_comap_eq (ν : Measure β) {f : 𝓧 → 𝓩} (hf : Measurable f) :
-    (Kernel.const 𝓩 ν).comap f hf = Kernel.const 𝓧 ν := by
-  ext a s _
-  simp [Kernel.comap_apply]
-
-end kernel
 
 section const
 
@@ -59,7 +46,7 @@ lemma HasCondDistrib.const_comp_right [SFinite P] [SFinite ν] {Z : Ω → 𝓩}
     (h : HasCondDistrib Y Z (Kernel.const 𝓩 ν) P)
     {f : 𝓩 → 𝓧} (hf : Measurable f) : HasCondDistrib Y (f ∘ Z) (Kernel.const 𝓧 ν) P := by
   refine HasCondDistrib.comp_right (hf := hf) ?_
-  rwa [Kernel.const_comap_eq]
+  rwa [Kernel.comap_const]
 
 end const
 
@@ -67,42 +54,6 @@ section compProd
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ}
-
-/-- Under `μ ⊗ₘ η.comap f`, the second coordinate has conditional law `η` given `f` of the
-first coordinate, when `η` is a probability measure at every point of the range of `f`. -/
-lemma hasCondDistrib_snd_compProd_comap (μ : Measure α) [SFinite μ]
-    (η : Kernel β γ) [IsSFiniteKernel η] {f : α → β} (hf : Measurable f)
-    (hη : ∀ a, IsProbabilityMeasure (η (f a))) :
-    HasCondDistrib Prod.snd (fun p : α × γ ↦ f p.1) η (μ ⊗ₘ η.comap f hf) := by
-  have hκ : IsMarkovKernel (η.comap f hf) := ⟨fun a ↦ by rw [Kernel.comap_apply]; exact hη a⟩
-  have hfst : (μ ⊗ₘ η.comap f hf).map (fun p : α × γ ↦ f p.1) = μ.map f := by
-    calc (μ ⊗ₘ η.comap f hf).map (fun p : α × γ ↦ f p.1)
-        = ((μ ⊗ₘ η.comap f hf).map Prod.fst).map f := (Measure.map_map hf measurable_fst).symm
-      _ = μ.map f := by
-        rw [show (μ ⊗ₘ η.comap f hf).map Prod.fst = (μ ⊗ₘ η.comap f hf).fst from rfl,
-          Measure.fst_compProd]
-  refine ⟨by fun_prop, ?_⟩
-  rw [hfst]
-  ext s hs
-  rw [Measure.map_apply (by fun_prop) hs, Measure.compProd_apply (hs.preimage (by fun_prop)),
-    Measure.compProd_apply hs, lintegral_map (Kernel.measurable_kernel_prodMk_left hs) hf]
-  refine lintegral_congr fun a ↦ ?_
-  rw [Kernel.comap_apply]
-  rfl
-
-/-- Transporting `μ ⊗ₘ η.comap f` along `f` in the first coordinate gives `μ.map f ⊗ₘ η`. -/
-lemma map_prodMk_compProd_comap (μ : Measure α) [SFinite μ] (η : Kernel β γ) [IsSFiniteKernel η]
-    {f : α → β} (hf : Measurable f) (hη : ∀ a, IsProbabilityMeasure (η (f a))) :
-    (μ ⊗ₘ η.comap f hf).map (fun p : α × γ ↦ (f p.1, p.2)) = μ.map f ⊗ₘ η := by
-  have hκ : IsMarkovKernel (η.comap f hf) := ⟨fun a ↦ by rw [Kernel.comap_apply]; exact hη a⟩
-  have h := (hasCondDistrib_snd_compProd_comap μ η hf hη).map_eq
-  have hfst : (μ ⊗ₘ η.comap f hf).map (fun p : α × γ ↦ f p.1) = μ.map f := by
-    calc (μ ⊗ₘ η.comap f hf).map (fun p : α × γ ↦ f p.1)
-        = ((μ ⊗ₘ η.comap f hf).map Prod.fst).map f := (Measure.map_map hf measurable_fst).symm
-      _ = μ.map f := by
-        rw [show (μ ⊗ₘ η.comap f hf).map Prod.fst = (μ ⊗ₘ η.comap f hf).fst from rfl,
-          Measure.fst_compProd]
-  rwa [hfst] at h
 
 /-- The image of `μ ⊗ₘ κ` by `(a, b) ↦ (G a, F a b)` is `μ.map G ⊗ₘ K` as soon as `K (G a)` is
 the image of `κ a` by `F a` for every `a`. -/
@@ -121,25 +72,12 @@ lemma _root_.MeasureTheory.Measure.map_compProd_of_forall_map_eq {δ : Type*}
   rw [hK a, Measure.map_apply hFa (measurable_prodMk_left hs)]
   rfl
 
-/-- The restriction of `μ ⊗ₘ κ` to `s ×ˢ univ` is `μ.restrict s ⊗ₘ κ`. -/
-lemma _root_.MeasureTheory.Measure.restrict_compProd_prod_univ (μ : Measure α) [SFinite μ]
-    (κ : Kernel α β) [IsSFiniteKernel κ] {s : Set α} (hs : MeasurableSet s) :
-    (μ ⊗ₘ κ).restrict (s ×ˢ Set.univ) = μ.restrict s ⊗ₘ κ := by
-  ext t ht
-  rw [Measure.restrict_apply ht, Measure.compProd_apply (ht.inter (hs.prod MeasurableSet.univ)),
-    Measure.compProd_apply ht, ← lintegral_indicator hs]
-  refine lintegral_congr fun a ↦ ?_
-  by_cases ha : a ∈ s
-  · have : Prod.mk a ⁻¹' (t ∩ s ×ˢ Set.univ) = Prod.mk a ⁻¹' t := by ext b; simp [ha]
-    simp [Set.indicator, ha, this]
-  · have : Prod.mk a ⁻¹' (t ∩ s ×ˢ Set.univ) = ∅ := by ext b; simp [ha]
-    simp [Set.indicator, ha, this]
-
-/-- The law of the second coordinate is unchanged by that transport. -/
+/-- The law of the second coordinate under `μ ⊗ₘ η.comap f` is its law under `μ.map f ⊗ₘ η`. -/
 lemma map_snd_compProd_comap (μ : Measure α) [SFinite μ] (η : Kernel β γ) [IsSFiniteKernel η]
-    {f : α → β} (hf : Measurable f) (hη : ∀ a, IsProbabilityMeasure (η (f a))) :
+    {f : α → β} (hf : Measurable f) :
     (μ ⊗ₘ η.comap f hf).map Prod.snd = (μ.map f ⊗ₘ η).map Prod.snd := by
-  rw [← map_prodMk_compProd_comap μ η hf hη, Measure.map_map measurable_snd (by fun_prop)]
+  rw [← Measure.map_prodMap_compProd_comap μ η hf,
+    Measure.map_map measurable_snd (hf.prodMap measurable_id)]
   rfl
 
 end compProd
@@ -168,12 +106,6 @@ lemma HasCondDistrib.map_of_forall_map_eq (h : HasCondDistrib Y X κ P) {G : α 
     _ = P.map (G ∘ X) ⊗ₘ K := by
         rw [AEMeasurable.map_map_of_aemeasurable hG.aemeasurable h.aemeasurable_fst]
 
-/-- A conditional law given `X` is a conditional law given `(c, X)` for any constant `c`. -/
-lemma HasCondDistrib.prodMk_const_left (h : HasCondDistrib Y X κ P) (c : γ) :
-    HasCondDistrib Y (fun ω ↦ (c, X ω)) (κ.prodMkLeft γ) P :=
-  h.map_of_forall_map_eq (G := fun a ↦ (c, a)) (by fun_prop) (F := fun _ b ↦ b) measurable_snd _
-    fun a ↦ by simp [Kernel.prodMkLeft_apply]
-
 /-- A conditional law given `X` is a conditional law given `X` under the restriction of `P` to an
 event determined by `X`. -/
 lemma HasCondDistrib.restrict_preimage (hX : Measurable X) (hY : Measurable Y)
@@ -185,7 +117,7 @@ lemma HasCondDistrib.restrict_preimage (hX : Measurable X) (hY : Measurable Y)
       = (P.map (fun ω ↦ (X ω, Y ω))).restrict (s ×ˢ Set.univ) := by
         rw [Measure.restrict_map (hX.prodMk hY) (hs.prod MeasurableSet.univ), h1]
     _ = (P.map X ⊗ₘ κ).restrict (s ×ˢ Set.univ) := by rw [h.map_eq]
-    _ = (P.map X).restrict s ⊗ₘ κ := Measure.restrict_compProd_prod_univ _ _ hs
+    _ = (P.map X).restrict s ⊗ₘ κ := (Measure.compProd_restrict_left _ _ hs).symm
     _ = (P.restrict (X ⁻¹' s)).map X ⊗ₘ κ := by rw [Measure.restrict_map hX hs]
 
 end map

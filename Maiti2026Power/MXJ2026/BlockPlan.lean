@@ -36,7 +36,7 @@ variable {ι : Type*} [Fintype ι]
 
 /-- The seed measure is shift-invariant. -/
 lemma nsMeasure_map_shiftSeq (a : ℕ) : (nsMeasure ι).map (shiftSeq a) = nsMeasure ι :=
-  Measure.infinitePi_map_eval_comp' _ (add_right_injective a)
+  Measure.map_infinitePi_infinitePi_of_inj (add_right_injective a)
 
 lemma nsMeasure_real_shiftSeq_preimage (a : ℕ) {S : Set (ℕ → (ι → Bool) × ℝ)}
     (hS : MeasurableSet S) : (nsMeasure ι).real (shiftSeq a ⁻¹' S) = (nsMeasure ι).real S := by
