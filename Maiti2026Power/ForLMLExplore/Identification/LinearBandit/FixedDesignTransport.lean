@@ -28,6 +28,7 @@ algorithm under `ϑ` is the image by `π` of the law of the recommendation of `A
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Learning
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Learning.LinearBandit
@@ -59,26 +60,28 @@ apply `π`. -/
 noncomputable def fixedDesignTransport (A : IdentAlg Unit 𝒳 ℝ 𝒳) (T : ℕ) (x : ℕ → 𝒳)
     (x' : ℕ → 𝒴) {π : 𝒳 → 𝒴} (hπ : Measurable π) : IdentAlg Unit 𝒴 ℝ 𝒴 :=
   haveI : Nonempty 𝒴 := ⟨x' 0⟩
-  IdentAlg.fixedBudget (fixedDesignAlg x') T
+  fixedBudget (Algorithm.ofSeq x') T
     (transportKernel (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) x hπ)
 
 variable {A : IdentAlg Unit 𝒳 ℝ 𝒳} {x : ℕ → 𝒳} {x' : ℕ → 𝒴} {π : 𝒳 → 𝒴} {hπ : Measurable π}
 
 lemma isFixedBudget_fixedDesignTransport :
-    (fixedDesignTransport A T x x' hπ).IsFixedBudget T :=
+    IsFixedBudget (fixedDesignTransport A T x x' hπ) T :=
   haveI : Nonempty 𝒴 := ⟨x' 0⟩
-  IdentAlg.isFixedBudget_fixedBudget _ _ _
+  isFixedBudget_fixedBudget _ _ _
 
-lemma alg_fixedDesignTransport : (fixedDesignTransport A T x x' hπ).alg = fixedDesignAlg x' := rfl
+lemma alg_fixedDesignTransport : (fixedDesignTransport A T x x' hπ).alg = Algorithm.ofSeq x' :=
+  haveI : Nonempty 𝒴 := ⟨x' 0⟩
+  alg_fixedBudget _ _ _
 
-lemma isFixedDesign_fixedDesignTransport : (fixedDesignTransport A T x x' hπ).IsFixedDesign :=
-  ⟨x', rfl⟩
+lemma isFixedDesign_fixedDesignTransport : IsFixedDesign (fixedDesignTransport A T x x' hπ).alg :=
+  isFixedDesign_iff.2 ⟨x', alg_fixedDesignTransport⟩
 
 lemma output_fixedDesignTransport :
     (fixedDesignTransport A T x x' hπ).output.comap (Sigma.mk T) (measurable_sigmaMk T) =
       transportKernel (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) x hπ :=
   haveI : Nonempty 𝒴 := ⟨x' 0⟩
-  IdentAlg.output_fixedBudget _ _ _
+  (outputAt_eq_comap _ _).symm.trans (outputAt_fixedBudget _ _ _)
 
 variable [NormedAddCommGroup E] [InnerProductSpace ℝ E] [NormedAddCommGroup F]
   [InnerProductSpace ℝ F]
@@ -102,8 +105,8 @@ theorem isPAC_fixedDesignTransport {E : Type*} [NormedAddCommGroup E] [InnerProd
     [MeasurableSpace E] [OpensMeasurableSpace E] [SecondCountableTopology E]
     {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F] [MeasurableSpace F]
     [OpensMeasurableSpace F] {𝒳 : Set E} {𝒴 : Set F} [MeasurableEq 𝒴]
-    {A : IdentAlg Unit 𝒳 ℝ 𝒳} {T : ℕ} (hA : A.IsFixedBudget T)
-    {x : ℕ → 𝒳} (hdes : A.alg = fixedDesignAlg x) {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ)
+    {A : IdentAlg Unit 𝒳 ℝ 𝒳} {T : ℕ} (hA : IsFixedBudget A T)
+    {x : ℕ → 𝒳} (hdes : A.alg = Algorithm.ofSeq x) {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ)
     (L : F →ₗ[ℝ] E) {x' : ℕ → 𝒴} (hx' : ∀ t (ϑ : F), ⟪(x' t : F), ϑ⟫ = ⟪(x t : E), L ϑ⟫)
     {π : 𝒳 → 𝒴} (hπ : Measurable π)
     (hreg : ∀ (ϑ : F) (y : 𝒳), simpleRegret 𝒴 ϑ (π y) ≤ simpleRegret 𝒳 (L ϑ) y) :

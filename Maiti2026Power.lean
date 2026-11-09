@@ -21,7 +21,6 @@ public import Maiti2026Power.ForLMLExplore.Data.Finset.TopBy
 public import Maiti2026Power.ForLMLExplore.Data.Fintype.PiSplitAt
 public import Maiti2026Power.ForLMLExplore.Data.Set.CoverSmall
 public import Maiti2026Power.ForLMLExplore.Identification.FixedBudget
-public import Maiti2026Power.ForLMLExplore.Identification.IdentAlg
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignLaw
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignRun
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignTransport
@@ -32,7 +31,6 @@ public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
 public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianElimination
 public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianEliminationRound
 public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianEliminationSchedule
-public import Maiti2026Power.ForLMLExplore.Identification.Run
 public import Maiti2026Power.ForLMLExplore.Identification.RunDivergence
 public import Maiti2026Power.ForLMLExplore.InformationTheory.Pinsker
 public import Maiti2026Power.ForLMLExplore.MeasureTheory.ApproxArgmax

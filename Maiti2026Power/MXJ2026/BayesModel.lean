@@ -31,6 +31,7 @@ recommendation of a fixed-budget algorithm `A` is drawn from `A.output` applied 
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Matrix Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace MatrixOrder
 
 namespace Maiti2026Power
@@ -620,7 +621,7 @@ lemma measureReal_lt_simpleRegret_bayes_le {E : Type*} [NormedAddCommGroup E]
     [InnerProductSpace ℝ E] [MeasurableSpace E] [OpensMeasurableSpace E]
     [SecondCountableTopology E] {𝒳 : Set E} {A : IdentAlg Unit 𝒳 ℝ 𝒳}
     {T : ℕ} {x' : ℕ → 𝒳} {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ)
-    (hA : A.IsFixedBudget T) (hdes : A.alg = fixedDesignAlg x') (θ : E) :
+    (hA : IsFixedBudget A T) (hdes : A.alg = Algorithm.ofSeq x') (θ : E) :
     (fixedDesignPairLaw A (fun t : Fin T ↦ x' t) θ).real
       {p | ε < simpleRegret 𝒳 θ (p.2 : E)} ≤ δ := by
   have hmeas : MeasurableSet {p : Hist Unit 𝒳 ℝ T × 𝒳 | simpleRegret 𝒳 θ (p.2 : E) ≤ ε} := by

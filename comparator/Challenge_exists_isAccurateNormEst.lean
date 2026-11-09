@@ -1,41 +1,65 @@
 module
 
-public import LeanMachineLearning.ForMathlib.Probability.Kernel.Sigma
 public import LeanMachineLearning.SequentialLearning.Deterministic
-public import LeanMachineLearning.SequentialLearning.IdentificationAlg
-public import LeanMachineLearning.SequentialLearning.StoppedHistory
-public import LeanMachineLearning.SequentialLearning.Algorithm
-public import Mathlib.Probability.HasCondDistrib
-public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
 public import LeanMachineLearning.SequentialLearning.StationaryEnv
 public import Mathlib.Probability.Distributions.Gaussian.Real
+public import LeanMachineLearning.SequentialLearning.StoppedHistory
+public import LMLExplore.SequentialLearning.StoppedHistory
+public import LeanMachineLearning.SequentialLearning.Algorithm
+public import Mathlib.Probability.HasCondDistrib
+public import TauCeti.Probability.Kernel.Randomization
+public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.Kernel.Composition.MapComap
+public import LMLExplore.Probability.HasCondDistrib
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 public import Mathlib.MeasureTheory.Measure.Real
 public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import LMLExplore.Probability.Distributions.Gaussian.Real
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 public import Mathlib.Analysis.Matrix.Order
 public import Mathlib.Probability.Distributions.Gaussian.Fernique
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Gaussian.Affine
+public import TauCeti.Probability.Distributions.Gaussian.Sum
+public import TauCeti.Probability.Distributions.Gaussian.Symmetry
+public import TauCeti.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Chi.Gaussian
+public import TauCeti.Probability.Distributions.ChiSquared.Basic
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 public import Mathlib.LinearAlgebra.Matrix.PosDef
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
+public import Mathlib.Order.PartialSups
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
 public import Mathlib.Analysis.Convex.Integral
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import TauCeti.Analysis.Calculus.Gradient
 public import Mathlib.Probability.Moments.SubGaussian
 public import Mathlib.Probability.Independence.Integration
+public import TauCeti.Probability.Distributions.Rademacher
+public import LMLExplore.Probability.Distributions.Bernoulli
 public import LeanMachineLearning.ForMathlib.Probability.Moments.SubExponential
+public import TauCeti.Analysis.SpecialFunctions.Exp.QuadraticBound
+public import TauCeti.Analysis.SpecialFunctions.Log.NegLogOneSub
+public import TauCeti.MeasureTheory.Constructions.Pi
+public import TauCeti.Probability.Independence.InfinitePi
 public import Mathlib.Probability.Independence.InfinitePi
-public import Mathlib.InformationTheory.KullbackLeibler.Basic
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 public import LeanMachineLearning.SequentialLearning.DivergenceDecomposition
+public import LMLExplore.InformationTheory.KullbackLeibler.Gaussian
+public import LMLExplore.Topology.Algebra.InfiniteSum.NatInt
 
 /-! # Standalone extraction for `Maiti2026Power.exists_isAccurateNormEst`
 Definitions are copied verbatim; theorem proofs are replaced by `sorry`.
@@ -52,33 +76,14 @@ namespace MeasureTheory
 end MeasureTheory
 namespace ProbabilityTheory
 end ProbabilityTheory
-namespace Learning
-end Learning
-namespace Learning.IdentAlg
-end Learning.IdentAlg
 namespace Learning.LinearBandit
 end Learning.LinearBandit
 namespace Maiti2026Power
 end Maiti2026Power
 namespace Real
 end Real
-
--- ═══ Maiti2026Power.ForLMLExplore.Identification.IdentAlg ═══
-@[expose] public section
-open MeasureTheory ProbabilityTheory
-open scoped ENat
 namespace Learning
-variable {𝓞 𝓐 𝓨 𝓓 : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨} {m𝓓 : MeasurableSpace 𝓓} {Ω : Type*} {mΩ : MeasurableSpace Ω}
-namespace IdentAlg
-variable {A : IdentAlg 𝓞 𝓐 𝓨 𝓓} {T : ℕ} {O : ℕ → Ω → 𝓞} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
-
-/-- `A` is a *fixed-budget* algorithm with budget `T` if its stopping rule is "stop after exactly
-`T` rounds". -/
-def IsFixedBudget (A : IdentAlg 𝓞 𝓐 𝓨 𝓓) (T : ℕ) : Prop := A.stopSet = {h | h.1 = T}
-
-end IdentAlg
 end Learning
-end
 
 -- ═══ Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit ═══
 @[expose] public section
@@ -125,6 +130,7 @@ end
 -- ═══ Maiti2026Power.MXJ2026.NormEstimation ═══
 @[expose] public section
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit
+open LMLExplore.Identification
 namespace Maiti2026Power
 variable {ι : Type*} [Fintype ι]
 
@@ -135,12 +141,12 @@ run against the linear Gaussian environment with reward vector `θ`, its output 
 def IsAccurateNormEst (A : IdentAlg Unit (unitBall ι) ℝ ℝ) (ε δ : ℝ) : Prop :=
   A.IsPAC (linearGaussianEnv (unitBall ι)) (fun θ r ↦ ε < |r - ‖θ‖|) δ
 
-/-- **Theorem 8** (Maiti, Xu, Jamieson 2026): for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
+/-- **Theorem 8** [MXJ26, Theorem 8]: for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
 (adaptive) `(ε, δ)`-accurate `ℓ₂`-norm estimation algorithm on the unit ball of `ℝ^d` with budget
 `T ≤ 10⁵ d log(4/δ) / ε²`. -/
 theorem exists_isAccurateNormEst {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 100000 * Fintype.card ι * log (4 / δ) / ε ^ 2 ∧
-      ∃ A : IdentAlg Unit (unitBall ι) ℝ ℝ, A.IsFixedBudget T ∧ IsAccurateNormEst A ε δ := sorry
+      ∃ A : IdentAlg Unit (unitBall ι) ℝ ℝ, IsFixedBudget A T ∧ IsAccurateNormEst A ε δ := sorry
 
 end Maiti2026Power
 end

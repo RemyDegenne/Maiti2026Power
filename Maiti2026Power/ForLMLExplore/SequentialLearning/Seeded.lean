@@ -35,6 +35,7 @@ on the product space (`SeededAlg.isPAC_fixedBudget_deterministic`,
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Finset
+open LMLExplore.Identification
 open scoped ENNReal
 
 universe u
@@ -375,11 +376,11 @@ lemma _root_.Learning.IdentAlg.IsRun.measureReal_eq_seed {𝓓 : Type*} [Measura
     [MeasurableEq 𝓓] [Nonempty 𝓓] {T : ℕ} {g : Hist Unit 𝓐 𝓨 T → 𝓓} (hg : Measurable g)
     {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω} [IsProbabilityMeasure P]
     {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨} {out : Ω → 𝓓}
-    (h : (IdentAlg.fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsRun
+    (h : (fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsRun
       (noiseEnv μe F hF) O X Y out P) {s : Set 𝓓} (hs : MeasurableSet s) :
     P.real {ω | out ω ∈ s} = (A.seedMeasure μe).real {ω | g (A.seedFinHist F T ω) ∈ s} := by
-  have hae := h.output_ae_eq_of_output_eq_deterministic (IdentAlg.isFixedBudget_fixedBudget _ _ _)
-    hg (IdentAlg.output_fixedBudget _ _ _)
+  have hae := h.output_ae_eq_of_outputAt_eq_deterministic (isFixedBudget_fixedBudget _ _ _)
+    hg (outputAt_fixedBudget _ _ _)
   have hX := h.isAlgEnvSeq.measurable_action
   have hY := h.isAlgEnvSeq.measurable_feedback
   have hfin : Measurable (history O X Y T) := h.isAlgEnvSeq.measurable_history T
@@ -392,7 +393,9 @@ lemma _root_.Learning.IdentAlg.IsRun.measureReal_eq_seed {𝓓 : Type*} [Measura
         rw [measureReal_def, measureReal_def, Measure.map_apply hfin (hg hs)]
         rfl
     _ = ((A.seedMeasure μe).map (A.seedFinHist F T)).real (g ⁻¹' s) := by
-        rw [h.isAlgEnvSeq.map_history_eq_seed hF]
+        have hseq := h.isAlgEnvSeq
+        rw [alg_fixedBudget] at hseq
+        rw [hseq.map_history_eq_seed hF]
     _ = (A.seedMeasure μe).real {ω | g (A.seedFinHist F T ω) ∈ s} := by
         rw [measureReal_def, measureReal_def,
           Measure.map_apply (measurable_seedFinHist hF T) (hg hs)]
@@ -405,7 +408,7 @@ lemma isPAC_fixedBudget_deterministic {Θ : Type*} {𝓓 : Type*} [MeasurableSpa
     {F : Θ → 𝓐 → E → 𝓨} (hF : ∀ θ, Measurable (Function.uncurry (F θ)))
     {bad : Θ → 𝓓 → Prop} (hbad : ∀ θ, MeasurableSet {d | bad θ d}) {δ : ℝ}
     (h : ∀ θ, (A.seedMeasure μe).real {ω | bad θ (g (A.seedFinHist (F θ) T ω))} ≤ δ) :
-    (IdentAlg.fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsPAC
+    (fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsPAC
       (fun θ ↦ noiseEnv μe (F θ) (hF θ)) bad δ := by
   refine IdentAlg.IsPAC.of_forall_isRun hbad fun θ Ω _ P _ O X Y out hrun ↦ ?_
   rw [show {ω | bad θ (out ω)} = {ω | out ω ∈ {d | bad θ d}} from rfl,
@@ -421,7 +424,7 @@ lemma linearBandit_isPAC_fixedBudget_deterministic {E : Type*} [NormedAddCommGro
     (hbad : ∀ θ, MeasurableSet {d | bad θ d}) {δ : ℝ}
     (h : ∀ θ : E, (A.seedMeasure (gaussianReal 0 1)).real
       {ω | bad θ (g (A.seedFinHist (fun (x : 𝒳) (e : ℝ) ↦ inner ℝ (x : E) θ + e) T ω))} ≤ δ) :
-    (IdentAlg.fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsPAC
+    (fixedBudget A.toAlgorithm T (Kernel.deterministic g hg)).IsPAC
       (LinearBandit.linearGaussianEnv 𝒳) bad δ := by
   have e : LinearBandit.linearGaussianEnv 𝒳 = fun θ ↦
       noiseEnv (gaussianReal 0 1) (fun (x : 𝒳) (e : ℝ) ↦ inner ℝ (x : E) θ + e) (by fun_prop) :=

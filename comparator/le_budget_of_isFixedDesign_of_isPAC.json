@@ -3,7 +3,6 @@
     "solution_module": "Solution",
     "theorem_names": [
         "Maiti2026Power.le_budget_of_isFixedDesign_of_isPAC",
-        "Learning.fixedDesignAlg._proof_1",
         "Learning.LinearBandit.linearGaussianKernel._proof_1",
         "Learning.LinearBandit.linearGaussianEnv._proof_2"
     ],

@@ -7,7 +7,11 @@ module
 
 public import LeanMachineLearning.SequentialLearning.AlgorithmDensity
 public import LeanMachineLearning.SequentialLearning.StationaryEnv
-public import Maiti2026Power.ForLMLExplore.Identification.Run
+public import LeanMachineLearning.SequentialLearning.Deterministic
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
+public import Maiti2026Power.ForLMLExplore.Probability.CondDistrib
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.StoppedHistory
 
 /-!
 # Environment density along a history

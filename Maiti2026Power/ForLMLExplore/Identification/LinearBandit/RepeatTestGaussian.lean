@@ -28,6 +28,7 @@ algorithm `A` with budget `n + 1`, the decision `phaseMean > ε` is wrong with p
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Finset Learning
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Learning.LinearBandit
@@ -136,7 +137,7 @@ lemma measureReal_lt_phaseMean_le_of_testAlg
 empirical mean of the observations of the second phase of the test algorithm is at most `ε`
 with probability at most `δ + 2 exp (-m ε² / 8)`. -/
 lemma measureReal_phaseMean_le_le_of_testAlg {R : ℝ} (hR : ∀ x ∈ 𝒳, ‖x‖ ≤ R) {ε δ : ℝ}
-    (hε : 0 < ε) (hpac : IsPAC 𝒳 A ε δ) (hA : A.IsFixedBudget (n + 1)) {v : E} (hv : v ∈ 𝒳)
+    (hε : 0 < ε) (hpac : IsPAC 𝒳 A ε δ) (hA : IsFixedBudget A (n + 1)) {v : E} (hv : v ∈ 𝒳)
     (hθ : 3 * ε ≤ ⟪v, θ⟫) (h : IsAlgEnvSeq O X Y (A.testAlg n) (linearGaussianEnv 𝒳 θ) P)
     (hm : 0 < m) :
     P.real {ω | phaseMean Y n m ω ≤ ε} ≤ δ + 2 * exp (-(m * ε ^ 2 / 8)) := by

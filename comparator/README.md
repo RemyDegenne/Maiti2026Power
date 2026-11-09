@@ -5,10 +5,15 @@ that this repository proves the headline results claimed in [`formalization.yaml
 without having to read or trust the Lean development in `Maiti2026Power/`.
 
 **Status.** Every challenge is proved. The challenges were regenerated on 2026-11-09, when the project
-moved to LMLExplore; `scripts/comparator-verify.sh` has to be run again on them.
+moved to LMLExplore, and again the same day when the fixed-budget and fixed-design definitions
+became LMLExplore's (`LMLExplore.Identification.IsFixedBudget A T` for the former
+`A.IsFixedBudget T`, `LMLExplore.Identification.IsFixedDesign A.alg` with
+`Learning.Algorithm.ofSeq` for the former `A.IsFixedDesign` with `Learning.fixedDesignAlg`);
+`scripts/comparator-verify.sh` has to be run again on them.
 
-Each challenge is one file that imports LML and Mathlib modules only (the project does not use
-LMLExplore's definitions yet), no project modules and no sibling helpers.
+Each challenge is one file that imports LMLExplore, LML, Tau Ceti and Mathlib modules only (the
+fixed-budget and fixed-design definitions are LMLExplore's), no project modules and no sibling
+helpers.
 
 ## The trust story
 

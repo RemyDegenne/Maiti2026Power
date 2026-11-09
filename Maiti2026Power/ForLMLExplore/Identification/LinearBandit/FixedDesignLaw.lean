@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignRun
-public import Maiti2026Power.ForLMLExplore.Identification.Run
 
 /-!
 # The law of a fixed-design, fixed-budget run
@@ -25,6 +24,7 @@ Theorem 3 uses.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Learning
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Learning.LinearBandit
@@ -78,7 +78,7 @@ variable [OpensMeasurableSpace E] [MeasurableEq 𝒳] {Ω : Type*} {mΩ : Measur
 /-- Under a fixed-design run, the history of the first `T` rounds has law
 `fixedDesignHistLaw`. -/
 lemma _root_.Learning.IsAlgEnvSeq.hasLaw_history_of_fixedDesign
-    (h : IsAlgEnvSeq O X Y (fixedDesignAlg x) (linearGaussianEnv 𝒳 θ) P) (T : ℕ) :
+    (h : IsAlgEnvSeq O X Y (Algorithm.ofSeq x) (linearGaussianEnv 𝒳 θ) P) (T : ℕ) :
     HasLaw (history O X Y T) (fixedDesignHistLaw (fun t : Fin T ↦ x t) θ) P := by
   have hY := h.hasLaw_feedback_finVec_of_fixedDesign T
   have hm : Measurable fun y : Fin T → ℝ ↦ fun t : Fin T ↦ ((), x t, y t) :=
@@ -97,7 +97,7 @@ lemma _root_.Learning.IsAlgEnvSeq.hasLaw_history_of_fixedDesign
       rfl
     rwa [hμ] at this
   refine h1.congr ?_
-  filter_upwards [h.ae_action_eq_of_fixedDesign] with ω hω
+  filter_upwards [h.action_ofSeq_ae_all_eq] with ω hω
   funext t
   simp [history, hω t]
 
@@ -106,14 +106,14 @@ pair (history of the `T` rounds, output) of a run of the fixed-budget algorithm 
 with the fixed design `x` in the linear Gaussian environment with reward vector `θ` has law
 `fixedDesignPairLaw A x θ`. -/
 lemma _root_.Learning.IdentAlg.IsRun.hasLaw_history_out_of_fixedDesign
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
-    (hdes : A.alg = fixedDesignAlg x) :
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hdes : A.alg = Algorithm.ofSeq x) :
     HasLaw (fun ω ↦ (history O X Y T ω, out ω)) (fixedDesignPairLaw A (fun t : Fin T ↦ x t) θ)
       P := by
-  have hseq : IsAlgEnvSeq O X Y (fixedDesignAlg x) (linearGaussianEnv 𝒳 θ) P := by
+  have hseq : IsAlgEnvSeq O X Y (Algorithm.ofSeq x) (linearGaussianEnv 𝒳 θ) P := by
     have := h.isAlgEnvSeq
     rwa [hdes] at this
-  have hout := h.hasCondDistrib_output_history (LMLExplore.Identification.isFixedBudget_iff.2 hA)
+  have hout := h.hasCondDistrib_output_history hA
   rw [LMLExplore.Identification.outputAt_eq_comap] at hout
   exact (hseq.hasLaw_history_of_fixedDesign T).prodMk_of_hasCondDistrib hout
 
@@ -129,11 +129,11 @@ under `fixedDesignPairLaw A x θ`. -/
 lemma _root_.Learning.LinearBandit.IsPAC.le_measureReal_fixedDesignPairLaw
     {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [MeasurableSpace E]
     [OpensMeasurableSpace E] [SecondCountableTopology E] {𝒳 : Set E} {A : IdentAlg Unit 𝒳 ℝ 𝒳}
-    {x : ℕ → 𝒳} {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ) (hA : A.IsFixedBudget T)
-    (hdes : A.alg = fixedDesignAlg x) (θ : E) :
+    {x : ℕ → 𝒳} {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ) (hA : IsFixedBudget A T)
+    (hdes : A.alg = Algorithm.ofSeq x) (θ : E) :
     1 - δ ≤ (fixedDesignPairLaw A (fun t : Fin T ↦ x t) θ).real
       {p | simpleRegret 𝒳 θ p.2 ≤ ε} := by
-  have hrun := A.isRun_runMeasure (linearGaussianEnv 𝒳 θ)
+  have hrun := isRun_runMeasure A (linearGaussianEnv 𝒳 θ)
   have hlaw := hrun.hasLaw_history_out_of_fixedDesign hA hdes
   have hpac' := hpac.le_measureReal_of_isRun hrun
   have hmeas : MeasurableSet {p : Hist Unit 𝒳 ℝ T × 𝒳 | simpleRegret 𝒳 θ p.2 ≤ ε} := by

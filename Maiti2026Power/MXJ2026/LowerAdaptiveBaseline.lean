@@ -28,6 +28,7 @@ of the recommendations is at most `32 T ε² / ϱ²`; the Bretagnolle–Huber in
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory InformationTheory Real Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace ENNReal
 
 namespace Maiti2026Power
@@ -39,7 +40,7 @@ identification algorithm on a spanning compact action set in dimension `d ≥ 2`
 `δ < 1/4`, has budget `T ≥ (2 - √2) / (32 ε²) log (1 / (4 δ))`. -/
 lemma baseline_le_budget_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) (hd : 2 ≤ Fintype.card ι) {ε δ : ℝ} (hε : 0 < ε)
-    (hδ : δ ∈ Set.Ioo 0 (1 / 4)) {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T)
+    (hδ : δ ∈ Set.Ioo 0 (1 / 4)) {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T)
     (hpac : IsPAC 𝒳 A ε δ) :
     (2 - √2) / (32 * ε ^ 2) * log (1 / (4 * δ)) ≤ T := by
   classical
@@ -121,10 +122,10 @@ lemma baseline_le_budget_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : 
     change ¬ s ≤ ⟪L x, u⟫
     linarith
   -- the canonical runs
-  have hrun_p := A.isRun_runMeasure (linearGaussianEnv 𝒳 θp)
-  have hrun_m := A.isRun_runMeasure (linearGaussianEnv 𝒳 θm)
-  set Pp := A.runMeasure (linearGaussianEnv 𝒳 θp) with hPp
-  set Pm := A.runMeasure (linearGaussianEnv 𝒳 θm) with hPm
+  have hrun_p := isRun_runMeasure A (linearGaussianEnv 𝒳 θp)
+  have hrun_m := isRun_runMeasure A (linearGaussianEnv 𝒳 θm)
+  set Pp := runMeasure A (linearGaussianEnv 𝒳 θp) with hPp
+  set Pm := runMeasure A (linearGaussianEnv 𝒳 θm) with hPm
   have hpac_p := hpac.le_measureReal_of_isRun hrun_p
   have hpac_m := hpac.le_measureReal_of_isRun hrun_m
   change 1 - δ ≤ Pp.real {ω : (ℕ → Round Unit 𝒳 ℝ) × 𝒳 |

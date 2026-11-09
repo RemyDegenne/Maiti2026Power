@@ -1,37 +1,45 @@
 module
 
-public import LeanMachineLearning.ForMathlib.Probability.Kernel.Sigma
 public import LeanMachineLearning.SequentialLearning.Deterministic
-public import LeanMachineLearning.SequentialLearning.IdentificationAlg
-public import LeanMachineLearning.SequentialLearning.StoppedHistory
-public import LeanMachineLearning.SequentialLearning.Algorithm
-public import Mathlib.Probability.HasCondDistrib
-public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
 public import LeanMachineLearning.SequentialLearning.StationaryEnv
 public import Mathlib.Probability.Distributions.Gaussian.Real
+public import LeanMachineLearning.SequentialLearning.StoppedHistory
+public import LMLExplore.SequentialLearning.StoppedHistory
+public import LeanMachineLearning.SequentialLearning.Algorithm
+public import Mathlib.Probability.HasCondDistrib
+public import TauCeti.Probability.Kernel.Randomization
+public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.Kernel.Composition.MapComap
+public import LMLExplore.Probability.HasCondDistrib
 public import LeanMachineLearning.SequentialLearning.IonescuTulceaSpace
 public import LeanMachineLearning.ForMathlib.InformationTheory.KullbackLeibler.Convex
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 public import Mathlib.MeasureTheory.Measure.Decomposition.Lebesgue
-public import Mathlib.InformationTheory.KullbackLeibler.Basic
-public import Mathlib.Analysis.Convex.Caratheodory
-public import Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex
-public import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-public import Mathlib.Topology.Algebra.Ring.Real
+public import LMLExplore.Analysis.Convex.Caratheodory
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 public import Mathlib.Analysis.Matrix.Order
 public import Mathlib.Probability.Distributions.Gaussian.Fernique
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Gaussian.Affine
+public import TauCeti.Probability.Distributions.Gaussian.Sum
+public import TauCeti.Probability.Distributions.Gaussian.Symmetry
+public import TauCeti.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Chi.Gaussian
+public import TauCeti.Probability.Distributions.ChiSquared.Basic
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 public import Mathlib.LinearAlgebra.Matrix.PosDef
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
 public import Mathlib.Analysis.Calculus.Deriv.Slope
 public import LeanMachineLearning.SequentialLearning.DivergenceDecomposition
-public import Mathlib.Probability.Moments.SubGaussian
-public import Mathlib.Analysis.Calculus.Gradient.Basic
-public import Mathlib.Analysis.Calculus.MeanValue
-public import Mathlib.Analysis.Calculus.ContDiff.Comp
-public import LeanMachineLearning.SequentialLearning.Means
+public import LMLExplore.InformationTheory.KullbackLeibler.Gaussian
+public import LMLExplore.Topology.Algebra.InfiniteSum.NatInt
+public import LMLExplore.Probability.Moments.SubGaussian.Basic
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-! # Standalone extraction for `Maiti2026Power.le_budget_of_isPAC`
 Definitions are copied verbatim; theorem proofs are replaced by `sorry`.
@@ -48,35 +56,16 @@ namespace MeasureTheory
 end MeasureTheory
 namespace ProbabilityTheory
 end ProbabilityTheory
-namespace Learning
-end Learning
-namespace Learning.IdentAlg
-end Learning.IdentAlg
 namespace Learning.LinearBandit
 end Learning.LinearBandit
 namespace Real
 end Real
 namespace Finset
 end Finset
+namespace Learning
+end Learning
 namespace Maiti2026Power
 end Maiti2026Power
-
--- ═══ Maiti2026Power.ForLMLExplore.Identification.IdentAlg ═══
-@[expose] public section
-open MeasureTheory ProbabilityTheory
-open scoped ENat
-namespace Learning
-variable {𝓞 𝓐 𝓨 𝓓 : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨} {m𝓓 : MeasurableSpace 𝓓} {Ω : Type*} {mΩ : MeasurableSpace Ω}
-namespace IdentAlg
-variable {A : IdentAlg 𝓞 𝓐 𝓨 𝓓} {T : ℕ} {O : ℕ → Ω → 𝓞} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
-
-/-- `A` is a *fixed-budget* algorithm with budget `T` if its stopping rule is "stop after exactly
-`T` rounds". -/
-def IsFixedBudget (A : IdentAlg 𝓞 𝓐 𝓨 𝓓) (T : ℕ) : Prop := A.stopSet = {h | h.1 = T}
-
-end IdentAlg
-end Learning
-end
 
 -- ═══ Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit ═══
 @[expose] public section
@@ -123,17 +112,18 @@ end
 -- ═══ Maiti2026Power.MXJ2026.LowerAdaptive ═══
 @[expose] public section
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 namespace Maiti2026Power
 variable {ι : Type*} [Fintype ι]
 
-/-- **Theorem 2** (Maiti, Xu, Jamieson 2026): an identification algorithm (adaptive or not) with
+/-- **Theorem 2** [MXJ26, Theorem 2]: an identification algorithm (adaptive or not) with
 budget `T` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳 ⊆ ℝ^d`, `d ≥ 2`, with
 `δ < 1/16`, satisfies `T ≥ d log(1/δ) / (20000 ε²)`. -/
 theorem le_budget_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) (hd : 2 ≤ Fintype.card ι)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 0 (1 / 16)) {T : ℕ}
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) (hpac : IsPAC 𝒳 A ε δ) :
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) (hpac : IsPAC 𝒳 A ε δ) :
     Fintype.card ι * log (1 / δ) / (20000 * ε ^ 2) ≤ T := sorry
 
 end Maiti2026Power

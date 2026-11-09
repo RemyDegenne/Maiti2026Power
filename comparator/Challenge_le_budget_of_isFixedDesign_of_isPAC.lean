@@ -1,47 +1,61 @@
 module
 
-public import LeanMachineLearning.ForMathlib.Probability.Kernel.Sigma
-public import LeanMachineLearning.SequentialLearning.Deterministic
-public import LeanMachineLearning.SequentialLearning.IdentificationAlg
-public import LeanMachineLearning.SequentialLearning.StoppedHistory
-public import LeanMachineLearning.SequentialLearning.Algorithm
-public import Mathlib.Probability.HasCondDistrib
-public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
-public import LeanMachineLearning.SequentialLearning.StationaryEnv
-public import Mathlib.Probability.Distributions.Gaussian.Real
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
+public import LeanMachineLearning.SequentialLearning.Deterministic
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
+public import LeanMachineLearning.SequentialLearning.StationaryEnv
+public import Mathlib.Probability.Distributions.Gaussian.Real
+public import LeanMachineLearning.SequentialLearning.StoppedHistory
+public import LMLExplore.SequentialLearning.StoppedHistory
+public import LeanMachineLearning.SequentialLearning.Algorithm
+public import Mathlib.Probability.HasCondDistrib
+public import TauCeti.Probability.Kernel.Randomization
+public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.Kernel.Composition.MapComap
+public import LMLExplore.Probability.HasCondDistrib
 public import Mathlib.Probability.Distributions.Gaussian.Fernique
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Gaussian.Affine
+public import TauCeti.Probability.Distributions.Gaussian.Sum
+public import TauCeti.Probability.Distributions.Gaussian.Symmetry
+public import TauCeti.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Chi.Gaussian
+public import TauCeti.Probability.Distributions.ChiSquared.Basic
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 public import Mathlib.LinearAlgebra.Matrix.PosDef
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 public import Mathlib.Analysis.Matrix.Order
-public import Mathlib.Analysis.Convex.Caratheodory
-public import Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex
-public import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-public import Mathlib.Topology.Algebra.Ring.Real
+public import LMLExplore.Analysis.Convex.Caratheodory
+public import Mathlib.Order.PartialSups
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
 public import Mathlib.Analysis.Convex.Integral
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import TauCeti.Analysis.Calculus.Gradient
 public import Mathlib.Probability.Moments.SubGaussian
-public import Mathlib.Probability.Independence.Basic
-public import Mathlib.MeasureTheory.Function.L2Space
-public import Mathlib.MeasureTheory.Integral.Prod
+public import Mathlib.Probability.Independence.Integration
 public import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Independence
+public import TauCeti.Probability.Distributions.Gaussian.L2
+public import TauCeti.Analysis.Matrix.Resolvent.Basic
 public import Mathlib.Analysis.Calculus.Deriv.Slope
+public import TauCeti.Analysis.Matrix.FunctionalCalculus
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
-public import LeanMachineLearning.SequentialLearning.Means
+public import LMLExplore.Probability.Moments.SubGaussian.Basic
+public import LMLExplore.Probability.Distributions.Gaussian.Real
 
 /-! # Standalone extraction for `Maiti2026Power.le_budget_of_isFixedDesign_of_isPAC`
 Definitions are copied verbatim; theorem proofs are replaced by `sorry`.
@@ -54,51 +68,35 @@ set_option autoImplicit false
 set_option relaxedAutoImplicit false
 
 -- Namespace stubs (so later `open`s resolve).
+namespace Set
+end Set
 namespace MeasureTheory
 end MeasureTheory
 namespace ProbabilityTheory
 end ProbabilityTheory
-namespace Learning
-end Learning
-namespace Learning.IdentAlg
-end Learning.IdentAlg
 namespace Learning.LinearBandit
 end Learning.LinearBandit
-namespace Set
-end Set
 namespace Matrix
 end Matrix
 namespace Maiti2026Power
 end Maiti2026Power
 namespace Real
 end Real
-
--- ═══ Maiti2026Power.ForLMLExplore.Identification.IdentAlg ═══
-@[expose] public section
-open MeasureTheory ProbabilityTheory
-open scoped ENat
 namespace Learning
-variable {𝓞 𝓐 𝓨 𝓓 : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨} {m𝓓 : MeasurableSpace 𝓓} {Ω : Type*} {mΩ : MeasurableSpace Ω}
-
-/-- The deterministic algorithm that plays the fixed sequence `x : ℕ → 𝓐` regardless of the
-observations (a *fixed design*). -/
-noncomputable def fixedDesignAlg (x : ℕ → 𝓐) : Algorithm Unit 𝓐 𝓨 :=
-  Algorithm.deterministic (fun n _ ↦ x n) fun _ ↦ measurable_const
-
-namespace IdentAlg
-variable {A : IdentAlg 𝓞 𝓐 𝓨 𝓓} {T : ℕ} {O : ℕ → Ω → 𝓞} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
-
-/-- `A` is a *fixed-budget* algorithm with budget `T` if its stopping rule is "stop after exactly
-`T` rounds". -/
-def IsFixedBudget (A : IdentAlg 𝓞 𝓐 𝓨 𝓓) (T : ℕ) : Prop := A.stopSet = {h | h.1 = T}
-
-/-- An identification algorithm without observations is a *fixed-design* (non-adaptive)
-algorithm if its sampling rule plays a fixed sequence of actions; its output rule is
-arbitrary. -/
-def IsFixedDesign (A : IdentAlg Unit 𝓐 𝓨 𝓓) : Prop := ∃ x : ℕ → 𝓐, A.alg = fixedDesignAlg x
-
-end IdentAlg
 end Learning
+
+-- ═══ Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.SupportFn ═══
+@[expose] public section
+open Set
+open scoped RealInnerProductSpace Pointwise NNReal
+section SupportFn
+variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+
+/-- The support function of a set `K`: `supportFn K ξ = sup_{x ∈ K} ⟪x, ξ⟫`. -/
+noncomputable def supportFn (K : Set E) (ξ : E) : ℝ := ⨆ x : K, ⟪(x : E), ξ⟫
+
+variable {K K' : Set E} {R : ℝ} {ξ : E}
+end SupportFn
 end
 
 -- ═══ Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit ═══
@@ -141,20 +139,6 @@ def IsPAC (𝒳 : Set E) (A : IdentAlg Unit 𝒳 ℝ 𝒳) (ε δ : ℝ) : Prop 
   A.IsPAC (linearGaussianEnv 𝒳) (fun θ x ↦ ε < simpleRegret 𝒳 θ x) δ
 
 end Learning.LinearBandit
-end
-
--- ═══ Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.SupportFn ═══
-@[expose] public section
-open Set
-open scoped RealInnerProductSpace Pointwise NNReal
-section SupportFn
-variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
-
-/-- The support function of a set `K`: `supportFn K ξ = sup_{x ∈ K} ⟪x, ξ⟫`. -/
-noncomputable def supportFn (K : Set E) (ξ : E) : ℝ := ⨆ x : K, ⟪(x : E), ξ⟫
-
-variable {K K' : Set E} {R : ℝ} {ξ : E}
-end SupportFn
 end
 
 -- ═══ Maiti2026Power.ForLMLExplore.Probability.GaussianWidth ═══
@@ -218,18 +202,19 @@ end
 -- ═══ Maiti2026Power.MXJ2026.LowerNonadaptive ═══
 @[expose] public section
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 namespace Maiti2026Power
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {𝒳 : Set (EuclideanSpace ℝ ι)}
 
-/-- **Theorem 3** (Maiti, Xu, Jamieson 2026): a fixed-design (non-adaptive) identification
+/-- **Theorem 3** [MXJ26, Theorem 3]: a fixed-design (non-adaptive) identification
 algorithm with budget `T ≥ 1` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳`, with
 `δ ≤ 1/10`, satisfies `T ≥ w(𝒳)² / (70 ε²)`. -/
 theorem le_budget_of_isFixedDesign_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hne : 𝒳.Nonempty) (hspan : Submodule.span ℝ 𝒳 = ⊤)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ} (hT : 1 ≤ T)
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T)
-    (hdes : A.IsFixedDesign) (hpac : IsPAC 𝒳 A ε δ) :
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T)
+    (hdes : IsFixedDesign A.alg) (hpac : IsPAC 𝒳 A ε δ) :
     gw 𝒳 ^ 2 / (70 * ε ^ 2) ≤ T := sorry
 
 end Maiti2026Power

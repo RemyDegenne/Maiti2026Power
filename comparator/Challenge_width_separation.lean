@@ -2,19 +2,30 @@ module
 
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
 public import Mathlib.Probability.Distributions.Gaussian.Fernique
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Gaussian.Affine
+public import TauCeti.Probability.Distributions.Gaussian.Sum
+public import TauCeti.Probability.Distributions.Gaussian.Symmetry
+public import TauCeti.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Chi.Gaussian
+public import TauCeti.Probability.Distributions.ChiSquared.Basic
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 public import Mathlib.LinearAlgebra.Matrix.PosDef
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 public import Mathlib.Analysis.Matrix.Order
 public import Mathlib.Analysis.Real.Pi.Bounds
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import LMLExplore.Probability.Distributions.Gaussian.Tail
+public import LMLExplore.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Analysis.SpecialFunctions.Exp
 public import Mathlib.Probability.Moments.SubGaussian
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import TauCeti.Analysis.Calculus.Gradient
 public import Mathlib.Data.Matrix.ColumnRowPartitioned
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
@@ -22,12 +33,12 @@ public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 public import Mathlib.Analysis.SpecialFunctions.Sqrt
 public import Mathlib.Probability.Distributions.Gaussian.Real
-public import Mathlib.Analysis.Convex.Caratheodory
-public import Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex
-public import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-public import Mathlib.Topology.Algebra.Ring.Real
+public import LMLExplore.Probability.Distributions.Gaussian.Real
+public import LMLExplore.Analysis.Convex.Caratheodory
 public import Mathlib.Analysis.Calculus.Deriv.Slope
 public import Mathlib.Analysis.Convex.Integral
+public import LeanMachineLearning.ForMathlib.Probability.Moments.SubGaussian
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
 public import Mathlib.Data.Fintype.BigOperators
 public import Mathlib.Algebra.BigOperators.Ring.Finset
 
@@ -158,7 +169,7 @@ variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 size `m ^ 2`. -/
 def widthSepDims (m : ℕ) : Fin m → ℕ := fun j ↦ if (j : ℕ) + 1 < m then 2 else m ^ 2
 
-/-- **Theorem 5** (Maiti, Xu, Jamieson 2026): for `m ≥ 2`, the multi-task set `𝒳` with `m - 1`
+/-- **Theorem 5** [MXJ26, Theorem 5]: for `m ≥ 2`, the multi-task set `𝒳` with `m - 1`
 blocks of size `2` and one block of size `m²` lives in dimension `d = m² + 2m - 2`, has
 `|𝒳| = 2^{m-1} m²` elements, spans a subspace of dimension `r = m² + m - 1 ∈ [d/2, d]`, and its
 intrinsic Gaussian width term satisfies `w_int(𝒳) ≤ 3 √(d log d)`, whereas

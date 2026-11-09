@@ -6,7 +6,6 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
-public import Maiti2026Power.ForLMLExplore.Identification.Run
 public import Maiti2026Power.ForLMLExplore.Data.Finset.PowersetCardSum
 public import Maiti2026Power.MXJ2026.MSetInstances
 
@@ -36,6 +35,7 @@ Blueprint: `lem:msets_good_set`, `lem:msets_pinsker_step`, `lem:msets_equivalent
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Maiti2026Power
@@ -48,7 +48,7 @@ identification algorithm on the `m`-sets of `ℝ^d`, `m = k + 1`, `d = k + n` wi
 with budget `1 ≤ T ≤ m n / (2500 ε²)` which is `(ε, δ)`-PAC has `δ ≥ 2/9`. -/
 lemma le_of_isPAC_mSet {k n m : ℕ} (hm_def : m = k + 1) (hn : Fintype.card ι = k + n)
     (hk : 20 * m ≤ n) {ε δ : ℝ} (hε : 0 < ε) {T : ℕ} (hT : 1 ≤ T)
-    (A : IdentAlg Unit (mSet ι m) ℝ (mSet ι m)) (hA : A.IsFixedBudget T)
+    (A : IdentAlg Unit (mSet ι m) ℝ (mSet ι m)) (hA : IsFixedBudget A T)
     (hpac : IsPAC (mSet ι m) A ε δ)
     (hbudget : (T : ℝ) ≤ m * n / (2500 * ε ^ 2)) :
     2 / 9 ≤ δ := by
@@ -64,9 +64,9 @@ lemma le_of_isPAC_mSet {k n m : ℕ} (hm_def : m = k + 1) (hn : Fintype.card ι 
   have hΔ : 0 < Δ := by rw [hΔ_def]; positivity
   have hΔm : Δ * m = 10 * ε := by rw [hΔ_def]; field_simp
   -- the canonical runs
-  have hrun := fun S : Finset ι ↦ A.isRun_runMeasure (linearGaussianEnv (mSet ι m) (msParam Δ S))
+  have hrun := fun S : Finset ι ↦ isRun_runMeasure A (linearGaussianEnv (mSet ι m) (msParam Δ S))
   obtain ⟨P, hP⟩ : ∃ P : Finset ι → Measure ((ℕ → Round Unit (mSet ι m) ℝ) × mSet ι m),
-      ∀ S, P S = A.runMeasure (linearGaussianEnv (mSet ι m) (msParam Δ S)) :=
+      ∀ S, P S = runMeasure A (linearGaussianEnv (mSet ι m) (msParam Δ S)) :=
     ⟨_, fun _ ↦ rfl⟩
   have hprob : ∀ S, IsProbabilityMeasure (P S) := fun S ↦ by rw [hP]; infer_instance
   -- the events "the coordinate `i` of the recommendation is `1`"

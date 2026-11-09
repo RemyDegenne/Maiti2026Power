@@ -42,6 +42,7 @@ blueprint (`lem:composition`) for this class of algorithms.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Finset
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Learning
@@ -358,23 +359,24 @@ and outputs `out s` where `s` is the state at the end of the last phase. -/
 noncomputable def toIdentAlg (L : ℕ) (out : S → 𝓓) (hout : Measurable out) :
     IdentAlg Unit 𝓐 𝓨 𝓓 :=
   haveI : Nonempty 𝓓 := ⟨out A.init⟩
-  IdentAlg.fixedBudget A.toAlgorithm (A.start L)
+  fixedBudget A.toAlgorithm (A.start L)
     (Kernel.deterministic (fun hist ↦ out (A.stateOfFinHistory L hist))
       (hout.comp (A.measurable_stateOfFinHistory L)))
 
-lemma isFixedBudget_toIdentAlg : (A.toIdentAlg L out hout).IsFixedBudget (A.start L) :=
+lemma isFixedBudget_toIdentAlg : IsFixedBudget (A.toIdentAlg L out hout) (A.start L) :=
   haveI : Nonempty 𝓓 := ⟨out A.init⟩
-  IdentAlg.isFixedBudget_fixedBudget _ _ _
+  isFixedBudget_fixedBudget _ _ _
 
-lemma alg_toIdentAlg : (A.toIdentAlg L out hout).alg = A.toAlgorithm := rfl
+lemma alg_toIdentAlg : (A.toIdentAlg L out hout).alg = A.toAlgorithm :=
+  haveI : Nonempty 𝓓 := ⟨out A.init⟩
+  alg_fixedBudget _ _ _
 
-lemma output_toIdentAlg :
-    (A.toIdentAlg L out hout).output.comap (Sigma.mk (A.start L))
-        (measurable_sigmaMk (A.start L)) =
+lemma outputAt_toIdentAlg :
+    outputAt (A.toIdentAlg L out hout) (A.start L) =
       Kernel.deterministic (fun hist ↦ out (A.stateOfFinHistory L hist))
         (hout.comp (A.measurable_stateOfFinHistory L)) :=
   haveI : Nonempty 𝓓 := ⟨out A.init⟩
-  IdentAlg.output_fixedBudget _ _ _
+  outputAt_fixedBudget _ _ _
 
 variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [IsProbabilityMeasure P]
   {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨} {env : Environment Unit 𝓐 𝓨} {o : Ω → 𝓓}
@@ -384,8 +386,8 @@ the last phase. -/
 lemma output_ae_eq_of_isRun [MeasurableEq 𝓓]
     (hrun : (A.toIdentAlg L out hout).IsRun env O X Y o P) :
     o =ᵐ[P] fun ω ↦ out (A.stateProc Y L ω) := by
-  filter_upwards [hrun.output_ae_eq_of_output_eq_deterministic A.isFixedBudget_toIdentAlg _
-    A.output_toIdentAlg] with ω hω
+  filter_upwards [hrun.output_ae_eq_of_outputAt_eq_deterministic A.isFixedBudget_toIdentAlg _
+    A.outputAt_toIdentAlg] with ω hω
   rw [hω, A.stateOfFinHistory_history]
 
 end identAlg
@@ -529,7 +531,9 @@ lemma isPAC_toIdentAlg {𝓓 : Type*} {m𝓓 : MeasurableSpace 𝓓} [Measurable
     (A.toIdentAlg L out hout).IsPAC (LinearBandit.linearGaussianEnv 𝒳) bad δ := by
   refine IdentAlg.IsPAC.of_forall_isRun hbad fun θ Ω _ P _ O X Y o hrun ↦ ?_
   obtain ⟨good, hmeas, hinit, ⟨δs, hδs0, hδs, hstep⟩, hL⟩ := hgood θ
-  have h1 := A.one_sub_sum_le_measureReal_stateProc_mem hrun.isAlgEnvSeq hmeas hδs0 hinit L hstep
+  have hseq : IsAlgEnvSeq O X Y A.toAlgorithm (LinearBandit.linearGaussianEnv 𝒳 θ) P :=
+    A.alg_toIdentAlg ▸ hrun.isAlgEnvSeq
+  have h1 := A.one_sub_sum_le_measureReal_stateProc_mem hseq hmeas hδs0 hinit L hstep
   have hm : MeasurableSet {ω | A.stateProc Y L ω ∈ good L} :=
     A.measurable_stateProc hrun.isAlgEnvSeq.measurable_feedback L (hmeas L)
   have h2 : P.real {ω | bad θ (o ω)} ≤ P.real {ω | A.stateProc Y L ω ∈ good L}ᶜ := by

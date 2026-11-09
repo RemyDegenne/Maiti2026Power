@@ -5,7 +5,11 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.ForLMLExplore.Identification.Run
+public import LeanMachineLearning.SequentialLearning.Deterministic
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
+public import Maiti2026Power.ForLMLExplore.Probability.CondDistrib
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.StoppedHistory
 public import LeanMachineLearning.SequentialLearning.StationaryEnv
 public import Mathlib.Probability.Distributions.Gaussian.Real
 
@@ -101,7 +105,7 @@ lemma IsPAC.le_measureReal_of_isRun (hpac : IsPAC 𝒳 A ε δ) {θ : E}
 /-- **PAC from a bound on every run**: `A` is `(ε, δ)`-PAC on `𝒳` as soon as, for every reward
 vector `θ` and every run of `A` in the linear Gaussian environment with reward vector `θ` on a
 probability space in the universe of `E` (the universe of the canonical run
-`IdentAlg.runMeasure`), the recommendation has simple regret at most `ε` with probability at
+LMLExplore's `runMeasure`), the recommendation has simple regret at most `ε` with probability at
 least `1 - δ`. -/
 lemma isPAC_of_forall_isRun {E : Type u} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     [MeasurableSpace E] [OpensMeasurableSpace E] {𝒳 : Set E} {A : IdentAlg Unit 𝒳 ℝ 𝒳} {ε δ : ℝ}

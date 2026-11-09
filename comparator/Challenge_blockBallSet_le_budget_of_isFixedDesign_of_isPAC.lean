@@ -1,65 +1,90 @@
 module
 
-public import LeanMachineLearning.ForMathlib.Probability.Kernel.Sigma
 public import LeanMachineLearning.SequentialLearning.Deterministic
-public import LeanMachineLearning.SequentialLearning.IdentificationAlg
-public import LeanMachineLearning.SequentialLearning.StoppedHistory
-public import LeanMachineLearning.SequentialLearning.Algorithm
-public import Mathlib.Probability.HasCondDistrib
-public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LMLExplore.Identification.FixedBudget
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
 public import LeanMachineLearning.SequentialLearning.StationaryEnv
 public import Mathlib.Probability.Distributions.Gaussian.Real
+public import LeanMachineLearning.SequentialLearning.StoppedHistory
+public import LMLExplore.SequentialLearning.StoppedHistory
+public import LeanMachineLearning.SequentialLearning.Algorithm
+public import Mathlib.Probability.HasCondDistrib
+public import TauCeti.Probability.Kernel.Randomization
+public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.Kernel.Composition.MapComap
+public import LMLExplore.Probability.HasCondDistrib
 public import Mathlib.Analysis.InnerProductSpace.PiL2
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Inner
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
 public import Mathlib.MeasureTheory.Measure.Real
 public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import LMLExplore.Probability.Distributions.Gaussian.Real
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 public import Mathlib.Analysis.Matrix.Order
 public import Mathlib.Probability.Distributions.Gaussian.Fernique
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Gaussian.Affine
+public import TauCeti.Probability.Distributions.Gaussian.Sum
+public import TauCeti.Probability.Distributions.Gaussian.Symmetry
+public import TauCeti.Probability.Distributions.Gaussian.Multivariate
+public import TauCeti.Probability.Distributions.Chi.Gaussian
+public import TauCeti.Probability.Distributions.ChiSquared.Basic
 public import Mathlib.Analysis.CStarAlgebra.Matrix
 public import Mathlib.LinearAlgebra.Matrix.PosDef
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
+public import Mathlib.Order.PartialSups
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Analysis.SpecialFunctions.Log.Deriv
 public import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+public import TauCeti.Probability.Distributions.Gaussian.Transforms
 public import Mathlib.Analysis.Convex.Integral
 public import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
 public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import TauCeti.Analysis.Calculus.Gradient
 public import Mathlib.Probability.Moments.SubGaussian
 public import Mathlib.Probability.Independence.Integration
+public import TauCeti.Probability.Distributions.Rademacher
+public import LMLExplore.Probability.Distributions.Bernoulli
 public import LeanMachineLearning.ForMathlib.Probability.Moments.SubExponential
+public import TauCeti.Analysis.SpecialFunctions.Exp.QuadraticBound
+public import TauCeti.Analysis.SpecialFunctions.Log.NegLogOneSub
+public import TauCeti.MeasureTheory.Constructions.Pi
+public import TauCeti.Probability.Independence.InfinitePi
 public import Mathlib.Probability.Independence.InfinitePi
-public import Mathlib.InformationTheory.KullbackLeibler.Basic
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 public import LeanMachineLearning.SequentialLearning.DivergenceDecomposition
-public import LeanMachineLearning.SequentialLearning.Means
+public import LMLExplore.InformationTheory.KullbackLeibler.Gaussian
+public import LMLExplore.Topology.Algebra.InfiniteSum.NatInt
+public import LMLExplore.Probability.Moments.SubGaussian.Basic
 public import LeanMachineLearning.SequentialLearning.IonescuTulceaSpace
 public import LeanMachineLearning.ForMathlib.InformationTheory.KullbackLeibler.Convex
 public import Mathlib.MeasureTheory.Measure.Decomposition.Lebesgue
-public import Mathlib.Analysis.Convex.Caratheodory
-public import Mathlib.Geometry.Convex.ConvexSpace.CompactSpaceStdSimplex
-public import Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional
-public import Mathlib.Topology.Algebra.Ring.Real
+public import LMLExplore.Analysis.Convex.Caratheodory
 public import Mathlib.Analysis.Calculus.Deriv.Slope
-public import Mathlib.Probability.Independence.Basic
-public import Mathlib.MeasureTheory.Function.L2Space
-public import Mathlib.MeasureTheory.Integral.Prod
 public import Mathlib.Probability.Kernel.Composition.IntegralCompProd
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
 public import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Independence
+public import TauCeti.Probability.Distributions.Gaussian.L2
+public import TauCeti.Analysis.Matrix.Resolvent.Basic
+public import TauCeti.Analysis.Matrix.FunctionalCalculus
 public import Mathlib.Basic.Real.Basic
 public import Mathlib.Tactic.FieldSimp
 public import Mathlib.Tactic.Linarith
+public import TauCeti.Probability.Distributions.Gaussian.Moments
 public import Mathlib.Analysis.Real.Pi.Bounds
+public import LMLExplore.Probability.Distributions.Gaussian.Tail
+public import LMLExplore.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.Analysis.SpecialFunctions.Exp
 public import Mathlib.Data.Matrix.ColumnRowPartitioned
 public import Mathlib.Analysis.Calculus.ParametricIntegral
 public import Mathlib.Analysis.SpecialFunctions.Sqrt
+public import LeanMachineLearning.ForMathlib.Probability.Moments.SubGaussian
 public import Mathlib.Data.Fintype.BigOperators
 public import Mathlib.Algebra.BigOperators.Ring.Finset
 
@@ -78,46 +103,16 @@ namespace MeasureTheory
 end MeasureTheory
 namespace ProbabilityTheory
 end ProbabilityTheory
-namespace Learning
-end Learning
-namespace Learning.IdentAlg
-end Learning.IdentAlg
 namespace Learning.LinearBandit
 end Learning.LinearBandit
 namespace Maiti2026Power
 end Maiti2026Power
 namespace Real
 end Real
+namespace Learning
+end Learning
 namespace Finset
 end Finset
-
--- ═══ Maiti2026Power.ForLMLExplore.Identification.IdentAlg ═══
-@[expose] public section
-open MeasureTheory ProbabilityTheory
-open scoped ENat
-namespace Learning
-variable {𝓞 𝓐 𝓨 𝓓 : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨} {m𝓓 : MeasurableSpace 𝓓} {Ω : Type*} {mΩ : MeasurableSpace Ω}
-
-/-- The deterministic algorithm that plays the fixed sequence `x : ℕ → 𝓐` regardless of the
-observations (a *fixed design*). -/
-noncomputable def fixedDesignAlg (x : ℕ → 𝓐) : Algorithm Unit 𝓐 𝓨 :=
-  Algorithm.deterministic (fun n _ ↦ x n) fun _ ↦ measurable_const
-
-namespace IdentAlg
-variable {A : IdentAlg 𝓞 𝓐 𝓨 𝓓} {T : ℕ} {O : ℕ → Ω → 𝓞} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
-
-/-- `A` is a *fixed-budget* algorithm with budget `T` if its stopping rule is "stop after exactly
-`T` rounds". -/
-def IsFixedBudget (A : IdentAlg 𝓞 𝓐 𝓨 𝓓) (T : ℕ) : Prop := A.stopSet = {h | h.1 = T}
-
-/-- An identification algorithm without observations is a *fixed-design* (non-adaptive)
-algorithm if its sampling rule plays a fixed sequence of actions; its output rule is
-arbitrary. -/
-def IsFixedDesign (A : IdentAlg Unit 𝓐 𝓨 𝓓) : Prop := ∃ x : ℕ → 𝓐, A.alg = fixedDesignAlg x
-
-end IdentAlg
-end Learning
-end
 
 -- ═══ Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit ═══
 @[expose] public section
@@ -178,16 +173,17 @@ end
 -- ═══ Maiti2026Power.MXJ2026.Separation ═══
 @[expose] public section
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Finset
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 namespace Maiti2026Power
 
-/-- **Theorem 7, non-adaptive lower bound**: a fixed-design (non-adaptive) identification
-algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]` and
-`δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
+/-- **Theorem 7, non-adaptive lower bound** [MXJ26, Theorem 7]: a fixed-design (non-adaptive)
+identification algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]`
+and `δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
 theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : ℝ}
     (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ}
-    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : A.IsFixedBudget T)
-    (hdes : A.IsFixedDesign)
+    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : IsFixedBudget A T)
+    (hdes : IsFixedDesign A.alg)
     (hpac : IsPAC (blockBallSet k d) A ε δ) :
     k * (d : ℝ) ^ 2 / (210 * ε ^ 2) ≤ T := sorry
 

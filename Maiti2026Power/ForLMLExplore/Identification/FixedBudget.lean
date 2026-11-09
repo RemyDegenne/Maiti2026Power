@@ -11,13 +11,13 @@ public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 /-!
 # Runs of fixed-budget identification algorithms and data processing
 
-For a fixed-budget identification algorithm `A` with budget `T` (`A.IsFixedBudget T`), the
-history at the stopping time of every run is the history of the first `T` rounds
-(`IsFixedBudget.stoppedHist_eq`). Consequently, for two runs of `A` (on arbitrary probability
-spaces) in two environments, the divergence between the laws of the outputs is at most the
-divergence between the laws of the histories of the first `T` rounds, by the data-processing
-inequality (`IsRun.klDiv_map_out_le`):
-appending the recommendation does not increase the divergence. Combined with the divergence
+For a fixed-budget identification algorithm `A` with budget `T` (LMLExplore's
+`IsFixedBudget A T`), the history at the stopping time of every run is the history of the first
+`T` rounds (`IsFixedBudget.stoppedHist_eq`). Consequently, for two runs of `A` (on arbitrary
+probability spaces) in two environments, the divergence between the laws of the outputs is at
+most the divergence between the laws of the histories of the first `T` rounds, by the
+data-processing inequality (`IsRun.klDiv_map_out_le`): appending the recommendation does not
+increase the divergence. Combined with the divergence
 decomposition for linear Gaussian environments, the divergence between the laws of the outputs
 under `θ` and `θ'` is at most `T R ^ 2 ‖θ - θ'‖ ^ 2 / 2` (`LinearBandit.klDiv_map_out_le`), and the
 Bretagnolle–Huber inequality bounds the sum of the error probabilities of any test on the output
@@ -27,6 +27,7 @@ from below (`LinearBandit.exp_neg_le_measureReal_add`).
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory InformationTheory Finset
+open LMLExplore.Identification
 open scoped ENNReal RealInnerProductSpace
 
 namespace Learning
@@ -43,7 +44,7 @@ variable {𝓐 𝓨 𝓓 : Type*} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : Measur
 /-- **Data processing for runs of a fixed-budget algorithm**: for two runs (in two environments)
 of a fixed-budget algorithm with budget `T`, the divergence between the laws of the outputs is
 at most the divergence between the laws of the histories of the first `T` rounds. -/
-lemma IsRun.klDiv_map_out_le (hA : A.IsFixedBudget T) (h : A.IsRun env O X Y out P)
+lemma IsRun.klDiv_map_out_le (hA : IsFixedBudget A T) (h : A.IsRun env O X Y out P)
     (h' : A.IsRun env' O' X' Y' out' P') :
     klDiv (P.map out) (P'.map out') ≤
       klDiv (P.map (history O X Y T)) (P'.map (history O' X' Y' T)) := by
@@ -61,10 +62,11 @@ lemma IsRun.klDiv_map_out_le (hA : A.IsFixedBudget T) (h : A.IsRun env O X Y out
 
 /-- For two runs of a fixed-budget algorithm with budget `0`, the laws of the outputs coincide:
 their divergence is `0`. -/
-lemma IsRun.klDiv_map_out_eq_zero (hA : A.IsFixedBudget 0) (h : A.IsRun env O X Y out P)
+lemma IsRun.klDiv_map_out_eq_zero (hA : IsFixedBudget A 0) (h : A.IsRun env O X Y out P)
     (h' : A.IsRun env' O' X' Y' out' P') :
     klDiv (P.map out) (P'.map out') = 0 := by
-  rw [h.map_out_eq_of_isFixedBudget_zero hA, h'.map_out_eq_of_isFixedBudget_zero hA, klDiv_self]
+  rw [h.hasLaw_output.map_eq, h'.hasLaw_output.map_eq, outputMeasure_eq_of_isFixedBudget_zero hA,
+    outputMeasure_eq_of_isFixedBudget_zero hA, klDiv_self]
 
 end IdentAlg
 
@@ -84,7 +86,7 @@ variable {E 𝓓 : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [Meas
 with reward vectors `θ` and `θ'`, with `⟪x, θ - θ'⟫ ^ 2 ≤ C` on the action set, the divergence
 between the laws of the outputs is at most `T C / 2`. -/
 lemma IsRun.klDiv_map_out_le_of_sq_le {C : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ - θ'⟫ ^ 2 ≤ C)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') :
     klDiv (P.map out) (P'.map out') ≤ ENNReal.ofReal (T * (C / 2)) :=
   (IdentAlg.IsRun.klDiv_map_out_le hA h h').trans
@@ -93,7 +95,7 @@ lemma IsRun.klDiv_map_out_le_of_sq_le {C : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ -
 /-- For two runs of a fixed-budget algorithm with budget `T` in the linear Gaussian environments
 with reward vectors `θ` and `θ'` on an action set contained in the ball of radius `R`, the
 divergence between the laws of the outputs is at most `T R ^ 2 ‖θ - θ'‖ ^ 2 / 2`. -/
-lemma IsRun.klDiv_map_out_le (hR : ∀ x ∈ 𝒳, ‖x‖ ≤ R) (hA : A.IsFixedBudget T)
+lemma IsRun.klDiv_map_out_le (hR : ∀ x ∈ 𝒳, ‖x‖ ≤ R) (hA : IsFixedBudget A T)
     (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') :
     klDiv (P.map out) (P'.map out') ≤ ENNReal.ofReal (T * (R ^ 2 * ‖θ - θ'‖ ^ 2 / 2)) :=
@@ -103,7 +105,7 @@ lemma IsRun.klDiv_map_out_le (hR : ∀ x ∈ 𝒳, ‖x‖ ≤ R) (hA : A.IsFixe
 `IsRun.klDiv_map_out_le_of_sq_le`, for every measurable set `B` of outputs,
 `P (out ∈ B) + P' (out' ∉ B) ≥ (1/2) exp (-T C / 2)`. -/
 lemma IsRun.exp_neg_le_measureReal_add_of_sq_le {C : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ - θ'⟫ ^ 2 ≤ C)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') {B : Set 𝓓} (hB : MeasurableSet B) :
     (1 / 2) * Real.exp (-(T * (C / 2))) ≤ P.real (out ⁻¹' B) + P'.real (out' ⁻¹' Bᶜ) := by
   have hout : AEMeasurable out P := h.hasCondDistrib_output.aemeasurable_snd

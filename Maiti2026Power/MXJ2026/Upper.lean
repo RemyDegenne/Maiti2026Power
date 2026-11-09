@@ -26,6 +26,7 @@ existence statement of the paper's Theorem 1, which follows from it.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Matrix
+open LMLExplore.Identification
 open scoped NNReal MatrixOrder
 
 namespace Maiti2026Power
@@ -39,7 +40,7 @@ theorem exists_isFixedDesign_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 :
     (hne : 𝒳.Nonempty) (hspan : Submodule.span ℝ 𝒳 = ⊤)
     {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 600 * (gw 𝒳 ^ 2 + Fintype.card ι * log (2 / δ)) / ε ^ 2 + 1 ∧
-      ∃ A : IdentAlg Unit 𝒳 ℝ 𝒳, A.IsFixedBudget T ∧ A.IsFixedDesign ∧ IsPAC 𝒳 A ε δ := by
+      ∃ A : IdentAlg Unit 𝒳 ℝ 𝒳, IsFixedBudget A T ∧ IsFixedDesign A.alg ∧ IsPAC 𝒳 A ε δ := by
   classical
   obtain ⟨R, hR⟩ : ∃ R, ∀ x ∈ 𝒳, ‖x‖ ≤ R := by
     obtain ⟨r, hr⟩ := h𝒳.isBounded.subset_closedBall (0 : EuclideanSpace ℝ ι)

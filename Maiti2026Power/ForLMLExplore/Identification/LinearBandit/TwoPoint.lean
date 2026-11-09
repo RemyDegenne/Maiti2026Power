@@ -32,6 +32,7 @@ instances from below and conclude with this inequality.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory InformationTheory Real
+open LMLExplore.Identification
 open scoped ENNReal RealInnerProductSpace
 
 namespace Learning.LinearBandit
@@ -51,7 +52,7 @@ budget `T` in the linear Gaussian environments with reward vectors `θ` and `θ'
 expected sum of the squared gaps along the trajectory of the first run (the *divergence
 decomposition*, transferred to the outputs by data processing). -/
 lemma IsRun.klDiv_map_out_le_sum_integral {C : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ - θ'⟫ ^ 2 ≤ C)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') :
     klDiv (P.map out) (P'.map out') ≤
       ENNReal.ofReal (∑ t ∈ Finset.range T, ∫ ω, ⟪(X t ω : E), θ - θ'⟫ ^ 2 / 2 ∂P) :=
@@ -63,7 +64,7 @@ if the expected sum of the squared gaps along the trajectory is at most `K`, the
 any event of the output differ by at most `√(K / 2)`. -/
 lemma IsRun.abs_measureReal_sub_le_of_sum_le {C K : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ - θ'⟫ ^ 2 ≤ C)
     (hK : ∑ t ∈ Finset.range T, ∫ ω, ⟪(X t ω : E), θ - θ'⟫ ^ 2 / 2 ∂P ≤ K)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') {B : Set 𝓓} (hB : MeasurableSet B) :
     |P.real (out ⁻¹' B) - P'.real (out' ⁻¹' B)| ≤ √(K / 2) := by
   have hout : AEMeasurable out P := h.hasCondDistrib_output.aemeasurable_snd
@@ -87,7 +88,7 @@ identification algorithm with budget `T` in the linear Gaussian environments wit
 `θ` and `θ'`, with `⟪x, θ - θ'⟫ ^ 2 ≤ C` on the action set, the probabilities of any event of the
 output differ by at most `√(T C / 4)`. -/
 lemma IsRun.abs_measureReal_sub_le_of_sq_le {C : ℝ} (hC : ∀ x ∈ 𝒳, ⟪x, θ - θ'⟫ ^ 2 ≤ C)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (h' : A.IsRun (linearGaussianEnv 𝒳 θ') O' X' Y' out' P') {B : Set 𝓓} (hB : MeasurableSet B) :
     |P.real (out ⁻¹' B) - P'.real (out' ⁻¹' B)| ≤ √(T * C / 4) := by
   have hout : AEMeasurable out P := h.hasCondDistrib_output.aemeasurable_snd
@@ -116,7 +117,7 @@ lemma IsRun.one_sub_le_measureReal_add_of_sq_le {C : ℝ} {θp θm : E}
     {Op : ℕ → Ωp → Unit} {Xp : ℕ → Ωp → 𝒳} {Yp : ℕ → Ωp → ℝ} {outp : Ωp → 𝓓}
     {Om : ℕ → Ωm → Unit} {Xm : ℕ → Ωm → 𝒳} {Ym : ℕ → Ωm → ℝ} {outm : Ωm → 𝓓}
     (hCp : ∀ x ∈ 𝒳, ⟪x, θ - θp⟫ ^ 2 ≤ C) (hCm : ∀ x ∈ 𝒳, ⟪x, θ - θm⟫ ^ 2 ≤ C)
-    (hA : A.IsFixedBudget T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
+    (hA : IsFixedBudget A T) (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P)
     (hp : A.IsRun (linearGaussianEnv 𝒳 θp) Op Xp Yp outp Pp)
     (hm : A.IsRun (linearGaussianEnv 𝒳 θm) Om Xm Ym outm Pm)
     {B : Set 𝓓} (hB : MeasurableSet B) :

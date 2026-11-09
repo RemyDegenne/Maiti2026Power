@@ -8,6 +8,7 @@ module
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.GaussianNoise
 public import Maiti2026Power.ForLMLExplore.Probability.IidOfCondDistrib
 public import Mathlib.Probability.Distributions.Gaussian.Multivariate
+public import LMLExplore.SequentialLearning.Algorithms.OfSeq
 
 /-!
 # The noise of a linear Gaussian run is i.i.d.; fixed-design runs
@@ -21,7 +22,8 @@ standard Gaussian (`IsAlgEnvSeq.hasLaw_toLp_noise_finVec`). More generally the n
 rounds `m, …, m + n - 1` are i.i.d. `N(0,1)` conditionally on the history of the first `m` rounds,
 i.e. independent of the past (`IsAlgEnvSeq.hasCondDistrib_noise_window`).
 
-Under a fixed design `fixedDesignAlg x`, the actions are `x t` almost surely and the observation
+Under a fixed design `Algorithm.ofSeq x`, the actions are `x t` almost surely (LMLExplore's
+`IsAlgEnvSeq.action_ofSeq_ae_all_eq`) and the observation
 vector `(Y 0, …, Y (n-1))` is `(⟪x t, θ⟫)_t` plus the noise vector
 (`IsAlgEnvSeq.hasLaw_feedback_finVec_of_fixedDesign`, blueprint `lem:fixed_design_law`).
 -/
@@ -105,21 +107,13 @@ end noise
 section fixedDesign
 
 variable [MeasurableEq 𝒳] {x : ℕ → 𝒳}
-  (h : IsAlgEnvSeq O X Y (fixedDesignAlg x) (linearGaussianEnv 𝒳 θ) P)
+  (h : IsAlgEnvSeq O X Y (Algorithm.ofSeq x) (linearGaussianEnv 𝒳 θ) P)
 include h
-
-/-- Under the fixed design `x`, the actions are `x t` almost surely. -/
-lemma _root_.Learning.IsAlgEnvSeq.ae_action_eq_of_fixedDesign :
-    ∀ᵐ ω ∂P, ∀ t, X t ω = x t := by
-  have h' : IsAlgEnvSeq O X Y (Algorithm.deterministic (fun n _ ↦ x n) fun _ ↦ measurable_const)
-      (linearGaussianEnv 𝒳 θ) P := h
-  filter_upwards [h'.action_ae_all_eq_deterministic] with ω hω t
-  exact hω t
 
 /-- Under the fixed design `x`, the observations are `Y t = ⟪x t, θ⟫ + noise t` almost surely. -/
 lemma _root_.Learning.IsAlgEnvSeq.ae_feedback_eq_of_fixedDesign :
     ∀ᵐ ω ∂P, ∀ t, Y t ω = ⟪(x t : E), θ⟫ + noise θ X Y t ω := by
-  filter_upwards [h.ae_action_eq_of_fixedDesign] with ω hω t
+  filter_upwards [h.action_ofSeq_ae_all_eq] with ω hω t
   simp [noise, hω t]
 
 /-- **Law of the observations under a fixed design** (blueprint `lem:fixed_design_law`): the

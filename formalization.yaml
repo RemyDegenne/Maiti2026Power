@@ -691,12 +691,14 @@ fidelity:
     (`LinearBandit.isPAC_of_forall_isRun`, `IsPAC.le_measureReal_of_isRun`), for every run on
     every probability space of the universe of the action set, simple regret at most ε with
     probability at least 1 - δ. The paper's algorithms have a fixed budget T (stopping rule
-    "stop after exactly T rounds", `IdentAlg.IsFixedBudget`); the definition also covers
-    fixed-confidence algorithms. Time is 0-indexed.
+    "stop after exactly T rounds", LMLExplore's `LMLExplore.Identification.IsFixedBudget A T`,
+    since 2026-11-09); the definition also covers fixed-confidence algorithms. Time is 0-indexed.
 
     2. Non-adaptive algorithms are deterministic fixed designs with an arbitrary, possibly
-    randomized, recommendation kernel (the class of the paper's Theorem 3); the paper's Theorem 7
-    says "possibly randomized non-adaptive", and its lower bound is stated here for this class.
+    randomized, recommendation kernel (the class of the paper's Theorem 3; LMLExplore's
+    `IsFixedDesign A.alg`: the sampling rule is `Algorithm.ofSeq x` for some sequence `x`); the
+    paper's Theorem 7 says "possibly randomized non-adaptive", and its lower bound is stated here
+    for this class.
 
     3. Gaussian width. The width of K for a positive definite matrix A, E[sup_{x∈K} ⟪x, A^{-1/2} g⟫],
     is defined as the Gaussian width of K for the centered Gaussian measure with covariance A⁻¹
