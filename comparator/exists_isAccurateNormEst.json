@@ -2,11 +2,14 @@
     "challenge_module": "Challenge_exists_isAccurateNormEst",
     "solution_module": "Solution",
     "theorem_names": [
-        "Maiti2026Power.exists_isAccurateNormEst"
+        "Maiti2026Power.exists_isAccurateNormEst",
+        "Learning.LinearBandit.linearGaussianKernel._proof_1",
+        "Learning.LinearBandit.linearGaussianEnv._proof_2",
+        "Maiti2026Power.IsAccurateNormEst._proof_1"
     ],
     "permitted_axioms": [
         "propext",
-        "Classical.choice",
-        "Quot.sound"
+        "Quot.sound",
+        "Classical.choice"
     ]
 }

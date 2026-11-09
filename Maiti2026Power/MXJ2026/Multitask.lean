@@ -7,8 +7,8 @@ module
 
 public import Maiti2026Power.MXJ2026.IntrinsicWidth
 public import Maiti2026Power.MXJ2026.StructuredSets
-public import Maiti2026Power.Mathlib.Probability.SubgaussianMax
-public import Maiti2026Power.Mathlib.Data.Fintype.PiSplitAt
+public import Maiti2026Power.ForLMLExplore.Probability.SubgaussianMax
+public import Maiti2026Power.ForLMLExplore.Data.Fintype.PiSplitAt
 
 /-!
 # The multi-task action set: structure, span and intrinsic width
@@ -677,7 +677,7 @@ noncomputable def mtS : Matrix (Σ j, Fin (d j)) (Σ j, Fin (d j)) ℝ := mtLmat
 
 lemma toEuclideanLin_mtS (v : EuclideanSpace ℝ (Σ j, Fin (d j))) :
     Matrix.toEuclideanLin (mtS d) v = mtL d (mtL d v) := by
-  rw [mtS, toEuclideanLin_mul_apply, toEuclideanLin_mtLmat]
+  rw [mtS, Matrix.toLpLin_mul_same, LinearMap.comp_apply, toEuclideanLin_mtLmat]
 
 lemma mtS_posSemidef : (mtS d).PosSemidef := by
   have h := Matrix.posSemidef_self_mul_conjTranspose (mtLmat d)
@@ -746,7 +746,7 @@ lemma integral_iSup_mtL_le (hd : ∀ j, 0 < d j) (j : Fin m) :
       (stdGaussian _) := IsGaussian.integrable_id.const_inner w
   have hint2 : Integrable (fun g : EuclideanSpace ℝ (Σ j, Fin (d j)) ↦
       ⨆ k, ⟪EuclideanSpace.single (⟨j, k⟩ : Σ j, Fin (d j)) (1 : ℝ), g⟫) (stdGaussian _) :=
-    integrable_iSup_of_hasSubgaussianMGF hsg
+    Integrable.iSup fun k ↦ (hsg k).integrable
   have hw0 : ∫ g, ⟪w, g⟫ ∂stdGaussian (EuclideanSpace ℝ (Σ j, Fin (d j))) = 0 := by
     have := integral_inner (𝕜 := ℝ) (IsGaussian.integrable_id
       (μ := stdGaussian (EuclideanSpace ℝ (Σ j, Fin (d j))))) w
@@ -808,8 +808,8 @@ lemma intrinsicGw_multitaskSet_le (hd : ∀ j, 0 < d j) :
           simp_rw [mtL_apply_mk hd g j]
           exact ciSup_const_add_const_mul _ (Real.sqrt_nonneg _) _
         rw [hfun]
-        refine (IsGaussian.integrable_id.const_inner _).add ((integrable_iSup_of_hasSubgaussianMGF
-          fun k ↦ (hasSubgaussianMGF_inner_stdGaussian _).mono (c' := 1) (by simp)).const_mul _)
+        refine (IsGaussian.integrable_id.const_inner _).add ((Integrable.iSup
+          fun k ↦ (hasSubgaussianMGF_inner_stdGaussian _).integrable).const_mul _)
     _ ≤ ∑ j, √(2 * d j * log (d j)) := Finset.sum_le_sum fun j _ ↦ integral_iSup_mtL_le hd j
 
 end width

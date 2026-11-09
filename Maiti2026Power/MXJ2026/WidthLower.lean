@@ -6,9 +6,9 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.NormalizedDesign
-public import Maiti2026Power.Mathlib.Probability.SudakovFernique
-public import Maiti2026Power.Mathlib.Probability.GaussianMaxLower
-public import Maiti2026Power.Mathlib.Analysis.InnerProductSpace.IsotropicSeparated
+public import Maiti2026Power.ForLMLExplore.Probability.SudakovFernique
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianMaxLower
+public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.IsotropicSeparated
 
 /-!
 # Lower bound on the Gaussian width term: `w(𝒳) ≥ (1/8) √(d log ⌊d/2⌋)`
@@ -102,7 +102,7 @@ lemma sqrt_log_le_gwMat (hw : IsDesign 𝒳 w) (hA : (designMatrix w).PosDef) (h
     simp only [mulVec, dotProduct, hC_def, Matrix.of_apply]
     exact Finset.sum_congr rfl fun j _ ↦ mul_comm _ _
   have hCC : ∀ k l, (C * Cᵀ) k l = ⟪y k, y l⟫ := fun k l ↦ by
-    simp only [mul_apply, transpose_apply, hC_def, Matrix.of_apply,
+    simp only [hC_def,
       EuclideanSpace.inner_eq_star_dotProduct, star_trivial, dotProduct]
     exact Finset.sum_congr rfl fun j _ ↦ mul_comm _ _
   have hlaw : (stdGaussian (EuclideanSpace ℝ ι)).map

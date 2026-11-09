@@ -80,7 +80,7 @@ both sides vanish; otherwise such a $g$ is given by \texttt{MeasurableEmbedding.
 \end{proof}
 
 \begin{lemma}[Divergence of two Gaussians with the same variance]\label{lem:kl_gaussian}
-\lean{ProbabilityTheory.gaussianReal_absolutelyContinuous_gaussianReal, ProbabilityTheory.llr_gaussianReal, ProbabilityTheory.integrable_llr_gaussianReal, ProbabilityTheory.klDiv_gaussianReal, ProbabilityTheory.klDiv_gaussianReal_one}\leanok
+\lean{LMLExplore.gaussianReal_absolutelyContinuous_gaussianReal, LMLExplore.llr_gaussianReal_gaussianReal, LMLExplore.integrable_llr_gaussianReal_gaussianReal, LMLExplore.klDiv_gaussianReal_gaussianReal_same_var}\leanok
 \uses{lem:gauss_1d_moments}
 Let $m_1, m_2 \in \R$ and $v > 0$. Then $\Normal(m_1, v) \ll \Normal(m_2,v)$, the log-likelihood
 ratio is $\mathrm{llr}(y) = \frac{(m_1 - m_2)}{v}\big(y - \frac{m_1+m_2}{2}\big)$ for Lebesgue-a.e.\
@@ -90,6 +90,11 @@ $y$, it is integrable, and
 \]
 In particular $\KL(\Normal(m_1,1)\|\Normal(m_2,1)) = (m_1-m_2)^2/2$.
 \end{lemma}
+
+\textbf{Lean remark.} These are LMLExplore's lemmas on two Gaussians, stated for arbitrary
+variances $v_1, v_2 > 0$; the log-likelihood ratio is given there in the quadratic form
+$\frac12\log\frac{v_2}{v_1} + \frac{(y-m_2)^2}{2v_2} - \frac{(y-m_1)^2}{2v_1}$, which is the
+affine function above when $v_1 = v_2$.
 
 \begin{proof}
 \leanok
@@ -114,7 +119,7 @@ term $\nu(\Omega)-\mu(\Omega)$ vanishes).
 \end{proof}
 
 \begin{lemma}[Divergence of two Bernoulli measures]\label{lem:pi_kl_bernoulli}
-\lean{InformationTheory.klBerReal, InformationTheory.klBer, InformationTheory.klDiv_bernoulliMeasure_eq_klBerReal, InformationTheory.klDiv_bernoulliMeasure, InformationTheory.ofReal_le_klDiv_bernoulliMeasure, ProbabilityTheory.lintegral_bernoulliMeasure, ProbabilityTheory.bernoulliMeasure_eq_withDensity, ProbabilityTheory.rnDeriv_bernoulliMeasure}\leanok
+\leanok
 For $p \in [0,1]$ write $\mathrm{B}(p) := p\,\delta_1 + (1-p)\,\delta_0$ for the Bernoulli
 measure on $\{0,1\}$. Let $p \in [0,1]$ and $q \in (0,1)$. Then
 \[
@@ -124,6 +129,11 @@ measure on $\{0,1\}$. Let $p \in [0,1]$ and $q \in (0,1)$. Then
 with the convention $0 \log 0 = 0$. If $q \in \{0,1\}$ and $p \ne q$ then
 $\KL(\mathrm{B}(p)\|\mathrm{B}(q)) = \infty$.
 \end{lemma}
+
+\textbf{Lean remark.} The binary divergence is LMLExplore's \texttt{LMLExplore.klBer} (and
+\texttt{LMLExplore.klBerReal}), identified with the divergence of Bernoulli measures on
+$\{0,1\} \subseteq \R$ by \texttt{LMLExplore.klDiv\_bernoulliMeasure}; the project does not use it,
+since it takes Pinsker's inequality (Lemma~\ref{lem:pinsker}) from Tau Ceti.
 
 \begin{proof}
 \leanok
@@ -140,10 +150,13 @@ $q = 1$ is symmetric.
 \end{proof}
 
 \begin{lemma}[Pinsker's inequality for Bernoulli measures]\label{lem:kl_bernoulli_pinsker}
-\lean{InformationTheory.sq_sub_le_klBerReal, InformationTheory.sq_sub_le_klBer}\leanok
+\leanok
 \uses{lem:pi_kl_bernoulli}
 For $p \in [0,1]$ and $q \in (0,1)$, $\mathrm{kl}(p,q) \ge 2(p-q)^2$.
 \end{lemma}
+
+\textbf{Lean remark.} This is LMLExplore's \texttt{LMLExplore.two\_mul\_sq\_le\_klBerReal} and
+\texttt{LMLExplore.ofReal\_two\_mul\_sq\_le\_klBer}, not used by the project.
 
 \begin{proof}
 \leanok
@@ -163,7 +176,7 @@ so $h \ge 0$ on $(0,1]$. The case $p = 0$ is the case $p = 1$ with $q$ replaced 
 \end{proof}
 
 \begin{lemma}[Pinsker's inequality]\label{lem:pinsker}
-\lean{InformationTheory.sq_sub_le_klDiv, InformationTheory.abs_sub_le_sqrt_klDiv}\leanok
+\lean{TauCeti.two_mul_sq_measureReal_sub_le_klDiv, InformationTheory.abs_sub_le_sqrt_klDiv}\leanok
 \uses{lem:pi_kl_bernoulli, lem:kl_bernoulli_pinsker}
 Let $\mu, \nu$ be probability measures on a measurable space and $A$ a measurable set. Then
 \[
@@ -188,7 +201,7 @@ $2(p-q)^2 \le \mathrm{kl}(p,q) = \KL(\mathrm{B}(p)\|\mathrm{B}(q)) \le \KL(\mu\|
 \end{proof}
 
 \begin{lemma}[Bretagnolle--Huber inequality]\label{lem:bretagnolle_huber}
-\lean{InformationTheory.bretagnolle_huber}\leanok
+\lean{LMLExplore.exp_neg_klDiv_div_two_le}\leanok
 Let $\mu, \nu$ be probability measures on a measurable space and $A$ a measurable set. Then
 \[
   \mu(A) + \nu(A^c) \ge \tfrac12 \exp\big(-\KL(\mu\|\nu)\big),
@@ -344,7 +357,7 @@ last claim is Mathlib \texttt{klDiv\_compProd\_eq\_add} followed by the equality
 \end{proof}
 
 \begin{lemma}[Sufficient statistics and the divergence]\label{lem:kl_sufficient_statistic}
-\lean{InformationTheory.klDiv_map_of_leftInverse, InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.prodMk_const_left, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.restrict_compProd_prod_univ}\leanok
+\lean{InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.comp_right, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.compProd_restrict_left}\leanok
 \uses{lem:pi_kl_measurable_equiv}
 Let $\mu,\nu$ be finite measures on $\Omega$.
 \begin{enumerate}
@@ -376,8 +389,12 @@ for each fixed measurable $t$, so $\mu\otimes(\kappa\circ f)$ and $(D\circ(f\tim
 agree on rectangles, hence everywhere, and (ii) applies with $g = f\times\mathrm{id}$.
 \end{proof}
 
+\textbf{Lean remark.} Item (i) is not formalized, since the project does not use it; for a
+measurable embedding $g$ it is LML's \texttt{klDiv\_map\_measurableEmbedding}
+(Lemma~\ref{lem:pi_kl_measurable_equiv}).
+
 \begin{lemma}[One step of an algorithm-environment pair]\label{lem:pi_kl_step}
-\lean{ProbabilityTheory.Kernel.compProd_prodMkLeft_apply, Learning.klDiv_compProd_compProd_prodMkLeft_eq_klDiv_comp_compProd, Learning.klDiv_compProd_compProd_prodMkLeft}\leanok
+\lean{ProbabilityTheory.Kernel.compProd_prodMkLeft_apply, InformationTheory.klDiv_compProd_compProd_prodMkLeft_eq_klDiv_comp_compProd, Learning.klDiv_compProd_compProd_prodMkLeft}\leanok
 \uses{lem:kl_compProd_kernel, lem:kl_sufficient_statistic}
 Let $P$ be a probability measure on a measurable space $\mathcal{H}$ (``histories''), $\pi$ a
 Markov kernel from $\mathcal{H}$ to a countably generated space $\mathcal{A}$ (``policy''),
@@ -446,7 +463,7 @@ probability space.
 \end{definition}
 
 \begin{theorem}[Divergence decomposition]\label{thm:divergence_decomposition}
-\lean{Learning.IsAlgEnvSeq.map_history_succ, Learning.IsAlgEnvSeq.klDiv_map_history, Learning.IsAlgEnvSeq.klDiv_map_history_compProd, Learning.IsAlgEnvSeq.klDiv_map_history_stepKernel}\leanok
+\lean{Learning.IsAlgEnvSeq.map_history_succ, Learning.IsAlgEnvSeq.klDiv_map_history_bandit, Learning.IsAlgEnvSeq.klDiv_map_history_compProd_bandit, Learning.IsAlgEnvSeq.klDiv_map_history_stepKernel}\leanok
 \uses{def:env_pair, lem:stopped_history_chain_rule}
 In the setting of Definition~\ref{def:env_pair}, for every $T \ge 0$,
 \[
@@ -529,7 +546,7 @@ Radon--Nikodym derivative rather than its expected logarithm.
 
 \begin{lemma}[Appending the recommendation does not change the divergence]
 \label{lem:kl_data_processing_recommendation}
-\lean{Learning.IdentAlg.IsFixedBudget.stoppingTime_eq, Learning.IdentAlg.IsFixedBudget.stoppedHist_eq, Learning.IdentAlg.IsFixedBudget.stoppingTime_ne_top, Learning.IdentAlg.IsRun.klDiv_map_stoppedHist_out, Learning.IdentAlg.IsRun.klDiv_map_out_le, Learning.LinearBandit.IsRun.klDiv_map_out_le, Learning.LinearBandit.IsRun.klDiv_map_out_le_of_sq_le, Learning.LinearBandit.IsRun.exp_neg_le_measureReal_add_of_sq_le}\leanok
+\lean{LMLExplore.Identification.IsFixedBudget.stoppingTime_eq, LMLExplore.Identification.IsFixedBudget.stoppedHist_eq, LMLExplore.Identification.IsFixedBudget.stoppingTime_ne_top, Learning.IdentAlg.IsRun.klDiv_map_stoppedHist_out, Learning.IdentAlg.IsRun.klDiv_map_out_le, Learning.LinearBandit.IsRun.klDiv_map_out_le, Learning.LinearBandit.IsRun.klDiv_map_out_le_of_sq_le, Learning.LinearBandit.IsRun.exp_neg_le_measureReal_add_of_sq_le}\leanok
 \uses{def:env_pair, def:bai_alg, lem:pinsker, lem:bretagnolle_huber}
 In the setting of Definition~\ref{def:env_pair}, let $T \ge 1$ and let $\rho$ be a Markov
 kernel from histories of length $T$ to a measurable space $\mathcal{X}$ (a recommendation rule).
@@ -587,7 +604,7 @@ DataProcessing, MapSequence, Restrict\}.lean} and of the fixed-round and traject
 decompositions of \texttt{LeanMachineLearning/SequentialLearning/DivergenceDecomposition.lean}.
 
 \begin{definition}[Histories of the first $n$ rounds, step kernels]\label{def:fin_history}
-\lean{Learning.history, Learning.stepKernel, Learning.IsAlgEnvSeq.hasCondDistrib_action, Learning.IsAlgEnvSeq.hasCondDistrib_feedback, Learning.IsAlgEnvSeq.hasCondDistrib_step, Learning.IsAlgEnvSeq.map_history_succ, Learning.map_history_succ_of_hasCondDistrib, Learning.feedback_stationaryEnv, Learning.stepKernel_stationaryEnv}\leanok
+\lean{Learning.history, Learning.stepKernel, Learning.IsAlgEnvSeq.hasCondDistrib_action, Learning.IsAlgEnvSeq.hasCondDistrib_feedback, Learning.IsAlgEnvSeq.hasCondDistrib_step, Learning.IsAlgEnvSeq.map_history_succ, Learning.map_history_succ_of_hasCondDistrib, Learning.feedback_bandit, Learning.stepKernel_bandit}\leanok
 \uses{def:env_pair}
 For action and feedback processes $X, Y$ on $\Omega$, the \emph{history of the first $n$ rounds}
 is $\mathrm{hist}_n := (X_t, Y_t)_{t < n} : \Omega \to (\{0,\dots,n-1\}\to\mathcal{A}\times\mathcal{Y})$
@@ -604,7 +621,7 @@ every round, so $\sigma_n = \pi_n\otimes\tilde\kappa$.
 \end{definition}
 
 \begin{definition}[Stopping rules, stopping times, stopped histories]\label{def:stopping_rule}
-\lean{Learning.sigmaHistory, Learning.lt_hittingAfter_sigmaHistory_iff, Learning.hittingAfter_sigmaHistory_eq_coe_iff, Learning.stoppedValue_sigmaHistory_of_eq, Learning.fst_stoppedProcess_sigmaHistory_le, Learning.measurable_hittingAfter_sigmaHistory, Learning.measurable_stoppedValue_sigmaHistory, Learning.measurable_stoppedProcess_sigmaHistory, Learning.IsAlgEnvSeq.adapted_sigmaHistory, Learning.exists_measurableSet_preimage_lt_hittingAfter_sigmaHistory, Learning.truncHist, Learning.truncHist_stoppedValue_sigmaHistory, Learning.stoppedProcess_sigmaHistory_ae_eq_truncHist, ProbabilityTheory.HasLaw.stoppedProcess_sigmaHistory, Learning.restrict_map_truncHist, Learning.stoppedHistMeasure, Learning.IsAlgEnvSeq.hasLaw_stoppedValue_sigmaHistory, Learning.IdentAlg.stoppingTime, Learning.IdentAlg.stoppedHist, Learning.IdentAlg.isStoppingTime_stoppingTime}\leanok
+\lean{Learning.sigmaHistory, Learning.history_mem_notStoppedSet_iff, MeasureTheory.hittingAfter_eq_coe_iff, Learning.stoppedValue_sigmaHistory_of_eq, Learning.fst_stoppedProcess_sigmaHistory_le, Learning.measurable_hittingAfter_sigmaHistory, Learning.measurable_stoppedValue_sigmaHistory, Learning.IsAlgEnvSeq.adapted_sigmaHistory, Learning.measurableSet_notStoppedSet, Learning.truncHist, Learning.truncHist_stoppedValue_sigmaHistory, Learning.stoppedProcess_sigmaHistory_ae_eq_truncHist, ProbabilityTheory.HasLaw.stoppedProcess_sigmaHistory, Learning.restrict_map_truncHist, Learning.stoppedHistMeasure, Learning.IsAlgEnvSeq.hasLaw_stoppedValue_sigmaHistory, Learning.IdentAlg.stoppingTime, Learning.IdentAlg.stoppedHist, Learning.IdentAlg.isStoppingTime_stoppingTime}\leanok
 \uses{def:fin_history, def:bai_alg}
 A \emph{stopping rule} is a measurable set $S$ of histories of variable length,
 $S \subseteq \bigsqcup_n (\{0,\dots,n-1\}\to\mathcal{A}\times\mathcal{Y})$: the interaction stops after
@@ -693,7 +710,7 @@ with the integral.
 \end{proof}
 
 \begin{theorem}[Divergence decomposition at a stopping time]\label{thm:divergence_decomposition_stopping}
-\lean{Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_compProd, Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory, Learning.tsum_ite_lt_eq_sum_range_toNat}\leanok
+\lean{Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_compProd, Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory, LMLExplore.tsum_indicator_natCast_lt_eq_sum_range}\leanok
 \uses{def:env_pair, def:stopping_rule, lem:stopped_history_chain_rule, lem:kl_restrict}
 In the setting of Lemma~\ref{lem:stopped_history_chain_rule}, assume that the stopping time is
 almost surely finite under both $\Prob$ and $\Prob'$. Then
@@ -778,7 +795,7 @@ sets $B_n = g_n^{-1}(C_n)$, shows that the divergences of the images tend to inf
 \end{proof}
 
 \begin{theorem}[Divergence decomposition for trajectories]\label{thm:divergence_decomposition_trajectory}
-\lean{Learning.klDiv_map_trajectory_eq_iSup, Learning.IsAlgEnvSeq.klDiv_map_trajectory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_trajectory_compProd, Learning.IsAlgEnvSeq.klDiv_map_trajectory}\leanok
+\lean{Learning.klDiv_map_trajectory_eq_iSup, Learning.IsAlgEnvSeq.klDiv_map_trajectory_stepKernel, Learning.IsAlgEnvSeq.klDiv_map_trajectory_compProd_bandit, Learning.IsAlgEnvSeq.klDiv_map_trajectory_bandit}\leanok
 \uses{def:env_pair, thm:divergence_decomposition, lem:kl_iSup_map}
 In the setting of Definition~\ref{def:env_pair}, for two algorithm-environment sequences on
 $(\Omega,\Prob)$, $(\Omega',\Prob')$, the divergence between the laws of the whole trajectories

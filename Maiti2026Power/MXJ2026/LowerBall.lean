@@ -8,8 +8,8 @@ module
 public import Maiti2026Power.MXJ2026.BayesKernel
 public import Maiti2026Power.MXJ2026.PosteriorGaussian
 public import Maiti2026Power.MXJ2026.UnitBall
-public import Maiti2026Power.Mathlib.Matrix.TraceInv
-public import Maiti2026Power.Mathlib.Probability.GaussianAbsMoment
+public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.TraceInv
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianAbsMoment
 public import Mathlib.Analysis.Real.Pi.Bounds
 
 /-!
@@ -35,6 +35,7 @@ the prior gives a reward vector of norm at most `10 d / √T` with expected simp
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Learning Learning.LinearBandit Real Matrix Finset
+open LMLExplore.Identification
 open scoped ENNReal RealInnerProductSpace MatrixOrder
 
 namespace Maiti2026Power
@@ -99,7 +100,7 @@ variable (A : IdentAlg Unit (unitBall ι) ℝ (unitBall ι)) (T : ℕ) (σ : ℝ
 
 /-- The law of (history, recommendation) of `A` under pure noise. -/
 noncomputable def noisePairLaw : Measure (Hist Unit (unitBall ι) ℝ T × unitBall ι) :=
-  noiseHistLaw A.alg T ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T)
+  noiseHistLaw A.alg T ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T)
 
 instance : IsProbabilityMeasure (noisePairLaw A T) := by
   unfold noisePairLaw
@@ -796,7 +797,7 @@ omit [DecidableEq ι] in
 recommendation does not depend on `θ`, and the instances `± 2ε e` have regrets summing to `4ε`
 at every arm. -/
 lemma not_isPAC_unitBall_of_isFixedBudget_zero (hd : 0 < Fintype.card ι) {ε δ : ℝ} (hε : 0 < ε)
-    (hδ : δ < 1 / 2) (hA : A.IsFixedBudget 0) : ¬ IsPAC (unitBall ι) A ε δ := by
+    (hδ : δ < 1 / 2) (hA : IsFixedBudget A 0) : ¬ IsPAC (unitBall ι) A ε δ := by
   classical
   intro hpac
   obtain ⟨i⟩ : Nonempty ι := Fintype.card_pos_iff.1 hd

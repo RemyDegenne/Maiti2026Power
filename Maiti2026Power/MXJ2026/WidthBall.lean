@@ -7,7 +7,7 @@ module
 
 public import Maiti2026Power.MXJ2026.UnitBall
 public import Maiti2026Power.MXJ2026.WidthBounds
-public import Maiti2026Power.Mathlib.Probability.GaussianAbsMoment
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianAbsMoment
 
 /-!
 # The Gaussian width of the unit ball

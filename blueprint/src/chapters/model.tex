@@ -69,7 +69,7 @@ independence. Joint independence of the $\eta_t$ follows by induction on $t$.
 which is what the concentration argument below consumes.
 
 \begin{lemma}[Azuma--Hoeffding for the noise]\label{lem:noise_azuma}
-\lean{ProbabilityTheory.hasSubgaussianMGF_fun_id_gaussianReal, ProbabilityTheory.HasCondDistrib.hasCondSubgaussianMGF_of_const, Learning.IsAlgEnvSeq.hasCondSubgaussianMGF_noise, Learning.IsAlgEnvSeq.measureReal_sum_noise_ge_le, Learning.IsAlgEnvSeq.measureReal_sum_noise_le_le, Learning.IsAlgEnvSeq.measureReal_abs_sum_noise_ge_le}\leanok
+\lean{LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal, ProbabilityTheory.HasCondDistrib.hasCondSubgaussianMGF_sub, Learning.IsAlgEnvSeq.hasCondSubgaussianMGF_noise, Learning.IsAlgEnvSeq.measureReal_sum_noise_ge_le, Learning.IsAlgEnvSeq.measureReal_sum_noise_le_le, Learning.IsAlgEnvSeq.measureReal_abs_sum_noise_ge_le}\leanok
 \uses{lem:noise_representation}
 In the setting of Lemma~\ref{lem:noise_representation}, on a standard Borel probability space,
 for all $n, m \ge 0$ and $\eps \ge 0$,
@@ -105,7 +105,7 @@ its mean, for the run of the composed algorithm itself.
 \label{sec:model_pac}
 
 \begin{definition}[Identification algorithms; runs; fixed budget]\label{def:bai_alg}
-\lean{Learning.IdentAlg, Learning.IdentAlg.stoppingTime, Learning.IdentAlg.stoppedHist, Learning.IdentAlg.IsRun, Learning.IdentAlg.outputMeasure, Learning.IdentAlg.IsRun.hasLaw_output, Learning.IdentAlg.IsFixedBudget, Learning.IdentAlg.fixedBudget, Learning.IdentAlg.output_fixedBudget, Learning.IdentAlg.runMeasure, Learning.IdentAlg.isRun_runMeasure, Learning.IdentAlg.IsRun.comp_hasLaw}\leanok
+\lean{Learning.IdentAlg, Learning.IdentAlg.stoppingTime, Learning.IdentAlg.stoppedHist, Learning.IdentAlg.IsRun, Learning.IdentAlg.outputMeasure, Learning.IdentAlg.IsRun.hasLaw_output, LMLExplore.Identification.IsFixedBudget, LMLExplore.Identification.fixedBudget, LMLExplore.Identification.outputAt_fixedBudget, LMLExplore.Identification.runMeasure, LMLExplore.Identification.isRun_runMeasure, Learning.IdentAlg.IsRun.comp_hasLaw}\leanok
 \uses{def:env}
 An \emph{identification algorithm} on $\Xs$ is a triple $\mathsf{Alg} = (\mathrm{alg}, S, \rho)$
 (LML \texttt{Learning.IdentAlg}) of an LML algorithm $\mathrm{alg}$ with actions in $\Xs$ and
@@ -131,7 +131,7 @@ An identification algorithm has \emph{fixed budget $T \ge 0$} if its stopping ru
 after exactly $T$ rounds''; then $\hist_\tau = \hist_T = (x_t,y_t)_{t<T}$ and only the
 restriction of $\rho$ to histories of length $T$ matters, so it is determined by the pair
 $(\mathrm{alg},\rho)$ with $\rho$ a Markov kernel from histories of length $T$ to $\Xs$
-(\texttt{IdentAlg.fixedBudget}). All the algorithms of this
+(LMLExplore \texttt{fixedBudget}, \texttt{IsFixedBudget}). All the algorithms of this
 blueprint have a fixed budget (Remark~\ref{rem:stopping_times}); \emph{fixed-confidence}
 algorithms, which stop adaptively, are covered by the same definition.
 \end{definition}
@@ -197,8 +197,8 @@ probability space (\texttt{IsPAC.measureReal\_bad\_of\_isRun},
 a run: every identification algorithm $\mathsf{Alg}$ has a canonical run on the space
 $(\N \to \Xs\times\R)\times\Xs$ of pairs (trajectory, recommendation), with the law
 ``trajectory measure of the sampling rule, then the recommendation kernel applied to the history
-at the stopping time'' (\texttt{Learning.IdentAlg.runMeasure},
-\texttt{IdentAlg.isRun\_runMeasure}); the output kernel of an identification algorithm is a
+at the stopping time'' (LMLExplore \texttt{runMeasure},
+\texttt{isRun\_runMeasure}); the output kernel of an identification algorithm is a
 Markov kernel, so this composition-product is a probability measure. Since Lean's universes
 cannot be quantified over inside a statement, the criterion ``PAC as soon as every run has a
 small failure probability'' (\texttt{IdentAlg.IsPAC.of\_forall\_isRun},
@@ -256,12 +256,13 @@ Appendix~I. This reduction is not part of the formalization plan.
 \label{sec:model_fixed}
 
 \begin{definition}[Fixed-design algorithm]\label{def:fixed_design}
-\lean{Learning.fixedDesignAlg, Learning.IdentAlg.IsFixedDesign}\leanok
+\lean{Learning.Algorithm.ofSeq, LMLExplore.Identification.IsFixedDesign}\leanok
 \uses{def:bai_alg}
 A \emph{fixed design} of length $T$ is a deterministic sequence $x_0, \dots, x_{T-1} \in \Xs$.
 The associated \emph{fixed-design (non-adaptive) algorithm} is the identification algorithm
 whose sampling rule is deterministic and ignores the observations, playing $x_t$ at round
-$t$ (LML \texttt{detAlgorithm} with a history-independent next-action function), together with
+$t$ (LMLExplore \texttt{Algorithm.ofSeq}, an LML deterministic algorithm with a
+history-independent next-action function; LMLExplore \texttt{IsFixedDesign}), together with
 an arbitrary recommendation kernel $\rho$ from $(y_t)_{t<T} \in \R^T$ to $\Xs$ (budget
 $T \ge 0$; for $T = 0$ the design is empty and $\rho$ is a probability measure on $\Xs$). We write
 $X \in \R^{T \times d}$ for the matrix with rows $x_t^\top$ and
@@ -272,7 +273,7 @@ write $\Prob_\theta$ for the law of either.
 \end{definition}
 
 \begin{lemma}[Law of the observations under a fixed design]\label{lem:fixed_design_law}
-\lean{Learning.IsAlgEnvSeq.hasCondDistrib_noise_finVec, Learning.IsAlgEnvSeq.hasLaw_noise_finVec, Learning.IsAlgEnvSeq.iIndepFun_noise, Learning.IsAlgEnvSeq.hasLaw_toLp_noise_finVec, Learning.IsAlgEnvSeq.ae_action_eq_of_fixedDesign, Learning.IsAlgEnvSeq.ae_feedback_eq_of_fixedDesign, Learning.IsAlgEnvSeq.hasLaw_feedback_finVec_of_fixedDesign, Learning.IdentAlg.IsRun.hasCondDistrib_output_history, Learning.IdentAlg.IsRun.output_ae_eq_of_output_eq_deterministic}\leanok
+\lean{Learning.IsAlgEnvSeq.hasCondDistrib_noise_finVec, Learning.IsAlgEnvSeq.hasLaw_noise_finVec, Learning.IsAlgEnvSeq.iIndepFun_noise, Learning.IsAlgEnvSeq.hasLaw_toLp_noise_finVec, Learning.IsAlgEnvSeq.action_ofSeq_ae_all_eq, Learning.IsAlgEnvSeq.ae_feedback_eq_of_fixedDesign, Learning.IsAlgEnvSeq.hasLaw_feedback_finVec_of_fixedDesign, Learning.IdentAlg.IsRun.hasCondDistrib_output_history, Learning.IdentAlg.IsRun.output_ae_eq_of_outputAt_eq_deterministic}\leanok
 \uses{def:fixed_design, lem:noise_representation}
 Under a fixed design run against $\nu_\theta$, the observation vector
 $y = (y_t)_{t<T}$ satisfies $y = X\theta + \eta$ with $\eta \sim \Normal(0, I_T)$, and
@@ -294,9 +295,10 @@ Lemma~\ref{lem:gauss_pi} in its sequential form applies
 (\texttt{Learning.IsAlgEnvSeq.hasLaw\_noise\_finVec}, \texttt{iIndepFun\_noise},
 \texttt{hasLaw\_toLp\_noise\_finVec} for the standard Gaussian law on
 \texttt{EuclideanSpace ℝ (Fin T)}). For a fixed design the actions are $x_t$ almost surely
-(LML \texttt{action\_detAlgorithm\_ae\_all\_eq}) and $y_t = \ip{x_t}{\theta} + \eta_t$, which
-gives the law of $y$ (\texttt{hasLaw\_feedback\_finVec\_of\_fixedDesign}); the joint law with
-the recommendation is \texttt{Learning.IdentAlg.map\_history\_out\_eq}.
+(LMLExplore \texttt{IsAlgEnvSeq.action\_ofSeq\_ae\_all\_eq}) and
+$y_t = \ip{x_t}{\theta} + \eta_t$, which gives the law of $y$
+(\texttt{hasLaw\_feedback\_finVec\_of\_fixedDesign}); the joint law with the recommendation is
+\texttt{Learning.IdentAlg.IsRun.hasLaw\_history\_out\_of\_fixedDesign}.
 
 \begin{lemma}[Transport of a fixed-design algorithm through a linear map]\label{lem:fixed_design_transport}
 \lean{Learning.LinearBandit.relabelHist, Learning.LinearBandit.transportKernel, Learning.LinearBandit.fixedDesignTransport, Learning.LinearBandit.fixedDesignHistLaw_map_relabelHist, Learning.LinearBandit.isPAC_fixedDesignTransport}\leanok
@@ -329,7 +331,7 @@ $\Prob_\vartheta\big(r_{\mathcal Y}(\pi(\rec),\vartheta) \le \eps\big)
 \end{proof}
 
 \textbf{Lean remark.} \texttt{fixedDesignTransport A T x x' hπ} is
-\texttt{IdentAlg.fixedBudget} of the fixed design $x'$ with the output kernel
+LMLExplore's \texttt{fixedBudget} of the fixed design $x'$ with the output kernel
 \texttt{transportKernel}, the composition of the relabelling of the history
 (\texttt{relabelHist}, a deterministic kernel), of the output kernel of \texttt{A} and of the
 deterministic kernel of $\pi$. The proof is a computation with the explicit laws
@@ -375,7 +377,8 @@ and every $A \in \designset(\Xs)$ satisfies $\tr(A) \le \sup_{x\in\Xs}\norm{x}^2
 \uses{def:design_matrix}
 The map $x \mapsto xx^\top$ is continuous, so $\{xx^\top : x\in\Xs\}$ is compact; the convex
 hull of a compact subset of a finite-dimensional space is compact
-(Mathlib \texttt{Set.Finite.isCompact\_convexHull} / \texttt{isCompact\_convexHull}).
+(Mathlib \texttt{Set.Finite.isCompact\_convexHull} for finite sets, LMLExplore
+\texttt{IsCompact.convexHull} in general).
 Positive semidefiniteness and the trace bound are preserved by convex combinations.
 \end{proof}
 
@@ -579,7 +582,7 @@ and the region algorithm of Chapter~\ref{chap:log_gains} are \emph{phased algori
 using the independence of the future noise from the past.
 
 \begin{lemma}[Algorithms agreeing on a prefix; transfer of PAC guarantees]\label{lem:prefix_transfer}
-\lean{Learning.Algorithm.AgreeUntil, Learning.IsAlgEnvSeqUntil.of_agreeUntil, Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_agreeUntil, Learning.IsAlgEnvSeqUntil.map_history, Learning.IdentAlg.map_history_out_eq, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
+\lean{Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq, Learning.IsAlgEnvSeqUntil.map_history, LMLExplore.Identification.IsFixedBudget.hasLaw_output_of_isAlgEnvSeqUntil, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
 \uses{def:bai_alg, def:pac}
 Let $\mathrm{alg}, \mathrm{alg}'$ be two algorithms with the same policies at the rounds
 $t < T$ (they \emph{agree until time $T$}). Then every
@@ -604,12 +607,12 @@ the history is then the image of the trajectory measure of $(\mathrm{alg}', \nu)
 \texttt{IsAlgEnvSeqUntil.map\_history}). For the second
 assertion, the law of $(\hist_{T}, \rec)$ is the composition-product of the law of
 $\hist_{T}$ with $\rho$, and so is the law of (history, recommendation) under the canonical
-run of $\mathsf{Alg}$ (\texttt{Learning.IdentAlg.runMeasure}); the PAC property
+run of $\mathsf{Alg}$ (LMLExplore \texttt{runMeasure}); the PAC property
 applied to the canonical run gives the bound.
 \end{proof}
 
 \begin{lemma}[Seeded algorithms and the seed representation of a run]\label{lem:seeded}
-\lean{Learning.SeededAlg, Learning.SeededAlg.toAlgorithm, Learning.SeededAlg.policy_apply, Learning.noiseEnv, Learning.LinearBandit.linearGaussianEnv_eq_noiseEnv, Learning.SeededAlg.seedMeasure, Learning.SeededAlg.seedStep, Learning.SeededAlg.seedFinHist, Learning.SeededAlg.seedFeedback_eq, Learning.SeededAlg.isAlgEnvSeq_seed, Learning.IsAlgEnvSeq.map_history_eq, Learning.IsAlgEnvSeq.map_history_eq_seed, Learning.IdentAlg.IsRun.measureReal_eq_seed, Learning.SeededAlg.isPAC_fixedBudget_deterministic, Learning.SeededAlg.linearBandit_isPAC_fixedBudget_deterministic, ProbabilityTheory.Kernel.mapOfConst, ProbabilityTheory.IndepFun.hasCondDistrib_const, ProbabilityTheory.HasCondDistrib.mapOfConst, ProbabilityTheory.HasCondDistrib.snd_of_const_prod}\leanok
+\lean{Learning.SeededAlg, Learning.SeededAlg.toAlgorithm, Learning.SeededAlg.policy_apply, Learning.noiseEnv, Learning.LinearBandit.linearGaussianEnv_eq_noiseEnv, Learning.SeededAlg.seedMeasure, Learning.SeededAlg.seedStep, Learning.SeededAlg.seedFinHist, Learning.SeededAlg.seedFeedback_eq, Learning.SeededAlg.isAlgEnvSeq_seed, Learning.isAlgEnvSeqUntil_unique, Learning.IsAlgEnvSeq.map_history_eq_seed, Learning.IdentAlg.IsRun.measureReal_eq_seed, Learning.SeededAlg.isPAC_fixedBudget_deterministic, Learning.SeededAlg.linearBandit_isPAC_fixedBudget_deterministic, ProbabilityTheory.Kernel.mapOfConst, ProbabilityTheory.IndepFun.hasCondDistrib_const, ProbabilityTheory.HasCondDistrib.mapOfConst, ProbabilityTheory.HasCondDistrib.snd_of_const_prod}\leanok
 \uses{def:bai_alg, def:pac, def:env}
 A \emph{seeded algorithm} with seed space $U$ is given by a probability measure $\mu_U$ on
 $U$ (the law of the seeds), a measurable first action $a_0 : U \to \Xs$ and measurable

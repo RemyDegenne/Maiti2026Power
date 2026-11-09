@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.FixedBudget
+public import Maiti2026Power.ForLMLExplore.Identification.FixedBudget
 public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
 
@@ -29,6 +29,7 @@ complement the simple regret is at most `D + ε/4 ≤ ε`
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit Matrix
+open LMLExplore.Identification
 open scoped RealInnerProductSpace NNReal MatrixOrder
 
 namespace Maiti2026Power
@@ -52,22 +53,27 @@ estimate and `s` a measurable selector. -/
 noncomputable def fixedDesignIdentAlg (T : ℕ) (x : ℕ → 𝒳) (s : EuclideanSpace ℝ ι → 𝒳)
     (hs : Measurable s) : IdentAlg Unit 𝒳 ℝ 𝒳 :=
   haveI : Nonempty 𝒳 := ⟨x 0⟩
-  IdentAlg.fixedBudget (fixedDesignAlg x) T
+  fixedBudget (Algorithm.ofSeq x) T
     (Kernel.deterministic (lsRecommend T x s) (measurable_lsRecommend T x hs))
 
 variable {x : ℕ → 𝒳} {s : EuclideanSpace ℝ ι → 𝒳} {hs : Measurable s}
 
-lemma isFixedBudget_fixedDesignIdentAlg : (fixedDesignIdentAlg T x s hs).IsFixedBudget T :=
+lemma isFixedBudget_fixedDesignIdentAlg : IsFixedBudget (fixedDesignIdentAlg T x s hs) T :=
   haveI : Nonempty 𝒳 := ⟨x 0⟩
-  IdentAlg.isFixedBudget_fixedBudget _ _ _
+  isFixedBudget_fixedBudget _ _ _
 
-lemma isFixedDesign_fixedDesignIdentAlg : (fixedDesignIdentAlg T x s hs).IsFixedDesign := ⟨x, rfl⟩
+lemma alg_fixedDesignIdentAlg : (fixedDesignIdentAlg T x s hs).alg = Algorithm.ofSeq x :=
+  haveI : Nonempty 𝒳 := ⟨x 0⟩
+  alg_fixedBudget _ _ _
 
-lemma output_fixedDesignIdentAlg :
-    (fixedDesignIdentAlg T x s hs).output.comap (Sigma.mk T) (measurable_sigma_mk T) =
+lemma isFixedDesign_fixedDesignIdentAlg : IsFixedDesign (fixedDesignIdentAlg T x s hs).alg :=
+  isFixedDesign_iff.2 ⟨x, alg_fixedDesignIdentAlg⟩
+
+lemma outputAt_fixedDesignIdentAlg :
+    outputAt (fixedDesignIdentAlg T x s hs) T =
       Kernel.deterministic (lsRecommend T x s) (measurable_lsRecommend T x hs) :=
   haveI : Nonempty 𝒳 := ⟨x 0⟩
-  IdentAlg.output_fixedBudget _ _ _
+  outputAt_fixedBudget _ _ _
 
 /-- **Fixed-design upper bound** (blueprint `thm:upper`, general form): the fixed-design
 algorithm with design `x`, design matrix `Σ = ∑ t < T, x t x tᵀ ≻ 0`, `xᵀ Σ⁻¹ x ≤ σ²` on `𝒳`, an
@@ -93,15 +99,17 @@ lemma isPAC_fixedDesignIdentAlg (h𝒳 : IsCompact 𝒳) (hne : 𝒳.Nonempty)
   have hθhm : Measurable θh :=
     (continuous_leastSquares xT).measurable.comp (Measurable.of_eval fun t ↦ hY t)
   -- the law of the estimation error
-  have hls := hasLaw_leastSquares_of_fixedDesign hrun.isAlgEnvSeq T hS
+  have hseq := hrun.isAlgEnvSeq
+  rw [alg_fixedDesignIdentAlg] at hseq
+  have hls := hasLaw_leastSquares_of_fixedDesign hseq T hS
   have hΔ : HasLaw (fun ω ↦ θh ω - θ) (multivariateGaussian 0 Sm⁻¹) P := by
     have := (⟨(measurable_id.sub_const θ).aemeasurable, rfl⟩ :
       HasLaw (fun v : EuclideanSpace ℝ ι ↦ v - θ) _ _).comp hls
     rwa [multivariateGaussian_map_sub_const] at this
   -- the output is the selector applied to the estimate
   have hout : out =ᵐ[P] fun ω ↦ s (θh ω) :=
-    hrun.output_ae_eq_of_output_eq_deterministic isFixedBudget_fixedDesignIdentAlg _
-      output_fixedDesignIdentAlg
+    hrun.output_ae_eq_of_outputAt_eq_deterministic isFixedBudget_fixedDesignIdentAlg _
+      outputAt_fixedDesignIdentAlg
   -- the bad event
   set u := 2 * σ * √(2 * gaussianConcentrationConst * log (1 / δ)) with hu
   have hbad := measureReal_diffSup_gt_le h𝒳 hne hS hσ0 hσ hδ

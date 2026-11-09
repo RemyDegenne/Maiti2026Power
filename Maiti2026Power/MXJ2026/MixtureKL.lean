@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.DivergenceDecomposition
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.DivergenceDecomposition
 public import LeanMachineLearning.SequentialLearning.IonescuTulceaSpace
 public import Maiti2026Power.MXJ2026.NormalizedDesign
 public import LeanMachineLearning.ForMathlib.InformationTheory.KullbackLeibler.Convex
-public import Maiti2026Power.Mathlib.InformationTheory.BretagnolleHuber
-public import Maiti2026Power.Mathlib.MeasureTheory.MixtureMeasure
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.MixtureMeasure
 
 /-!
 # The mixture testing problem
@@ -218,7 +218,8 @@ lemma IsGOptimalDesign.exp_neg_le_of_mixture [Nonempty ι] (hw : IsGOptimalDesig
   have hkl := hw.klDiv_histLaw_zero_mixtureHistLaw_le alg N hR ε
   have hne : klDiv (histLaw alg N 0) (mixtureHistLaw alg N w ε) ≠ ∞ :=
     ne_top_of_le_ne_top ENNReal.ofReal_ne_top hkl
-  have hbh := bretagnolle_huber (μ := histLaw alg N 0) (ν := mixtureHistLaw alg N w ε) hE hne
+  have hbh := LMLExplore.exp_neg_klDiv_div_two_le (μ := histLaw alg N 0)
+    (ν := mixtureHistLaw alg N w ε) hE hne
   have hC : 0 ≤ N * (9 * ε ^ 2 / (2 * Fintype.card ι)) := by positivity
   have h1 : exp (-(N * (9 * ε ^ 2 / (2 * Fintype.card ι)))) ≤
       exp (-(klDiv (histLaw alg N 0) (mixtureHistLaw alg N w ε)).toReal) :=
@@ -227,10 +228,10 @@ lemma IsGOptimalDesign.exp_neg_le_of_mixture [Nonempty ι] (hw : IsGOptimalDesig
     rw [measureReal_def]
     refine ENNReal.toReal_le_of_le_ofReal hβ0 ?_
     unfold mixtureHistLaw
-    rw [Measure.finsetSum_apply]
+    rw [_root_.sum_apply]
     calc ∑ x ∈ w.support, ((designWeight w x : ℝ≥0∞) • histLaw alg N (mixtureParam w ε x)) Eᶜ
         = ∑ x ∈ w.support, (designWeight w x : ℝ≥0∞) * histLaw alg N (mixtureParam w ε x) Eᶜ := by
-          simp only [Measure.smul_apply, smul_eq_mul]
+          simp only [_root_.smul_apply, smul_eq_mul]
       _ ≤ ∑ x ∈ w.support, (designWeight w x : ℝ≥0∞) * ENNReal.ofReal β := by
           gcongr with x hx
           exact (ENNReal.le_ofReal_iff_toReal_le (measure_ne_top _ _) hβ0).2 (hβ x hx)

@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.LinearBandit
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 public import Maiti2026Power.MXJ2026.StructuredSets
 public import Maiti2026Power.MXJ2026.Width
 public import Maiti2026Power.MXJ2026.NormEstProof
 public import Maiti2026Power.MXJ2026.NormEstBudget
-public import Maiti2026Power.Mathlib.MeasureTheory.Measure.Real
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.Measure.Real
 
 /-!
 # `ℓ₂`-norm estimation on the unit ball (Theorem 8)
@@ -29,6 +29,7 @@ of which `exists_isAccurateNormEst` is the existence form).
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit
+open LMLExplore.Identification
 
 namespace Maiti2026Power
 
@@ -41,12 +42,12 @@ run against the linear Gaussian environment with reward vector `θ`, its output 
 def IsAccurateNormEst (A : IdentAlg Unit (unitBall ι) ℝ ℝ) (ε δ : ℝ) : Prop :=
   A.IsPAC (linearGaussianEnv (unitBall ι)) (fun θ r ↦ ε < |r - ‖θ‖|) δ
 
-/-- **Theorem 8** (Maiti, Xu, Jamieson 2026): for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
+/-- **Theorem 8** [MXJ26, Theorem 8]: for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
 (adaptive) `(ε, δ)`-accurate `ℓ₂`-norm estimation algorithm on the unit ball of `ℝ^d` with budget
 `T ≤ 10⁵ d log(4/δ) / ε²`. -/
 theorem exists_isAccurateNormEst {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 100000 * Fintype.card ι * log (4 / δ) / ε ^ 2 ∧
-      ∃ A : IdentAlg Unit (unitBall ι) ℝ ℝ, A.IsFixedBudget T ∧ IsAccurateNormEst A ε δ := by
+      ∃ A : IdentAlg Unit (unitBall ι) ℝ ℝ, IsFixedBudget A T ∧ IsAccurateNormEst A ε δ := by
   classical
   let P : NormEstParam := ⟨ε, δ, hε, hδ⟩
   have habs : ∀ θ : EuclideanSpace ℝ ι, Measurable fun r : ℝ ↦ |r - ‖θ‖| := fun θ ↦
@@ -55,9 +56,9 @@ theorem exists_isAccurateNormEst {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ :
     measurableSet_lt measurable_const (habs θ)
   rcases isEmpty_or_nonempty ι with hι | hι
   · -- degenerate case `d = 0`: every reward vector is `0`, the constant output `ε` is accurate
-    refine ⟨0, by simp, IdentAlg.fixedBudget (P.alg ι).toAlgorithm 0
+    refine ⟨0, by simp, fixedBudget (P.alg ι).toAlgorithm 0
       (Kernel.deterministic (fun _ ↦ ε) measurable_const),
-      IdentAlg.isFixedBudget_fixedBudget _ _ _, ?_⟩
+      isFixedBudget_fixedBudget _ _ _, ?_⟩
     refine SeededAlg.linearBandit_isPAC_fixedBudget_deterministic (P.alg ι) measurable_const hbad
       fun θ ↦ ?_
     have hθ : θ = 0 := by
@@ -68,9 +69,9 @@ theorem exists_isAccurateNormEst {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ :
     rw [hempty, measureReal_empty]
     exact hδ.1.le
   · have hd : 0 < Fintype.card ι := Fintype.card_pos
-    refine ⟨P.T ι, P.T_le hd, IdentAlg.fixedBudget (P.alg ι).toAlgorithm (P.T ι)
+    refine ⟨P.T ι, P.T_le hd, fixedBudget (P.alg ι).toAlgorithm (P.T ι)
       (Kernel.deterministic (P.output ι) P.measurable_output),
-      IdentAlg.isFixedBudget_fixedBudget _ _ _, ?_⟩
+      isFixedBudget_fixedBudget _ _ _, ?_⟩
     exact SeededAlg.linearBandit_isPAC_fixedBudget_deterministic (P.alg ι) P.measurable_output
       hbad fun θ ↦ measureReal_lt_le_of_one_sub_le_measureReal_le
         ((habs θ).comp (P.measurable_output.comp

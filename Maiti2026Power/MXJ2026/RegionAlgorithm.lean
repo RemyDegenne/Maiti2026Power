@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.MedianElimination
+public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianElimination
 public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
 
@@ -34,6 +34,8 @@ phase-by-phase analysis of `Phased.lean`: the algorithm is `(ε, δ)`-PAC with b
 
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit
   Learning.MedianElim Matrix
+open LMLExplore.Identification.MedianElimination (armsCount_zero armsCount_numPhases numPhases
+  pullSchedule phaseEnd)
 open scoped RealInnerProductSpace NNReal MatrixOrder
 
 namespace Maiti2026Power
@@ -68,8 +70,9 @@ variable {hK : 0 < K} {x : Fin T₁ → 𝒳} {hT₁ : 0 < T₁} {hsel : ∀ i, 
 
 /-- The budget of the region algorithm: `T₁ + N_ME(K, ε/2, δ/2)`. -/
 lemma start_regionAlg :
-    (regionAlg hK x hT₁ sel hsel hε hδ).start (numRounds K + 1) = T₁ + budget K (ε / 2) (δ / 2) :=
-  PhasedAlg.cons_start_succ _
+    (regionAlg hK x hT₁ sel hsel hε hδ).start (numPhases K + 1) =
+      T₁ + phaseEnd K (pullSchedule 1 (ε / 2) (δ / 2)) (numPhases K) :=
+  (PhasedAlg.cons_start_succ _).trans (congrArg (T₁ + ·) start_medianElim_numPhases)
 
 section phase1
 
@@ -185,7 +188,7 @@ lemma isPAC_regionAlg (h𝒳 : 𝒳.Finite) (hne : 𝒳.Nonempty)
       WithLp.ofLp y ≤ σ ^ 2)
     (hbound : ∀ i, 2 * gwMat (R i) (∑ t, outerSelf (x t : EuclideanSpace ℝ ι)) +
       2 * σ * √(2 * gaussianConcentrationConst * log (1 / (δ / 2))) ≤ ε / 2) :
-    IsPAC 𝒳 ((regionAlg hK x hT₁ sel hsel hε hδ).toIdentAlg (numRounds K + 1) (meOut hK)
+    IsPAC 𝒳 ((regionAlg hK x hT₁ sel hsel hε hδ).toIdentAlg (numPhases K + 1) (meOut hK)
       (measurable_meOut hK)) ε δ := by
   refine PhasedAlg.linearBandit_isPAC_toIdentAlg _ fun θ ↦ ?_
   have hδ2 : δ / 2 ∈ Set.Ioo 0 1 := ⟨half_pos hδ.1, by linarith [hδ.2]⟩
@@ -198,7 +201,7 @@ lemma isPAC_regionAlg (h𝒳 : 𝒳.Finite) (hne : 𝒳.Nonempty)
     | zero => exact hδ2.1.le
     | succ ℓ => exact (deltaSched_pos hδ2.1 ℓ).le
   · rw [sum_range_succ']
-    have := sum_deltaSched_le hδ2.1.le (numRounds K)
+    have := sum_deltaSched_le hδ2.1.le (numPhases K)
     simp only [Nat.rec_zero]
     linarith
   · intro ℓ hℓ p hp
@@ -210,7 +213,7 @@ lemma isPAC_regionAlg (h𝒳 : 𝒳.Finite) (hne : 𝒳.Nonempty)
       obtain ⟨b, hb⟩ := hη
       change (regionCandidates x sel fun t ↦ ⟪(x t : EuclideanSpace ℝ ι), θ⟫ + η t) ∈
         regionGood 𝒳 ε θ 0
-      refine ⟨by simp [regionCandidates, survivors_zero], b, mem_univ b, ?_⟩
+      refine ⟨by simp [regionCandidates, armsCount_zero], b, mem_univ b, ?_⟩
       simpa [regionCandidates] using hb
     | succ ℓ =>
       -- Median Elimination rounds
@@ -219,11 +222,11 @@ lemma isPAC_regionAlg (h𝒳 : 𝒳.Finite) (hne : 𝒳.Nonempty)
         (fun a ↦ ⟪(c a : EuclideanSpace ℝ ι), θ⟫) (supportFn 𝒳 θ - ε / 2) ℓ ⟨0, hK⟩ hp).trans
         (measureReal_mono fun η hη ↦ hη)
   · rintro ⟨c, S⟩ ⟨hcard, b, hb, hMb⟩
-    obtain ⟨b', rfl⟩ := Finset.card_eq_one.1 (hcard.trans (survivors_numRounds hK))
+    obtain ⟨b', rfl⟩ := Finset.card_eq_one.1 (hcard.trans (armsCount_numPhases hK))
     rw [mem_singleton] at hb
     subst hb
     rw [meOut_singleton]
-    have h1 := sum_epsSched_le (half_pos hε).le (numRounds K)
+    have h1 := sum_epsSched_le (half_pos hε).le (numPhases K)
     change supportFn 𝒳 θ - ⟪(c b : EuclideanSpace ℝ ι), θ⟫ ≤ ε
     linarith
 

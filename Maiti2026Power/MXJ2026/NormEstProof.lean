@@ -270,7 +270,7 @@ lemma testOK_of_notMem_bad {θ : EuclideanSpace ℝ ι} {ω : ℕ → (ι → Bo
 /-- The failure event of the second phase for the outcome `j` of the multi-scale phase: the
 large-norm estimator is inaccurate if `j = J`, the additive estimator at scale `j` is inaccurate
 otherwise. -/
-def fail2 (θ : EuclideanSpace ℝ ι) (j : ℕ) : Set (ℕ → (ι → Bool) × ℝ) :=
+noncomputable def fail2 (θ : EuclideanSpace ℝ ι) (j : ℕ) : Set (ℕ → (ι → Bool) × ℝ) :=
   if j = P.J ι then lnProj (P.T₁ ι) P.n ⁻¹' {e | P.ε < |lnEst θ P.n e - ‖θ‖|}
   else rbProj (P.T₁ ι) (P.s' ι j) (P.K' j) ⁻¹'
     {p | P.ε / 2 < |√(max (rbStat (P.s' ι j) (P.K' j) θ p) 0) - ‖θ‖|}

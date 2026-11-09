@@ -430,7 +430,7 @@ Mathlib's \texttt{HasCondSubgaussianMGF}.
 \end{definition}
 
 \begin{lemma}[Bernstein's condition]\label{lem:bernstein_condition}
-\lean{ProbabilityTheory.exp_le_one_add_add_of_abs_le_one, ProbabilityTheory.hasSubexponentialMGF_of_abs_le_of_integral_eq_zero, ProbabilityTheory.hasSubexponentialMGF_sub_integral_of_abs_le}\leanok
+\lean{Real.exp_le_one_add_add_of_abs_le_one, ProbabilityTheory.hasSubexponentialMGF_of_abs_le_of_integral_eq_zero, ProbabilityTheory.hasSubexponentialMGF_sub_integral_of_abs_le}\leanok
 \uses{def:subexp}
 Let $X$ be a random variable on a probability space with $\abs X \le M$ almost surely,
 $\E X = 0$ and $\E X^2 \le v$. Then $\mathrm{HasSubexponentialMGF}(X, 3v/2, M)$.
@@ -614,20 +614,24 @@ $V$ works for $b \le 2\sigma^2$, where $\E e^{\lambda X^2} = \infty$ at $\lambda
 \end{proof}
 
 \begin{definition}[Chi-squared distribution]\label{def:chi_squared}
-\lean{ProbabilityTheory.chiSqPDFReal, ProbabilityTheory.chiSqPDF, ProbabilityTheory.chiSqMeasure,
-ProbabilityTheory.chiSqPDFReal_of_nonneg, ProbabilityTheory.isProbabilityMeasure_chiSqMeasure,
-ProbabilityTheory.cdf_chiSqMeasure_eq_integral, ProbabilityTheory.cdf_chiSqMeasure_eq_lintegral}\leanok
+\lean{TauCeti.Probability.chiSquaredPDFReal, TauCeti.Probability.chiSquaredPDF,
+TauCeti.Probability.chiSquaredMeasure, TauCeti.Probability.chiSquaredPDFReal_of_nonneg,
+TauCeti.Probability.chiSquaredMeasure_eq_gammaMeasure,
+TauCeti.Probability.isProbabilityMeasure_chiSquaredMeasure,
+TauCeti.Probability.cdf_chiSquaredMeasure_eq}\leanok
 The \emph{chi-squared distribution with $d$ degrees of freedom} $\chi^2_d$ is the gamma
 distribution with shape $d/2$ and rate $1/2$, that is, the measure on $\R$ with density
 \[
   x \mapsto \frac{x^{d/2-1}e^{-x/2}}{2^{d/2}\,\Gamma(d/2)} \quad (x \ge 0), \qquad 0 \quad (x < 0)
 \]
 with respect to the Lebesgue measure. It is a probability measure for $d \ge 1$.
+(Lean: Tau Ceti's \texttt{chiSquaredMeasure k}, for real $k$, is this law for $k > 0$ and the
+Dirac mass at $0$ for $k = 0$, so it is a probability measure for every $k \ge 0$.)
 \end{definition}
 
 \begin{lemma}[Moment generating function of the gamma and chi-squared distributions]
 \label{lem:mgf_chi_squared}
-\lean{ProbabilityTheory.integral_exp_mul_gammaMeasure, ProbabilityTheory.mgf_chiSqMeasure}\leanok
+\lean{TauCeti.Probability.mgf_id_gammaMeasure, TauCeti.Probability.mgf_id_chiSquaredMeasure}\leanok
 \uses{def:chi_squared}
 For the gamma distribution $\gamma(a,r)$ with $a, r > 0$ and every $t < r$,
 $\int e^{tx}\,d\gamma(a,r)(x) = \big(\frac{r}{r-t}\big)^a$. In particular, for $d \ge 1$ and
@@ -640,11 +644,12 @@ The density of $\gamma(a,r)$ vanishes on $(-\infty,0)$, so
 $\int e^{tx}\,d\gamma(a,r) = \frac{r^a}{\Gamma(a)}\int_0^\infty x^{a-1}e^{-(r-t)x}\,dx
 = \frac{r^a}{\Gamma(a)}\cdot\frac{\Gamma(a)}{(r-t)^a}$, using Mathlib's
 \texttt{integral\_rpow\_mul\_exp\_neg\_mul\_Ioi} with the rate $r - t > 0$. The chi-squared case is
-$a = d/2$, $r = 1/2$. Mathlib has the gamma distribution but not its moment generating function.
+$a = d/2$, $r = 1/2$. (Lean: Tau Ceti's \texttt{mgf\_id\_gammaMeasure} states the value as
+$(1 - t/r)^{-a}$.)
 \end{proof}
 
 \begin{lemma}[The squared norm of a Gaussian vector is chi-squared]\label{lem:norm_sq_chi_squared}
-\lean{ProbabilityTheory.integral_exp_mul_norm_sq_stdGaussian,
+\lean{ProbabilityTheory.integrable_exp_mul_norm_sq_stdGaussian,
 ProbabilityTheory.mgf_norm_sq_stdGaussian}\leanok
 \uses{def:chi_squared, lem:mgf_chi_squared, lem:gaussian_square_mgf, lem:gauss_pi}
 Let $g \sim \Normal(0,I_d)$ with $d \ge 1$. For every $t < 1/2$,
@@ -662,7 +667,7 @@ Lemma~\ref{lem:gaussian_square_mgf} with $\mu = 0$, $\sigma = 1$.
 \end{proof}
 
 \begin{theorem}[Moment generating functions determine distributions]\label{thm:ext_of_mgf}
-\lean{MeasureTheory.Measure.ext_of_eqOn_mgf, MeasureTheory.Measure.ext_of_mgf_eq}\leanok
+\lean{TauCeti.Measure.ext_of_mgf}\leanok
 Let $X, Y$ be real random variables under a probability measure $\Prob$ and a finite measure
 $\Prob'$. Assume that $\lambda \mapsto \E e^{\lambda X}$ is finite in a neighbourhood of $0$, that
 the same holds for $Y$, and that $\E e^{\lambda X} = \E e^{\lambda Y}$ for $\lambda$ in a
@@ -681,12 +686,15 @@ knowing they agree along a real sequence tending to $0$, is Mathlib's
 strip contains the whole imaginary axis, on which the complex moment generating function is the
 characteristic function ($\E e^{itX} = \E e^{zX}$ at $z = it$), so the characteristic functions
 coincide and \texttt{Measure.ext\_of\_charFun} concludes. No analytic continuation beyond the
-strip is needed, which is why agreeing near $0$ suffices.
+strip is needed, which is why agreeing near $0$ suffices. (Lean: Tau Ceti's
+\texttt{TauCeti.Measure.ext\_of\_mgf} states this for the laws on $\R$, with the finiteness
+hypothesis on one of them only; the version for random variables follows through
+\texttt{mgf\_id\_map}.)
 \end{proof}
 
 \begin{corollary}[The squared norm of a Gaussian vector is chi-squared, as laws]
 \label{cor:norm_sq_chi_squared_law}
-\lean{ProbabilityTheory.map_norm_sq_stdGaussian_eq_chiSqMeasure}\leanok
+\lean{TauCeti.Probability.stdGaussian_map_norm_sq}\leanok
 \uses{thm:ext_of_mgf, lem:norm_sq_chi_squared, def:chi_squared}
 For $g \sim \Normal(0,I_d)$ with $d \ge 1$, the law of $\norm g^2$ is $\chi^2_d$.
 \end{corollary}
@@ -700,7 +708,9 @@ $\chi^2_d$ because the density times $e^{tx}$ dominates $c\,x^{d/2-1}$ on $(1,\i
 integral diverges, and for $\norm g^2$ because $e^{t\norm g^2} \ge e^{tg_j^2}$ and the
 one-dimensional integrand $e^{tx^2}\varphi(x) \ge (2\pi)^{-1/2}$ is bounded below by a positive
 constant. Both moment generating functions are finite on $(-\infty,1/2)$, a neighbourhood of $0$,
-so Theorem~\ref{thm:ext_of_mgf} applies.
+so Theorem~\ref{thm:ext_of_mgf} applies. (Lean: Tau Ceti proves the corollary for every $d \ge 0$,
+through the chi law of $\norm g$; the project deduces Lemma~\ref{lem:norm_sq_chi_squared} from
+it.)
 \end{proof}
 
 \emph{Lean generality.} The Lean statements of this section are for a standard Gaussian vector of
@@ -933,20 +943,20 @@ for every $b$, and no $V$ works for $b \le 2c$.
 \end{proof}
 
 \begin{definition}[Rademacher vector]\label{def:ps_rademacher}
-\lean{ProbabilityTheory.signMeasure, ProbabilityTheory.rademacherMeasure, ProbabilityTheory.integral_signMeasure, ProbabilityTheory.iIndepFun_eval_rademacherMeasure, ProbabilityTheory.map_eval_rademacherMeasure, ProbabilityTheory.ae_rademacherMeasure_mem_Icc, ProbabilityTheory.integral_eval_rademacherMeasure, ProbabilityTheory.integral_eval_sq_rademacherMeasure, ProbabilityTheory.inner_toLp_eq_sum}\leanok
+\lean{TauCeti.Probability.rademacherMeasure, ProbabilityTheory.rademacherVecMeasure, TauCeti.Probability.integral_rademacherMeasure, ProbabilityTheory.iIndepFun_eval_rademacherVecMeasure, ProbabilityTheory.map_eval_rademacherVecMeasure, ProbabilityTheory.ae_rademacherMeasure_mem_Icc, ProbabilityTheory.ae_rademacherVecMeasure_mem_Icc, ProbabilityTheory.integral_eval_rademacherVecMeasure, ProbabilityTheory.integral_eval_sq_rademacherVecMeasure, ProbabilityTheory.inner_toLp_eq_sum}\leanok
 A \emph{Rademacher vector} in $\R^d$ is a random vector $\eps = (\eps_1,\dots,\eps_d)$ whose
 coordinates are independent with $\Prob(\eps_i = 1) = \Prob(\eps_i = -1) = 1/2$; its law is the
 product $\big(\frac12\delta_{1} + \frac12\delta_{-1}\big)^{\otimes d}$
-(Lean: \texttt{signMeasure := 2⁻¹ • (dirac 1 + dirac (-1))} and
-\texttt{rademacherMeasure ι := Measure.pi (fun \_ ↦ signMeasure)} on \texttt{ι → ℝ}; the
-coordinates are independent by \texttt{iIndepFun\_pi}, each with law \texttt{signMeasure},
+(Lean: Tau Ceti's \texttt{rademacherMeasure}, the Bernoulli law \texttt{Ber(-1, 1, 1/2)}, and
+\texttt{rademacherVecMeasure ι := Measure.pi (fun \_ ↦ rademacherMeasure)} on \texttt{ι → ℝ}; the
+coordinates are independent by \texttt{iIndepFun\_pi}, each with law \texttt{rademacherMeasure},
 $\E\eps_i = 0$, $\E\eps_i^2 = 1$ and $\abs{\eps_i} \le 1$ a.s.).
 For $\theta \in \R^d$ we consider the linear form $Z := \ip{\eps}{\theta} = \sum_i\eps_i\theta_i$,
 which satisfies $\abs Z \le \sum_i\abs{\theta_i}$.
 \end{definition}
 
 \begin{lemma}[Rademacher linear forms are sub-Gaussian]\label{lem:rademacher_linear_subgaussian}
-\lean{ProbabilityTheory.hasSubgaussianMGF_sum_mul_rademacherMeasure, ProbabilityTheory.hasSubgaussianMGF_sum_mul_rademacherMeasure'}\leanok
+\lean{ProbabilityTheory.hasSubgaussianMGF_sum_mul_rademacherVecMeasure, ProbabilityTheory.hasSubgaussianMGF_sum_mul_rademacherVecMeasure'}\leanok
 \uses{def:ps_rademacher}
 Let $\eps$ be a Rademacher vector in $\R^d$ and $\theta \in \R^d$. Then $\ip{\eps}{\theta}$ has a
 sub-Gaussian MGF with constant $\norm{\theta}^2$ (Mathlib
@@ -965,7 +975,7 @@ constant $\sum_i\theta_i^2 = \norm\theta^2$ for the sum.
 \end{proof}
 
 \begin{lemma}[First and second moments of a Rademacher linear form]\label{lem:rademacher_fourth_moment}
-\lean{ProbabilityTheory.integral_eval_mul_eval_rademacherMeasure, ProbabilityTheory.integral_sum_mul_rademacherMeasure, ProbabilityTheory.integral_sq_sum_mul_rademacherMeasure}\leanok
+\lean{ProbabilityTheory.integral_eval_mul_eval_rademacherVecMeasure, ProbabilityTheory.integral_sum_mul_rademacherVecMeasure, ProbabilityTheory.integral_sq_sum_mul_rademacherVecMeasure}\leanok
 \uses{def:ps_rademacher}
 Let $\eps$ be a Rademacher vector in $\R^d$, $\theta\in\R^d$ and $Z := \ip{\eps}{\theta}$. Then
 $\E[\eps_i\eps_j] = \indic\{i = j\}$, $\E Z = 0$ and $\E Z^2 = \norm{\theta}^2$.
@@ -982,7 +992,7 @@ $\E Z^2 = \sum_{i,j}\theta_i\theta_j\E[\eps_i\eps_j] = \sum_i\theta_i^2$.
 
 \begin{lemma}[Centered square of a Rademacher linear form is sub-exponential]
 \label{lem:rademacher_square_subexp}
-\lean{ProbabilityTheory.hasSubexponentialMGF_sq_sum_mul_sub_rademacherMeasure}\leanok
+\lean{ProbabilityTheory.hasSubexponentialMGF_sq_sum_mul_sub_rademacherVecMeasure}\leanok
 \uses{def:subexp, def:ps_rademacher}
 Let $\eps$ be a Rademacher vector in $\R^d$, $\theta \in \R^d$ with $r := \norm{\theta}$, and
 $Z := \ip{\eps}{\theta}$. Then
@@ -1016,6 +1026,6 @@ case separately anyway.
 \textbf{Lean remark.} The Gaussian trick of Lemma~\ref{lem:subgaussian_square_mgf_pos} needs an
 auxiliary standard Gaussian independent of $Z$; it is encoded by Tonelli's theorem on the
 product measure \texttt{μ.prod (gaussianReal 0 1)}, without introducing a new random variable.
-The Rademacher results are stated for the product measure \texttt{rademacherMeasure ι} on
+The Rademacher results are stated for the product measure \texttt{rademacherVecMeasure ι} on
 \texttt{ι → ℝ} and the coordinate sum \texttt{∑ i, ε i * θ i}; the identification with the
 inner product on \texttt{EuclideanSpace ℝ ι} is \texttt{inner\_toLp\_eq\_sum}.

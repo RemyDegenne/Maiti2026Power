@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.NormEstStat
-public import Maiti2026Power.LeanMachineLearning.Seeded
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.Seeded
 
 /-!
 # The norm-estimation meta-algorithm as a seeded algorithm

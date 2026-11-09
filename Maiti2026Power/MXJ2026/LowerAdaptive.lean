@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.RepeatTestGaussian
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.RepeatTestGaussian
 public import Maiti2026Power.MXJ2026.LowerAdaptiveBaseline
 public import Maiti2026Power.MXJ2026.MixtureKL
 
@@ -35,19 +35,20 @@ and the arithmetic of the constants concludes.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι]
 
-/-- **Theorem 2** (Maiti, Xu, Jamieson 2026): an identification algorithm (adaptive or not) with
+/-- **Theorem 2** [MXJ26, Theorem 2]: an identification algorithm (adaptive or not) with
 budget `T` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳 ⊆ ℝ^d`, `d ≥ 2`, with
 `δ < 1/16`, satisfies `T ≥ d log(1/δ) / (20000 ε²)`. -/
 theorem le_budget_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) (hd : 2 ≤ Fintype.card ι)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 0 (1 / 16)) {T : ℕ}
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) (hpac : IsPAC 𝒳 A ε δ) :
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) (hpac : IsPAC 𝒳 A ε δ) :
     Fintype.card ι * log (1 / δ) / (20000 * ε ^ 2) ≤ T := by
   classical
   have hι : Nonempty ι := Fintype.card_pos_iff.1 (by omega)

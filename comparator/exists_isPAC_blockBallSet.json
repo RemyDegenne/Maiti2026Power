@@ -2,11 +2,13 @@
     "challenge_module": "Challenge_exists_isPAC_blockBallSet",
     "solution_module": "Solution",
     "theorem_names": [
-        "Maiti2026Power.exists_isPAC_blockBallSet"
+        "Maiti2026Power.exists_isPAC_blockBallSet",
+        "Learning.LinearBandit.linearGaussianKernel._proof_1",
+        "Learning.LinearBandit.linearGaussianEnv._proof_2"
     ],
     "permitted_axioms": [
         "propext",
-        "Classical.choice",
-        "Quot.sound"
+        "Quot.sound",
+        "Classical.choice"
     ]
 }

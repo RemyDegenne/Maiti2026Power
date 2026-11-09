@@ -31,6 +31,7 @@ Blueprint: `thm:lower_nonadaptive`.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Maiti2026Power
@@ -51,7 +52,8 @@ fixed-design algorithm with design `x` and positive definite design matrix `Σ_T
 `(ε, δ)`-PAC on a compact set `𝒳` with `δ ≤ 1/10` satisfies `0.12 w(𝒳, Σ_T) ≤ ε`. -/
 lemma gwMat_le_of_isFixedDesign_of_isPAC (h𝒳 : IsCompact 𝒳) (hne : 𝒳.Nonempty)
     {ε δ : ℝ} (hε : 0 ≤ ε) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ}
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) {x : ℕ → 𝒳} (hdes : A.alg = fixedDesignAlg x)
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) {x : ℕ → 𝒳}
+    (hdes : A.alg = Algorithm.ofSeq x)
     (hpac : IsPAC 𝒳 A ε δ)
     (hS : (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι)).PosDef) :
     0.12 * gwMat 𝒳 (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι)) ≤ ε := by
@@ -104,7 +106,8 @@ such that every direction orthogonal to the design is orthogonal to some point o
 positive definite design matrix. -/
 lemma posDef_of_isFixedDesign_of_isPAC_of_forall (h𝒳 : IsCompact 𝒳)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 1 / 2) {T : ℕ}
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) {x : ℕ → 𝒳} (hdes : A.alg = fixedDesignAlg x)
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) {x : ℕ → 𝒳}
+    (hdes : A.alg = Algorithm.ofSeq x)
     (hpac : IsPAC 𝒳 A ε δ)
     (h0 : ∀ v : EuclideanSpace ℝ ι, (∀ t : Fin T, ⟪(x t : EuclideanSpace ℝ ι), v⟫ = 0) →
       ∃ y ∈ 𝒳, ⟪y, v⟫ = 0) :
@@ -143,7 +146,8 @@ algorithm with budget `T ≥ 1` which is `(ε, δ)`-PAC on a spanning compact se
 has a positive definite design matrix. -/
 lemma posDef_of_isFixedDesign_of_isPAC (h𝒳 : IsCompact 𝒳) (hspan : Submodule.span ℝ 𝒳 = ⊤)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 1 / 2) {T : ℕ} (hT : 1 ≤ T)
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) {x : ℕ → 𝒳} (hdes : A.alg = fixedDesignAlg x)
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) {x : ℕ → 𝒳}
+    (hdes : A.alg = Algorithm.ofSeq x)
     (hpac : IsPAC 𝒳 A ε δ) :
     (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι)).PosDef :=
   posDef_of_isFixedDesign_of_isPAC_of_forall h𝒳 hspan hε hδ A hA hdes hpac
@@ -155,22 +159,22 @@ containing `0`: a fixed-design algorithm of any budget (possibly `0`) which is `
 spanning compact set `𝒳 ∋ 0` with `δ < 1/2` has a positive definite design matrix. -/
 lemma posDef_of_isFixedDesign_of_isPAC_of_zero_mem (h𝒳 : IsCompact 𝒳)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) (h0 : (0 : EuclideanSpace ℝ ι) ∈ 𝒳) {ε δ : ℝ} (hε : 0 < ε)
-    (hδ : δ < 1 / 2) {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T) {x : ℕ → 𝒳}
-    (hdes : A.alg = fixedDesignAlg x) (hpac : IsPAC 𝒳 A ε δ) :
+    (hδ : δ < 1 / 2) {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T) {x : ℕ → 𝒳}
+    (hdes : A.alg = Algorithm.ofSeq x) (hpac : IsPAC 𝒳 A ε δ) :
     (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι)).PosDef :=
   posDef_of_isFixedDesign_of_isPAC_of_forall h𝒳 hspan hε hδ A hA hdes hpac
     fun v _ ↦ ⟨0, h0, inner_zero_left v⟩
 
-/-- **Theorem 3** (Maiti, Xu, Jamieson 2026): a fixed-design (non-adaptive) identification
+/-- **Theorem 3** [MXJ26, Theorem 3]: a fixed-design (non-adaptive) identification
 algorithm with budget `T ≥ 1` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳`, with
 `δ ≤ 1/10`, satisfies `T ≥ w(𝒳)² / (70 ε²)`. -/
 theorem le_budget_of_isFixedDesign_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hne : 𝒳.Nonempty) (hspan : Submodule.span ℝ 𝒳 = ⊤)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ} (hT : 1 ≤ T)
-    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T)
-    (hdes : A.IsFixedDesign) (hpac : IsPAC 𝒳 A ε δ) :
+    (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T)
+    (hdes : IsFixedDesign A.alg) (hpac : IsPAC 𝒳 A ε δ) :
     gw 𝒳 ^ 2 / (70 * ε ^ 2) ≤ T := by
-  obtain ⟨x, hx⟩ := hdes
+  obtain ⟨x, hx⟩ := isFixedDesign_iff.1 hdes
   obtain ⟨R, hR⟩ : ∃ R, ∀ z ∈ 𝒳, ‖z‖ ≤ R := by
     obtain ⟨r, hr⟩ := h𝒳.isBounded.subset_closedBall (0 : EuclideanSpace ℝ ι)
     exact ⟨r, fun z hz ↦ mem_closedBall_zero_iff.1 (hr hz)⟩

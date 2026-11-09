@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Analysis.Calculus.LocalExtr
+public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.LocalExtr
 public import Maiti2026Power.MXJ2026.DesignSet
 
 /-!
@@ -359,7 +359,8 @@ lemma isUnit_normalizeMat (hA : A.PosDef) : IsUnit (normalizeMat A) := by
   have hd : 0 < √(Fintype.card ι : ℝ) := Real.sqrt_pos.2 (by positivity)
   rw [Matrix.isUnit_iff_isUnit_det, normalizeMat, Matrix.det_smul]
   exact (isUnit_iff_ne_zero.2 (pow_ne_zero _ (inv_ne_zero hd.ne'))).mul
-    ((Matrix.isUnit_iff_isUnit_det _).1 hA.inv.sqrt.isUnit)
+    ((Matrix.isUnit_iff_isUnit_det _).1
+      (IsStrictlyPositive.isUnit_cfcSqrt _ hA.inv.isStrictlyPositive))
 
 /-- The normalized action set of a `G`-optimal design spans the space. -/
 lemma IsGOptimalDesign.span_image_normalizeMat_eq_top (hspan : Submodule.span ℝ 𝒳 = ⊤) :

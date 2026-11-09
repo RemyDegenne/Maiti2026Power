@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.FixedDesignLaw
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignLaw
 public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
-public import Maiti2026Power.Mathlib.Probability.StdGaussianProd
-public import Maiti2026Power.Mathlib.Probability.Kernel.PriorAverage
-public import Maiti2026Power.Mathlib.Probability.IndepIntegral
+public import Maiti2026Power.ForLMLExplore.Probability.StdGaussianProd
+public import Maiti2026Power.ForLMLExplore.Probability.Kernel.PriorAverage
+public import Mathlib.Probability.Independence.Integration
 
 /-!
 # The Bayesian model of the non-adaptive lower bound
@@ -31,6 +31,7 @@ recommendation of a fixed-budget algorithm `A` is drawn from `A.output` applied 
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Matrix Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace MatrixOrder
 
 namespace Maiti2026Power
@@ -64,7 +65,7 @@ lemma map_sqrtInvDesign_stdGaussian (hS : (∑ t, outerSelf (x t)).PosDef) :
       multivariateGaussian 0 (∑ t, outerSelf (x t))⁻¹ := by
   rw [sqrtInvDesign, ← multivariateGaussian_zero_one,
     multivariateGaussian_zero_map_toEuclideanLin PosSemidef.one, Matrix.mul_one, transpose_sqrt,
-    hS.inv.posSemidef.sqrt_mul_sqrt]
+    CFC.sqrt_mul_sqrt_self _ hS.inv.posSemidef.nonneg]
 
 /-- The reward vector of the Bayesian model has law `N(0, τ² Σ⁻¹)`. -/
 lemma map_bayesParam_stdGaussian (hS : (∑ t, outerSelf (x t)).PosDef) :
@@ -113,7 +114,7 @@ lemma integral_diffSup_bayesParam (hne : 𝒳.Nonempty) (hR : ∀ z ∈ 𝒳, �
       (integral_map (by fun_prop) ((continuous_supportFn hne hR).add
         ((continuous_supportFn hne hR).comp continuous_neg) |>.aestronglyMeasurable)).symm,
     map_sqrtInvDesign_stdGaussian x hS]
-  have := integral_diffSup_multivariateGaussian hne hR hS.inv.posSemidef
+  have := integral_diffSup_multivariateGaussian (S := (∑ t, outerSelf (x t))⁻¹) hne hR
   simp only [diffSup] at this
   rw [this, gwMat]
   ring
@@ -219,7 +220,7 @@ lemma bayesW₁_comp_adjoint_bayesY₁_add (hS : (∑ t, outerSelf (x t)).PosDef
     adjoint_euclideanClm, euclideanClm_comp]
   have hM : CFC.sqrt (∑ t, outerSelf (x t))⁻¹ * (CFC.sqrt (∑ t, outerSelf (x t))⁻¹)ᵀ =
       (∑ t, outerSelf (x t))⁻¹ := by
-    rw [transpose_sqrt, hS.inv.posSemidef.sqrt_mul_sqrt]
+    rw [transpose_sqrt, CFC.sqrt_mul_sqrt_self _ hS.inv.posSemidef.nonneg]
   have hmat : ((1 - bayesC τ) * τ) • CFC.sqrt (∑ t, outerSelf (x t))⁻¹ *
       (τ • (designRows x * CFC.sqrt (∑ t, outerSelf (x t))⁻¹))ᵀ + (-bayesC τ) • lsMatrix x = 0 := by
     rw [transpose_smul, transpose_mul, Matrix.smul_mul, Matrix.mul_smul, smul_smul,
@@ -319,7 +320,7 @@ lemma measurable_bayesHist : Measurable (bayesHist x hx τ) := by
 
 /-- The recommendation kernel of the Bayesian model: `(g, η) ↦ A.output ⟨T, history⟩`. -/
 noncomputable def bayesKernel : Kernel (EuclideanSpace ℝ ι × EuclideanSpace ℝ (Fin T)) 𝒳 :=
-  (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).comap (bayesHist x hx τ)
+  (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).comap (bayesHist x hx τ)
     (measurable_bayesHist x hx τ)
 
 instance : IsMarkovKernel (bayesKernel A x hx τ) := by
@@ -337,7 +338,7 @@ instance : IsProbabilityMeasure (bayesJoint A x hx τ) := by
 
 /-- The mean recommendation `∫ rec ∂A.output ⟨T, h⟩` as a function of the history `h`. -/
 noncomputable def meanOutput (h : Hist Unit 𝒳 ℝ T) : EuclideanSpace ℝ ι :=
-  ∫ z, (z : EuclideanSpace ℝ ι) ∂(A.output.comap (Sigma.mk T) (measurable_sigma_mk T) h)
+  ∫ z, (z : EuclideanSpace ℝ ι) ∂(A.output.comap (Sigma.mk T) (measurable_sigmaMk T) h)
 
 omit [DecidableEq ι] in
 lemma measurable_meanOutput : Measurable (meanOutput A (T := T)) := by
@@ -348,7 +349,7 @@ lemma measurable_meanOutput : Measurable (meanOutput A (T := T)) := by
 omit [DecidableEq ι] in
 lemma norm_meanOutput_le (hR : ∀ z ∈ 𝒳, ‖z‖ ≤ R)
     (h : Hist Unit 𝒳 ℝ T) : ‖meanOutput A h‖ ≤ R := by
-  have hae : ∀ᵐ z : 𝒳 ∂(A.output.comap (Sigma.mk T) (measurable_sigma_mk T) h),
+  have hae : ∀ᵐ z : 𝒳 ∂(A.output.comap (Sigma.mk T) (measurable_sigmaMk T) h),
       ‖Subtype.val z‖ ≤ R :=
     ae_of_all _ fun z ↦ hR z z.2
   refine (norm_integral_le_of_norm_le_const hae).trans ?_
@@ -448,9 +449,15 @@ lemma integral_inner_bayesW_bayesJoint (hR : ∀ z ∈ 𝒳, ‖z‖ ≤ R)
     exact congrArg (meanOutput A) (bayesHist_eq_comp x hx τ p)
   rw [h1]
   -- `W` is centered and independent of `y`
-  exact ((indepFun_bayesW_bayesY x τ hS).symm.integral_inner_comp_eq_zero
-    (bayesYclm x τ).continuous.measurable.aemeasurable hGm hGb
-    ((bayesWclm x τ).integrable_comp IsGaussian.integrable_id) integral_add_prod_stdGaussian)
+  have hW : Integrable (fun p ↦ bayesWclm x τ p) μ₀ :=
+    (bayesWclm x τ).integrable_comp IsGaussian.integrable_id
+  have h2 := (indepFun_bayesW_bayesY x τ hS).symm.integral_bilin_comp_comp (g := id)
+    (bayesYclm x τ).continuous.measurable.aemeasurable hW.aemeasurable
+    (Integrable.of_bound hGm.aestronglyMeasurable R (ae_of_all _ hGb))
+    ((integrable_map_measure aestronglyMeasurable_id hW.aemeasurable).2 hW) (innerSL ℝ)
+  simp only [id_eq] at h2
+  rw [integral_add_prod_stdGaussian, map_zero] at h2
+  exact h2
 
 /-- **Bayes identity** (blueprint `lem:bayes_regret_identity`):
 `E⟪rec, θ⟫ = c E⟪rec, Σ⁻¹ Xᵀ y⟫` with `c = τ² / (1 + τ²)`. -/
@@ -602,7 +609,7 @@ omit [MeasurableEq 𝒳] in
 /-- The kernel of the Bayesian model, conditionally on `g`. -/
 lemma bayesKernel_comap (g : EuclideanSpace ℝ ι) :
     (bayesKernel A x hx τ).comap (Prod.mk g) measurable_prodMk_left =
-      (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).comap (fun η ↦ bayesHist x hx τ (g, η))
+      (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).comap (fun η ↦ bayesHist x hx τ (g, η))
         (measurable_bayesHist x hx τ |>.comp measurable_prodMk_left) := by
   ext η s _
   simp [bayesKernel, Kernel.comap_apply]
@@ -614,7 +621,7 @@ lemma measureReal_lt_simpleRegret_bayes_le {E : Type*} [NormedAddCommGroup E]
     [InnerProductSpace ℝ E] [MeasurableSpace E] [OpensMeasurableSpace E]
     [SecondCountableTopology E] {𝒳 : Set E} {A : IdentAlg Unit 𝒳 ℝ 𝒳}
     {T : ℕ} {x' : ℕ → 𝒳} {ε δ : ℝ} (hpac : IsPAC 𝒳 A ε δ)
-    (hA : A.IsFixedBudget T) (hdes : A.alg = fixedDesignAlg x') (θ : E) :
+    (hA : IsFixedBudget A T) (hdes : A.alg = Algorithm.ofSeq x') (θ : E) :
     (fixedDesignPairLaw A (fun t : Fin T ↦ x' t) θ).real
       {p | ε < simpleRegret 𝒳 θ (p.2 : E)} ≤ δ := by
   have hmeas : MeasurableSet {p : Hist Unit 𝒳 ℝ T × 𝒳 | simpleRegret 𝒳 θ (p.2 : E) ≤ ε} := by
@@ -644,8 +651,7 @@ lemma measureReal_lt_simpleRegret_comap_eq (g : EuclideanSpace ℝ ι) {ε : ℝ
     refine measurableSet_lt measurable_const ?_
     exact (continuous_const.sub (continuous_subtype_val.inner continuous_const)).measurable
   have hmap := map_snd_compProd_comap (stdGaussian (EuclideanSpace ℝ (Fin T)))
-    (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) hg
-    (fun _ ↦ inferInstance)
+    (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) hg
   rw [bayesKernel_comap A x hx τ g, fixedDesignPairLaw, ← map_bayesHist_stdGaussian x hx τ g]
   have h1 : ∀ (μ : Measure (Hist Unit 𝒳 ℝ T × 𝒳)),
       μ.real {p | ε < simpleRegret 𝒳 (bayesParam x τ g) (p.2 : EuclideanSpace ℝ ι)} =

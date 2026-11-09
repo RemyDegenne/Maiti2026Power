@@ -60,7 +60,7 @@ $\cG := \pi^2/4$ ($\approx 2.4674$).
 \end{definition}
 
 \begin{lemma}[MGF of a linear form of a standard Gaussian vector]\label{lem:gauss_mgf_inner}
-\lean{ProbabilityTheory.stdGaussian_map_toDual, ProbabilityTheory.integrable_exp_mul_inner_stdGaussian, ProbabilityTheory.integral_exp_mul_inner_stdGaussian, ProbabilityTheory.integral_exp_inner_stdGaussian}\leanok
+\lean{ProbabilityTheory.stdGaussian_map_toDual, ProbabilityTheory.IsGaussian.integrableExpSet_dual, ProbabilityTheory.IsGaussian.mgf_dual}\leanok
 \uses{def:pg_gaussian_vector}
 Let $g' \sim \Normal(0, I_d)$ and $a \in \R^d$. Then $e^{\ip{a}{g'}}$ is integrable and
 $\E e^{\ip{a}{g'}} = e^{\norm{a}^2/2}$. More generally, for $s \in \R$,
@@ -436,8 +436,8 @@ product space $E$) and a bound $\sigma$ on the norms of the index vectors, which
 $S = I_d$; the case of a general covariance $S \in \PSD$ is the image of this one under
 $S^{1/2}$ (Lemma~\ref{lem:gauss_law_of_cov}(iii) and \texttt{supportFn\_image}), see
 \texttt{ProbabilityTheory.hasSubgaussianMGF\_supportFn\_multivariateGaussian}. The supremum
-over $\Xs$ is \texttt{supportFn K} and the partial maxima are \texttt{partialSupInner q n}
-(\texttt{⨆ i : Fin (n+1), ⟪q i, v⟫}) for the dense sequence of
+over $\Xs$ is \texttt{supportFn K} and the partial maxima are Mathlib's
+\texttt{partialSups (fun i ↦ ⟪q i, v⟫) n} for the dense sequence of
 Lemma~\ref{lem:sup_countable_dense}; the two limits are \texttt{Filter.Tendsto} statements
 along \texttt{atTop} proved by dominated convergence. Lemma~\ref{lem:finite_sup_subgaussian}
 is stated for a family \texttt{y : ι → E} indexed by a nonempty finite type, and the limit

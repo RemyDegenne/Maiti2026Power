@@ -2,24 +2,23 @@
 
 Machine-checkable verification, with [leanprover/comparator](https://github.com/leanprover/comparator),
 that this repository proves the headline results claimed in [`formalization.yaml`](../formalization.yaml)
-— without having to read (or trust) the Lean development in `Maiti2026Power/`.
+without having to read or trust the Lean development in `Maiti2026Power/`.
 
-**Status (phase 2 complete, 2026-09-06).** Every headline statement is proved, and
-`scripts/comparator-verify.sh` passes on all 17 configs: each challenged statement is proved by
-the project with exactly the challenged statement, using no axioms beyond `propext`,
-`Classical.choice` and `Quot.sound`, with the proofs replayed through the kernel (the last run
-used `--insecure`, i.e. comparator's fake-landrun shim, on the developer's machine). The
-challenge files were the phase-1 deliverable: they fixed the statements to be proved in phase 2.
+**Status.** Every challenge is proved. The challenges were regenerated on 2026-11-09, when the project
+moved to LMLExplore, and again the same day when the fixed-budget and fixed-design definitions
+became LMLExplore's (`LMLExplore.Identification.IsFixedBudget A T` for the former
+`A.IsFixedBudget T`, `LMLExplore.Identification.IsFixedDesign A.alg` with
+`Learning.Algorithm.ofSeq` for the former `A.IsFixedDesign` with `Learning.fixedDesignAlg`);
+`scripts/comparator-verify.sh` has to be run again on them.
 
-Each challenge is **one self-contained file whose transitive imports resolve to Mathlib and Lean
-core only**. That is the shape the [Palomar registry](https://palomar-registry.org/)'s mechanical
-verification enforces: the challenge can import no LML, no project modules, and no sibling helper
-modules.
+Each challenge is one file that imports LMLExplore, LML, Tau Ceti and Mathlib modules only (the
+fixed-budget and fixed-design definitions are LMLExplore's), no project modules and no sibling
+helpers.
 
 ## The trust story
 
-For each headline theorem `Maiti2026Power.<name>` there is a challenge file
-`Challenge_<name>.lean` and a config `<name>.json`; the list is `targets.txt`:
+For each headline theorem `Maiti2026Power.<name>` there is a challenge file `Challenge_<name>.lean` and a
+config `<name>.json`; the list is `targets.txt`:
 
 | paper result | challenge(s) |
 |---|---|
@@ -33,93 +32,17 @@ For each headline theorem `Maiti2026Power.<name>` there is a challenge file
 | Theorem 7 (polynomial separation) | `blockBallSet_le_budget_of_isFixedDesign_of_isPAC`, `blockBallSet_le_budget_of_isPAC`, `exists_isPAC_blockBallSet` |
 | Theorem 8 (ℓ₂-norm estimation) | `exists_isAccurateNormEst` |
 
-Each challenge states the theorem with `sorry`, with **every** definition the statement rests on
-inlined verbatim: the project's definitions (identification algorithms — sampling, stopping and
-output rules — and their laws, the PAC property, fixed budgets and fixed designs, the linear Gaussian environment, the simple regret, design matrices,
-Gaussian widths, the structured action sets), and the handful of
-[LML](https://github.com/LeanMachineLearning/LML) declarations they build on (`Algorithm`,
-`Environment`, `history`, `stepKernel`, the trajectory measure `trajMeasure` of the
-Ionescu-Tulcea construction with its `ForMathlib` ingredients, `obliviousEnv`, `stationaryEnv`,
-`detAlgorithm`, the histories of variable length `sigmaHistory` and the law `stoppedHistMeasure`
-of the stopped history, and the identification algorithms `IdentAlg` with the law of their output
-`IdentAlg.outputMeasure` and the PAC property `IdentAlg.IsPAC`), which appear as clearly marked
-"vendored from LML" sections (`vendor/LML.lean.part`). The `sorry`s in
-these files are the point: they are restatements to be verified, not part of the formalization,
-and are excluded from `formalization.yaml`'s `sorry_count` (as the v0.4 spec prescribes).
+Each challenge states the theorem with `sorry`, with every definition of the project that the
+statement rests on copied verbatim from its source by
+[challenge-gen](https://github.com/LeanTrustBuilders/challenge-gen); the definitions of
+LMLExplore, LML, Tau Ceti and Mathlib that it uses are imported. A reader checks the *statement*
+(the challenge file) by hand and lets comparator check that the project proves exactly it, with
+no axioms beyond `propext`, `Classical.choice` and `Quot.sound`, the proofs replayed through the
+kernel. The config also lists the lemmas the definitions use, left `sorry` in the challenge and
+proved by the project, and the theorems Lean makes of the proofs inside definitions.
 
-When a definition in a statement's closure rests on a project *lemma* (for instance the
-measurability lemma behind the output kernel on histories of variable length), referee leaves
-that lemma's proof as `sorry` in the challenge too; comparator compares the proof terms of the
-theorems in a closure, so such a lemma is listed in the config's `theorem_names` as an additional
-target (comparator then verifies that the project proves it, with the challenged statement).
-`scripts/make-challenges.py` does this automatically for every sorry'd lemma of a challenge.
+## Regenerating and running
 
-`Solution.lean` is the other side: it just imports the project modules that state (phase 1) and
-will prove (phase 2) the results.
-
-A skeptical reader therefore only has to
-
-1. read the one challenge file against the paper's statement, trusting only Mathlib for the
-   imported notions, and
-2. run comparator on the corresponding config.
-
-If comparator succeeds, every theorem in the config's `theorem_names` is guaranteed to
-
-1. be proved in this project **with exactly the challenged statement** (comparator checks that
-   every constant in the statement's transitive closure — the inlined project definitions and the
-   vendored LML declarations included, down to auxiliary `_proof_*` constants — is *identical*
-   between the challenge and the project),
-2. use no axioms beyond `propext`, `Classical.choice`, `Quot.sound`, and
-3. be accepted by the Lean kernel, replayed from a `lean4export` dump inside a sandbox.
-
-In particular the vendored LML sections cannot silently drift from upstream: comparator compares
-them constant-for-constant against the LML package the project is built with.
-
-## Regenerating the challenges
-
-The challenge files are generated, not written by hand:
-
-```bash
-lake build                      # the project, so that referee can import it
-scripts/make-challenges.py      # referee collect + extract, then vendoring; see its docstring
-lake build Comparator           # every challenge must compile
-```
-
-`scripts/make-challenges.py` uses the `referee` tool of
-[LeanMachineLearning/exposition](https://github.com/LeanMachineLearning/exposition) (a release
-built for this project's toolchain; `gh release download <toolchain tag> -R
-LeanMachineLearning/exposition --pattern 'referee-linux-x86_64-*.tar.gz'`), whose `extract`
-subcommand produces one standalone file per declaration; the script then replaces the LML
-imports by the vendored block. Rerun it whenever a headline statement or one of the definitions
-it rests on changes.
-
-## Running comparator
-
-```bash
-scripts/comparator-verify.sh                 # all configs
-scripts/comparator-verify.sh gw_le_card      # one config
-scripts/comparator-verify.sh --insecure ...  # without a landrun sandbox
-```
-
-The script clones and builds comparator and `lean4export` (pinned revision, project toolchain)
-into `~/.cache/colt-2026-83/comparator-tools`, then runs each config from the repository root as
-
-```bash
-lake env path/to/comparator comparator/<name>.json
-```
-
-## Maintenance
-
-The `Comparator` lake library (`lakefile.toml`) lists the challenge modules and `Solution` as
-`globs`, with a stub root `Comparator.lean` that imports nothing: tools that import every library
-root of the workspace (`checkdecls`, referee) must not load the challenges, which redeclare
-project and LML names. Add any new challenge to the globs.
-
-A module-system pitfall to keep in mind: comparator also compares the *values* of the theorems in
-a statement's closure. A nested proof inside an `instance` (a theorem) of a `module` file is
-abstracted into a module-private auxiliary constant, which a challenge file cannot reproduce;
-nested proofs inside exposed `def`s become public auxiliaries and are fine. So the definitions a
-headline statement rests on must not go through such an instance — `linearGaussianEnv` passes its
-Markov-kernel proof inline for this reason. Statement identity can be checked before the proofs
-exist by running comparator on a temporary copy of a config with `sorryAx` added to
-`permitted_axioms`.
+`scripts/make-challenges.py` regenerates every challenge and config from `targets.txt`;
+`lake build Comparator` checks that they compile; `scripts/comparator-verify.sh [--insecure]`
+runs comparator on every config (see the script header for the sandbox requirements).

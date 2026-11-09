@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Probability.GaussianWidth
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianWidth
 public import Maiti2026Power.MXJ2026.OuterSelf
 
 /-!
@@ -80,17 +80,17 @@ lemma gwMat_nonneg (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) (A : Mat
   gaussianWidth_nonneg_of_integral_eq_zero hne hK IsGaussian.integrable_id (by simp)
 
 /-- The width of `-K` is the width of `K` (the Gaussian vector `G ~ N(0, A⁻¹)` is symmetric). -/
-lemma gwMat_neg_set (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) (hA : A.PosDef) :
+lemma gwMat_neg_set (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) :
     gwMat (-K) A = gwMat K A := by
   rw [gwMat, gwMat, gaussianWidth_neg_set hne hK,
-    multivariateGaussian_zero_map_neg hA.inv.posSemidef]
+    IsGaussian.map_neg_eq_self (multivariateGaussian 0 A⁻¹) integral_id_multivariateGaussian]
 
 /-- `E[max_{x, y ∈ K} ⟪x - y, G⟫] = 2 gwMat K A` for `G ~ N(0, A⁻¹)`. -/
-lemma gwMat_sub_set (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) (hA : A.PosDef) :
+lemma gwMat_sub_set (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) :
     gwMat (K - K) A = 2 * gwMat K A := by
   have hnegK : ∀ x ∈ -K, ‖x‖ ≤ R := fun x hx ↦ by simpa using hK (-x) hx
   rw [sub_eq_add_neg, gwMat, gaussianWidth_add hne hK hne.neg hnegK IsGaussian.integrable_id.norm,
-    ← gwMat, ← gwMat, gwMat_neg_set hne hK hA]
+    ← gwMat, ← gwMat, gwMat_neg_set hne hK]
   ring
 
 /-- Homogeneity: `gwMat K (c • A) = c^{-1/2} gwMat K A` for `c > 0`. -/
@@ -123,7 +123,8 @@ lemma gwMat_anti (hK : IsCompact K) (hne : K.Nonempty) (hA : A.PosDef) (hAB : A 
   have hdiff : (A⁻¹ - B⁻¹).PosSemidef := Matrix.le_iff.1 (hA.inv_le_inv hAB)
   have h : multivariateGaussian 0 A⁻¹ =
       multivariateGaussian 0 B⁻¹ ∗ multivariateGaussian 0 (A⁻¹ - B⁻¹) := by
-    rw [multivariateGaussian_conv hB.inv.posSemidef hdiff]
+    rw [TauCeti.Probability.multivariateGaussian_conv_multivariateGaussian 0 0 hB.inv.posSemidef
+      hdiff]
     simp
   rw [gwMat, gwMat, h]
   exact gaussianWidth_le_gaussianWidth_conv hK hne IsGaussian.integrable_id

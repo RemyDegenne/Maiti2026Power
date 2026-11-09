@@ -31,8 +31,8 @@ namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-- **Proposition 4 (i)**: the Gaussian width term of a spanning compact action set in `ℝ^d` is at
-most `d`. -/
+/-- **Proposition 4 (i)** [MXJ26, Proposition 4 (i)]: the Gaussian width term of a spanning compact
+action set in `ℝ^d` is at most `d`. -/
 theorem gw_le_card (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳) (hne : 𝒳.Nonempty)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) :
     gw 𝒳 ≤ Fintype.card ι := by
@@ -45,8 +45,8 @@ theorem gw_le_card (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
   exact (gw_le_gwMat hne hR hw.isDesign.designMatrix_mem_designSet hw.posDef).trans
     (hw.gwMat_le_card subset_rfl hne hR)
 
-/-- **Proposition 4 (ii)**: the Gaussian width term of a finite spanning action set `𝒳 ⊆ ℝ^d` is
-at most `√(2 d log |𝒳|)`. -/
+/-- **Proposition 4 (ii)** [MXJ26, Proposition 4 (ii)]: the Gaussian width term of a finite spanning
+action set `𝒳 ⊆ ℝ^d` is at most `√(2 d log |𝒳|)`. -/
 theorem gw_le_sqrt_log_ncard (𝒳 : Set (EuclideanSpace ℝ ι)) (hfin : 𝒳.Finite)
     (hne : 𝒳.Nonempty) (hspan : Submodule.span ℝ 𝒳 = ⊤) :
     gw 𝒳 ≤ √(2 * Fintype.card ι * log 𝒳.ncard) := by
@@ -59,8 +59,8 @@ theorem gw_le_sqrt_log_ncard (𝒳 : Set (EuclideanSpace ℝ ι)) (hfin : 𝒳.F
   exact (gw_le_gwMat hne hR hw.isDesign.designMatrix_mem_designSet hw.posDef).trans
     (hw.gwMat_le_sqrt_log_ncard subset_rfl hfin hne hR)
 
-/-- **Proposition 4 (iii)**: the Gaussian width term of a spanning compact action set in `ℝ^d`,
-`d ≥ 4`, is at least `(1/8) √(d log ⌊d/2⌋)`. -/
+/-- **Proposition 4 (iii)** [MXJ26, Proposition 4 (iii)]: the Gaussian width term of a spanning
+compact action set in `ℝ^d`, `d ≥ 4`, is at least `(1/8) √(d log ⌊d/2⌋)`. -/
 theorem sqrt_log_le_gw (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳) (hne : 𝒳.Nonempty)
     (hspan : Submodule.span ℝ 𝒳 = ⊤) (hd : 4 ≤ Fintype.card ι) :
     √(Fintype.card ι * log (Fintype.card ι / 2 : ℕ)) / 8 ≤ gw 𝒳 := by
@@ -76,7 +76,7 @@ theorem sqrt_log_le_gw (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact �
 size `m ^ 2`. -/
 def widthSepDims (m : ℕ) : Fin m → ℕ := fun j ↦ if (j : ℕ) + 1 < m then 2 else m ^ 2
 
-/-- **Theorem 5** (Maiti, Xu, Jamieson 2026): for `m ≥ 2`, the multi-task set `𝒳` with `m - 1`
+/-- **Theorem 5** [MXJ26, Theorem 5]: for `m ≥ 2`, the multi-task set `𝒳` with `m - 1`
 blocks of size `2` and one block of size `m²` lives in dimension `d = m² + 2m - 2`, has
 `|𝒳| = 2^{m-1} m²` elements, spans a subspace of dimension `r = m² + m - 1 ∈ [d/2, d]`, and its
 intrinsic Gaussian width term satisfies `w_int(𝒳) ≤ 3 √(d log d)`, whereas

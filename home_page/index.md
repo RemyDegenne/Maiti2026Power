@@ -1,19 +1,14 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
-# layout: home
 usemathjax: true
 ---
 
 Lean 4 formalization of the paper *On the Power of Adaptivity for $\varepsilon$-Best Arm
-Identification in Linear Bandits* (Maiti, Xu, Jamieson, COLT 2026), built on Mathlib and the
-[Lean Machine Learning](https://leanmachinelearning.org/) library.
-
-Useful links:
+Identification in Linear Bandits* (Maiti, Xu, Jamieson, COLT 2026), on top of
+[LMLExplore](https://github.com/LeanMachineLearning/LMLExplore).
 
 * [Blueprint]({{ site.url }}/blueprint/)
 * [Blueprint as pdf]({{ site.url }}/blueprint.pdf)
 * [Dependency graph]({{ site.url }}/blueprint/dep_graph_document.html)
 * [Referee site]({{ site.url }}/referee/)
-* [Zulip chat for Lean](https://leanprover.zulipchat.com/) for coordination
+* [Literature links]({{ site.url }}/literature/): which declarations formalize which results of the paper
+* [Errata](https://github.com/RemyDegenne/Maiti2026Power/blob/master/notes/paper-errata.md): errors found in the paper, with their corrections

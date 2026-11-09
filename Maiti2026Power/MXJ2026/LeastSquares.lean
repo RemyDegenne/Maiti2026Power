@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.FixedDesignRun
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignRun
 public import Maiti2026Power.MXJ2026.Rounding
 
 /-!
@@ -60,8 +60,8 @@ noncomputable def lsMatrix (x : Fin T → EuclideanSpace ℝ ι) : Matrix ι (Fi
 lemma leastSquares_eq_toEuclideanLin (x : Fin T → EuclideanSpace ℝ ι) (y : Fin T → ℝ) :
     leastSquares x y = Matrix.toEuclideanLin (lsMatrix x) (WithLp.toLp 2 y) := by
   apply WithLp.ofLp_injective
-  rw [leastSquares, Matrix.ofLp_toEuclideanCLM, ofLp_toEuclideanLin, lsMatrix,
-    ← Matrix.mulVec_mulVec, WithLp.ofLp_toLp, transpose_designRows_mulVec]
+  rw [leastSquares, Matrix.ofLp_toEuclideanCLM, Matrix.ofLp_toLpLin, Matrix.toLin'_apply,
+    lsMatrix, ← Matrix.mulVec_mulVec, WithLp.ofLp_toLp, transpose_designRows_mulVec]
 
 /-- If the observations are `y t = ⟪x t, θ⟫ + η t`, the least-squares estimate is
 `θ + Σ⁻¹ Xᵀ η`. -/
@@ -124,7 +124,7 @@ matrix `Σ = ∑ t < T, x t x tᵀ` is positive definite then the least-squares 
 lemma hasLaw_leastSquares_of_fixedDesign {𝒳 : Set (EuclideanSpace ℝ ι)}
     {θ : EuclideanSpace ℝ ι} {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
     [IsProbabilityMeasure P] {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝒳} {Y : ℕ → Ω → ℝ} {x : ℕ → 𝒳}
-    (h : IsAlgEnvSeq O X Y (fixedDesignAlg x) (linearGaussianEnv 𝒳 θ) P) (T : ℕ)
+    (h : IsAlgEnvSeq O X Y (Algorithm.ofSeq x) (linearGaussianEnv 𝒳 θ) P) (T : ℕ)
     (hS : (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι)).PosDef) :
     HasLaw (fun ω ↦ leastSquares (fun t : Fin T ↦ (x t : EuclideanSpace ℝ ι)) (fun t ↦ Y t ω))
       (multivariateGaussian θ (∑ t : Fin T, outerSelf (x t : EuclideanSpace ℝ ι))⁻¹) P := by

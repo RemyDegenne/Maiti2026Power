@@ -126,7 +126,7 @@ $c = 1/n$. With $u = \eps/2$ the bound is $\exp(-n\eps^2/8)\le\exp(-\log(3/\delt
 \label{sec:pre_median_alg}
 
 \begin{definition}[Schedule of Median Elimination]\label{def:me_schedule}
-\lean{Learning.MedianElim.epsSched, Learning.MedianElim.deltaSched, Learning.MedianElim.numPulls}\leanok
+\lean{Learning.MedianElim.epsSched, Learning.MedianElim.deltaSched, LMLExplore.Identification.MedianElimination.pullSchedule}\leanok
 For $\eps>0$, $\delta\in(0,1)$ and $\ell\in\N$ (rounds are $0$-indexed) let
 \[
   \eps_\ell := \frac{\eps}{4}\Big(\frac34\Big)^\ell,\qquad
@@ -134,11 +134,12 @@ For $\eps>0$, $\delta\in(0,1)$ and $\ell\in\N$ (rounds are $0$-indexed) let
   n_\ell := \Big\lceil\frac{8\log(3/\delta_\ell)}{\eps_\ell^2}\Big\rceil ,
 \]
 so that $\eps_0 = \eps/4$, $\delta_0 = \delta/2$, $\eps_{\ell+1} = 3\eps_\ell/4$ and
-$\delta_{\ell+1} = \delta_\ell/2$.
+$\delta_{\ell+1} = \delta_\ell/2$. The numbers of pulls $n_\ell$ are LMLExplore's
+\texttt{MedianElimination.pullSchedule 1 ε δ} (the schedule for $1$-sub-Gaussian arms).
 \end{definition}
 
 \begin{lemma}[Sums of the schedule]\label{lem:me_schedule_sums}
-\lean{Learning.MedianElim.sum_epsSched_le, Learning.MedianElim.sum_deltaSched_le, Learning.MedianElim.le_numPulls, Learning.MedianElim.log_deltaSched}\leanok
+\lean{Learning.MedianElim.sum_epsSched_le, Learning.MedianElim.sum_deltaSched_le, Learning.MedianElim.le_pullSchedule, Learning.MedianElim.log_deltaSched}\leanok
 \uses{def:me_schedule}
 $\sum_{\ell\ge0}\eps_\ell = \eps$ and $\sum_{\ell\ge0}\delta_\ell = \delta$; in particular every
 finite partial sum is at most $\eps$, resp.\ $\delta$. Moreover $n_\ell\ge 8\log(3/\delta_\ell)/\eps_\ell^2$
@@ -154,7 +155,7 @@ rest is the definition and $\log(2^{\ell+1}) = (\ell+1)\log2$.
 \end{proof}
 
 \begin{definition}[Halving sizes and number of rounds]\label{def:pm_halving}
-\lean{Learning.MedianElim.survivors, Learning.MedianElim.numRounds, Learning.MedianElim.survivors_succ, Learning.MedianElim.two_le_survivors_of_lt, Learning.MedianElim.survivors_numRounds, Learning.MedianElim.survivors_le_two_mul}\leanok
+\lean{LMLExplore.Identification.MedianElimination.armsCount, LMLExplore.Identification.MedianElimination.numPhases, Learning.MedianElim.armsCount_succ_eq, LMLExplore.Identification.MedianElimination.armsCount_numPhases, LMLExplore.Identification.MedianElimination.armsCount_mul_two_pow_lt_two_mul}\leanok
 For $K\ge1$ and $\ell\in\N$ let $s_\ell := \lceil K/2^\ell\rceil$ and
 $L := \min\{\ell : s_\ell = 1\} = \lceil\log_2K\rceil$. Then $s_0 = K$,
 $s_{\ell+1} = \lceil s_\ell/2\rceil$, $s_\ell\ge2$ for $\ell<L$, and $s_\ell\le 2K/2^\ell$ for
@@ -171,7 +172,7 @@ $b\in\mathrm{Top}(S,v)$.
 \end{definition}
 
 \begin{definition}[Median Elimination]\label{def:median_elimination}
-\lean{Learning.MedianElim.roundArm, Learning.MedianElim.roundScore, Learning.MedianElim.roundNext, Learning.MedianElim.medianElim, Learning.MedianElim.meOut, Learning.MedianElim.budget, Learning.MedianElim.start_medianElim_numRounds}\leanok
+\lean{Learning.MedianElim.roundArm, Learning.MedianElim.roundScore, Learning.MedianElim.roundNext, Learning.MedianElim.medianElim, Learning.MedianElim.meOut, LMLExplore.Identification.MedianElimination.phaseEnd, Learning.MedianElim.start_medianElim_numPhases}\leanok
 \uses{def:pm_subgaussian_bandit, def:me_schedule, def:pm_halving, def:pm_top, lem:phased}
 Let $K\ge1$, $\eps>0$, $\delta\in(0,1)$. Median Elimination $\mathrm{ME}(K,\eps,\delta)$ is the
 deterministic algorithm with actions in $\mathrm{Fin}\,K$ and observations in $\R$ defined round
@@ -210,7 +211,8 @@ with the largest per-round empirical means (\texttt{roundNext}, through the top 
 \texttt{Finset.topBy} of Definition~\ref{def:pm_top}). Measurability of the update holds because
 the surviving set is a measurable function of the scores (\texttt{Finset.measurable\_topBy}) and
 the state space of surviving sets is finite. The recommendation is the surviving arm
-(\texttt{meOut}) and the budget is $\tau_L$ (\texttt{budget}, \texttt{start\_medianElim\_numRounds}).
+(\texttt{meOut}) and the budget is $\tau_L$ (LMLExplore's \texttt{MedianElimination.phaseEnd},
+\texttt{start\_medianElim\_numPhases}).
 The lengths of the phases are deterministic while the size of $S$ is only guaranteed by the
 analysis: the good states of Lemma~\ref{lem:me_round} record $\abs{S_\ell} = s_\ell$.
 
@@ -370,7 +372,7 @@ again by Lemma~\ref{lem:me_schedule_sums}, since $S_L = \{\hat a\}$.
 \end{proof}
 
 \begin{lemma}[Budget of Median Elimination]\label{lem:me_budget}
-\lean{Learning.MedianElim.budget_le, Learning.MedianElim.budget_le_of_le_one}\leanok
+\lean{LMLExplore.Identification.MedianElimination.phaseEnd_pullSchedule_le, Learning.MedianElim.budget_le_of_le_one}\leanok
 \uses{def:median_elimination, def:me_schedule, def:pm_halving, lem:me_schedule_sums}
 For all $K\ge1$, $\eps>0$, $\delta\in(0,1)$,
 \[
@@ -402,6 +404,11 @@ $81\log2 = \frac{81\log2}{\log3}\log3\le 51.2\log(3/\delta)$ (since $81\cdot0.69
 so $9\log(3/\delta)+81\log2\le 60.2\log(3/\delta)$ and $256\cdot60.2<15412$; and
 $4K\le 4K\log(3/\delta)/(\eps^2\log3)\le 3.7K\log(3/\delta)/\eps^2$. Altogether
 $N_{\mathrm{ME}}\le(15412+3.7)K\log(3/\delta)/\eps^2\le16000\,K\log(3/\delta)/\eps^2$.
+
+\textbf{Lean remark.} The first form is LMLExplore's
+\texttt{MedianElimination.phaseEnd\_pullSchedule\_le} for $1$-sub-Gaussian arms, which states it
+as $2304K\eps^{-2}\log(1536/\delta)+4K$, the same number since
+$\log(1536/\delta) = \log(3/\delta)+9\log2$; it holds for every $\delta\in(0,6]$.
 \end{proof}
 
 \begin{remark}[Constants of the budget]\label{rem:pm_budget_constants}

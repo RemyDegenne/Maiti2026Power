@@ -29,7 +29,7 @@ namespace Maiti2026Power
 variable (ι : Type*) [Fintype ι]
 
 /-- The closed unit Euclidean ball. -/
-def unitBall : Set (EuclideanSpace ℝ ι) := Metric.closedBall 0 1
+noncomputable def unitBall : Set (EuclideanSpace ℝ ι) := Metric.closedBall 0 1
 
 /-- The hypercube `{-1, 1}^ι`. -/
 def hypercubePM : Set (EuclideanSpace ℝ ι) := {x | ∀ i, x i = 1 ∨ x i = -1}

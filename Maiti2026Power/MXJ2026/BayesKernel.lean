@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.GaussianLikelihood
-public import Maiti2026Power.LeanMachineLearning.TwoPoint
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
 
 /-!
 # The law of a run as a Markov kernel in the reward vector
@@ -29,6 +29,7 @@ Blueprint: `lem:pb_kernel_of_likelihood`. This construction sidesteps the measur
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Learning Real
+open LMLExplore.Identification
 open scoped ENNReal RealInnerProductSpace
 
 namespace Learning.LinearBandit
@@ -89,7 +90,7 @@ variable {A : IdentAlg Unit 𝒳 ℝ 𝒳} {T : ℕ}
 Markov kernel in `θ`**: the history kernel composed with the output rule. -/
 noncomputable def pairKernel (A : IdentAlg Unit 𝒳 ℝ 𝒳) (T : ℕ) :
     Kernel E (Hist Unit 𝒳 ℝ T × 𝒳) :=
-  histKernel A.alg T ⊗ₖ (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).prodMkLeft E
+  histKernel A.alg T ⊗ₖ (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).prodMkLeft E
 
 instance : IsMarkovKernel (pairKernel (E := E) A T) := by
   unfold pairKernel
@@ -97,19 +98,20 @@ instance : IsMarkovKernel (pairKernel (E := E) A T) := by
 
 lemma pairKernel_apply (θ : E) :
     pairKernel A T θ =
-      histKernel A.alg T θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T) := by
+      histKernel A.alg T θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T) := by
   rw [pairKernel, Kernel.compProd_apply_eq_compProd_sectR]
   congr 1
 
 /-- For any run of `A` under `θ`, (history of the `T` rounds, recommendation) has law
 `pairKernel A T θ`. -/
 lemma _root_.Learning.IdentAlg.IsRun.hasLaw_history_out_pairKernel
-    (hA : A.IsFixedBudget T) {out : Ω → 𝒳}
+    (hA : IsFixedBudget A T) {out : Ω → 𝒳}
     (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P) :
     HasLaw (fun ω ↦ (history O X Y T ω, out ω)) (pairKernel A T θ) P := by
+  have hout := h.hasCondDistrib_output_history hA
+  rw [LMLExplore.Identification.outputAt_eq_comap] at hout
   rw [pairKernel_apply]
-  exact (h.isAlgEnvSeq.hasLaw_history_histKernel T).prodMk_of_hasCondDistrib
-    (h.hasCondDistrib_output_history hA)
+  exact (h.isAlgEnvSeq.hasLaw_history_histKernel T).prodMk_of_hasCondDistrib hout
 
 lemma measurableSet_simpleRegret_le (θ : E) (ε : ℝ) :
     MeasurableSet {p : Hist Unit 𝒳 ℝ T × 𝒳 | simpleRegret 𝒳 θ p.2 ≤ ε} :=
@@ -127,9 +129,9 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [Measurabl
 /-- **The PAC property on the kernel**: for every `θ`, the recommendation is `ε`-optimal with
 probability at least `1 - δ` under `pairKernel A T θ`. -/
 lemma _root_.Learning.LinearBandit.IsPAC.le_measureReal_pairKernel (hpac : IsPAC 𝒳 A ε δ)
-    (hA : A.IsFixedBudget T) (θ : E) :
+    (hA : IsFixedBudget A T) (θ : E) :
     1 - δ ≤ (pairKernel A T θ).real {p | simpleRegret 𝒳 θ p.2 ≤ ε} := by
-  have hrun := A.isRun_runMeasure (linearGaussianEnv 𝒳 θ)
+  have hrun := isRun_runMeasure A (linearGaussianEnv 𝒳 θ)
   have hlaw := hrun.hasLaw_history_out_pairKernel hA
   have hpac' := hpac.le_measureReal_of_isRun hrun
   rw [← hlaw.measureReal_eq (p := fun p ↦ simpleRegret 𝒳 θ p.2 ≤ ε)
@@ -139,7 +141,7 @@ lemma _root_.Learning.LinearBandit.IsPAC.le_measureReal_pairKernel (hpac : IsPAC
 /-- **Expected regret of a PAC algorithm** under `pairKernel A T θ`: if the simple regret on the
 instance `θ` is between `0` and `Z ≥ ε` on `𝒳`, then `E_θ[r] ≤ ε + (Z - ε) δ`. -/
 lemma _root_.Learning.LinearBandit.IsPAC.integral_simpleRegret_pairKernel_le
-    (hpac : IsPAC 𝒳 A ε δ) (hA : A.IsFixedBudget T)
+    (hpac : IsPAC 𝒳 A ε δ) (hA : IsFixedBudget A T)
     (θ : E) {Z : ℝ} (h0 : ∀ x ∈ 𝒳, 0 ≤ simpleRegret 𝒳 θ x) (hZ : ∀ x ∈ 𝒳, simpleRegret 𝒳 θ x ≤ Z)
     (hεZ : ε ≤ Z) :
     ∫ p, simpleRegret 𝒳 θ p.2 ∂(pairKernel A T θ) ≤ ε + (Z - ε) * δ := by

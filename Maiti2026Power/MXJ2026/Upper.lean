@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.MeasureTheory.ApproxArgmax
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.ApproxArgmax
 public import Maiti2026Power.MXJ2026.FixedDesignAlgorithm
 public import Maiti2026Power.MXJ2026.MixedDesign
 public import Mathlib.Analysis.Real.Pi.Bounds
@@ -26,20 +26,21 @@ existence statement of the paper's Theorem 1, which follows from it.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Matrix
+open LMLExplore.Identification
 open scoped NNReal MatrixOrder
 
 namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-- **Theorem 1** (Maiti, Xu, Jamieson 2026): for a spanning compact action set `𝒳 ⊆ ℝ^d`,
+/-- **Theorem 1** [MXJ26, Theorem 1]: for a spanning compact action set `𝒳 ⊆ ℝ^d`,
 `ε ∈ (0, 1]` and `δ ∈ (0, 1)`, there is a fixed-design (non-adaptive) identification algorithm
 which is `(ε, δ)`-PAC on `𝒳` with budget `T ≤ 600 (w(𝒳)² + d log(2/δ)) / ε² + 1`. -/
 theorem exists_isFixedDesign_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)
     (hne : 𝒳.Nonempty) (hspan : Submodule.span ℝ 𝒳 = ⊤)
     {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 600 * (gw 𝒳 ^ 2 + Fintype.card ι * log (2 / δ)) / ε ^ 2 + 1 ∧
-      ∃ A : IdentAlg Unit 𝒳 ℝ 𝒳, A.IsFixedBudget T ∧ A.IsFixedDesign ∧ IsPAC 𝒳 A ε δ := by
+      ∃ A : IdentAlg Unit 𝒳 ℝ 𝒳, IsFixedBudget A T ∧ IsFixedDesign A.alg ∧ IsPAC 𝒳 A ε δ := by
   classical
   obtain ⟨R, hR⟩ : ∃ R, ∀ x ∈ 𝒳, ‖x‖ ≤ R := by
     obtain ⟨r, hr⟩ := h𝒳.isBounded.subset_closedBall (0 : EuclideanSpace ℝ ι)

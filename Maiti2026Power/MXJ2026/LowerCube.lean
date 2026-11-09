@@ -5,8 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.TwoPoint
-public import Maiti2026Power.LeanMachineLearning.Run
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
 public import Maiti2026Power.MXJ2026.CubeSet
 
 /-!
@@ -34,6 +33,7 @@ Blueprint: `thm:lower_hypercube_pm`, `thm:lower_hypercube_01`.
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Finset Learning Learning.LinearBandit
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Maiti2026Power
@@ -50,7 +50,7 @@ lemma le_of_isPAC_cubeSet {𝒳 : Set (EuclideanSpace ℝ ι)} {u : Bool → ℝ
     (hu : u false < u true) {M c : ℝ}
     (hM : ∀ b, |u b| ≤ M) {ε δ : ℝ} (hε : 0 < ε) (hc : 0 < c)
     (hnorm : c * (u true - u false) * Fintype.card ι = 10 * ε)
-    {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : A.IsFixedBudget T)
+    {T : ℕ} (A : IdentAlg Unit 𝒳 ℝ 𝒳) (hA : IsFixedBudget A T)
     (hpac : IsPAC 𝒳 A ε δ) (hbudget : (T : ℝ) * (c * M) ^ 2 ≤ 1 / 4) :
     1 / 6 ≤ δ := by
   subst h𝒳
@@ -60,10 +60,10 @@ lemma le_of_isPAC_cubeSet {𝒳 : Set (EuclideanSpace ℝ ι)} {u : Bool → ℝ
   have hune : u false ≠ u true := ne_of_lt hu
   -- the hard instances and their canonical runs
   set θ : (ι → Bool) → EuclideanSpace ℝ ι := fun s ↦ c • signVec s with hθ_def
-  have hrun := fun s ↦ A.isRun_runMeasure (linearGaussianEnv (cubeSet u) (θ s))
+  have hrun := fun s ↦ isRun_runMeasure A (linearGaussianEnv (cubeSet u) (θ s))
   obtain ⟨P, hP⟩ : ∃ P : (ι → Bool) →
       Measure ((ℕ → Round Unit (cubeSet (ι := ι) u) ℝ) × cubeSet (ι := ι) u),
-      ∀ s, P s = A.runMeasure (linearGaussianEnv (cubeSet u) (θ s)) :=
+      ∀ s, P s = runMeasure A (linearGaussianEnv (cubeSet u) (θ s)) :=
     ⟨_, fun _ ↦ rfl⟩
   have hprob : ∀ s, IsProbabilityMeasure (P s) := fun s ↦ by rw [hP]; infer_instance
   -- the events "the recommendation has the wrong value in the coordinate `j`"
@@ -111,7 +111,7 @@ lemma le_of_isPAC_cubeSet {𝒳 : Set (EuclideanSpace ℝ ι)} {u : Bool → ℝ
     intro j s hsj
     set s' := Function.update s j (!(s j)) with hs'
     have hs'j : s' j = false := by rw [hs', flipAt_apply_self, hsj]; rfl
-    have hrunQ := A.isRun_runMeasure (linearGaussianEnv (cubeSet u) (c • signVecZero s j))
+    have hrunQ := isRun_runMeasure A (linearGaussianEnv (cubeSet u) (c • signVecZero s j))
     have hCq : ∀ x ∈ cubeSet (ι := ι) u,
         ⟪x, c • signVecZero s j - θ s'⟫ ^ 2 ≤ c ^ 2 * M ^ 2 := by
       have heq : c • signVecZero s j = c • signVecZero s' j := by rw [hs', signVecZero_flipAt]

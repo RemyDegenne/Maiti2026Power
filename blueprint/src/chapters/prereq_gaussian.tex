@@ -154,7 +154,7 @@ $\E[(-G)(-G)^\top] = S$; apply (ii).
 \end{proof}
 
 \begin{lemma}[Affine images of Gaussian vectors]\label{lem:gauss_linear_image}
-\lean{ProbabilityTheory.multivariateGaussian_map_toEuclideanCLM, ProbabilityTheory.multivariateGaussian_map_toEuclideanLin, ProbabilityTheory.hasLaw_finset_sum_gaussianReal, ProbabilityTheory.hasLaw_const_add_const_mul_sum_pi_gaussianReal}
+\lean{TauCeti.Probability.map_affine_multivariateGaussian, ProbabilityTheory.iIndepFun.hasLaw_sum_gaussianReal, ProbabilityTheory.hasLaw_const_add_const_mul_sum_pi_gaussianReal}
 \uses{def:pg_gaussian_vector}
 Let $V \sim \Normal(\mu, S)$ in $\R^n$, $L \in \R^{m \times n}$ and $b \in \R^m$. Then
 $b + LV \sim \Normal(b + L\mu,\ L S L^\top)$. In particular, for $g \sim \Normal(0, I_n)$,
@@ -182,7 +182,7 @@ The proof through characteristic functions is an alternative to the one through
 and \texttt{charFun\_multivariateGaussian} on both sides.
 
 \begin{lemma}[Independent Gaussian vectors are jointly Gaussian]\label{lem:pg_indep_gaussian_pair}
-\lean{ProbabilityTheory.multivariateGaussian_conv}
+\lean{TauCeti.Probability.multivariateGaussian_conv_multivariateGaussian}
 \uses{def:pg_gaussian_vector}
 Let $V_1 \sim \Normal(\mu_1, S_1)$ in $\R^{n_1}$ and $V_2 \sim \Normal(\mu_2, S_2)$ in
 $\R^{n_2}$ be independent, on the same probability space. Then the pair $(V_1, V_2)$, seen in
@@ -249,8 +249,8 @@ Lemma~\ref{lem:gauss_uncorrelated_indep}.
 \textbf{Lean remark.} In the Lean development the pair of Gaussian vectors of
 Lemmas~\ref{lem:gauss_joint_linear} and~\ref{lem:gauss_uncorrelated_indep} is always of the
 form $(A_1g + A_2\eta,\ B_1g + B_2\eta)$ for a standard Gaussian pair $(g,\eta)$ of
-$\R^{d}\times\R^{T}$ (\texttt{isGaussian\_prod\_stdGaussian}: the product of two standard
-Gaussian measures is a Gaussian measure on the product space) and continuous linear maps
+$\R^{d}\times\R^{T}$ (the product of two standard Gaussian measures is a Gaussian measure on
+the product space, by a Mathlib instance) and continuous linear maps
 $A_i, B_i$; the cross-covariance is then
 $\operatorname{Cov}(\ip{a}{A_1g+A_2\eta}, \ip{b}{B_1g+B_2\eta}) = \ip{a}{(A_1B_1^* + A_2B_2^*)b}$
 (\texttt{covariance\_inner\_add\_prod\_stdGaussian}), and the independence criterion becomes
@@ -258,7 +258,7 @@ $A_1B_1^* + A_2B_2^* = 0$
 (\texttt{indepFun\_add\_prod\_stdGaussian\_of\_comp\_adjoint\_eq\_zero}).
 
 \begin{lemma}[Joint law of two linear images]\label{lem:gauss_joint_linear}
-\lean{ProbabilityTheory.isGaussian_prod_stdGaussian, ProbabilityTheory.covariance_inner_add_prod_stdGaussian, ProbabilityTheory.map_toLp_prod_stdGaussian}\leanok
+\lean{ProbabilityTheory.covariance_inner_add_prod_stdGaussian}\leanok
 In Lean this is stated for the standard Gaussian measures of two arbitrary
 finite-dimensional real inner product spaces $E$, $F$: their product is the standard Gaussian
 measure of $E \times F$ with the inner product $\ip{(a,b)}{(x,y)} = \ip a x + \ip b y$.
@@ -300,7 +300,7 @@ Mathlib: \texttt{HasGaussianLaw.indepFun\_of\_covariance\_eval} (coordinates) or
 
 \begin{lemma}[Expectation of an inner product with an independent centered vector]
 \label{lem:indep_integral_zero}
-\lean{ProbabilityTheory.IndepFun.integral_inner_comp_eq_zero, ProbabilityTheory.integrable_inner_comp}\leanok
+\lean{ProbabilityTheory.IndepFun.integral_bilin_comp_comp, ProbabilityTheory.integrable_inner_comp}\leanok
 Let $W : \Omega \to \R^d$ be integrable with $\E W = 0$, let $V : \Omega \to \mathcal V$ be a
 random variable with values in a measurable space, independent of $W$, and let
 $f : \mathcal V \to \R^d$ be bounded and measurable. Then $\ip{f(V)}{W}$ is integrable and
@@ -309,8 +309,8 @@ $\E\ip{f(V)}{W} = 0$.
 
 \begin{proof}
 \leanok
-(The Lean proof is basis-free: the law of $(V, W)$ is the product of the marginals, so by
-Fubini $\E\ip{f(V)}{W} = \int\ip{f(v)}{\E W}\,\Prob_V(dv) = 0$.)
+(The Lean proof is basis-free: it is Mathlib's \texttt{IndepFun.integral\_bilin\_comp\_comp}
+with the bilinear map \texttt{innerSL ℝ}, which gives $\E\ip{f(V)}{W} = \ip{\E f(V)}{\E W} = 0$.)
 $\ip{f(V)}{W} = \sum_{i<d} f_i(V)\,W_i$. For each $i$, $f_i(V)$ is bounded and measurable and
 $W_i$ is integrable, so their product is integrable; $f_i(V)$ and $W_i$ are independent
 (compositions of independent variables with measurable maps, Mathlib \texttt{IndepFun.comp}),
@@ -322,7 +322,7 @@ variables, Mathlib \texttt{IndepFun.integral\_mul\_eq\_mul\_integral}). Sum over
 \label{sec:pre_gaussian_moments}
 
 \begin{lemma}[Moments of a centered real Gaussian]\label{lem:gauss_1d_moments}
-\lean{ProbabilityTheory.integral_abs_gaussianReal}
+\lean{TauCeti.Probability.integral_abs_gaussianReal}
 \uses{def:pg_gaussian_vector}
 Let $\sigma \ge 0$ and $Z \sim \Normal(0,\sigma^2)$. Then $Z$ has finite moments of all
 orders and
@@ -346,9 +346,9 @@ $\int\abs{x}\varphi = 2\int_0^\infty x\varphi(x)\,dx = 2\varphi(0) = \sqrt{2/\pi
 $x\varphi(x) = -\varphi'(x)$. Alternatively, $\E Z^4$ is the fourth derivative at $0$ of the
 MGF $e^{\lambda^2\sigma^2/2}$ (Mathlib \texttt{iteratedDeriv\_mgf\_zero}).
 
-(Lean: the absolute moment is \texttt{integral\_abs\_gaussianReal}, $\E\abs Z = \sqrt{2\sigma^2/\pi}$,
-computed with the density and $\int_0^\infty xe^{-bx^2}\,dx = 1/(2b)$
-(\texttt{integral\_Ioi\_mul\_exp\_neg\_mul\_sq}); the fourth moment is not formalized.)
+(Lean: the absolute moment is Tau Ceti's \texttt{integral\_abs\_gaussianReal},
+$\E\abs Z = \sqrt{2\sigma^2/\pi}$, the first of the absolute moments
+\texttt{integral\_abs\_sub\_pow\_gaussianReal}; the fourth moment is not formalized.)
 \end{proof}
 
 \begin{lemma}[Moments of the norm of a Gaussian vector]\label{lem:gauss_norm_moments}
@@ -412,7 +412,7 @@ $\E\abs{Y_i} = \sqrt{2S_{ii}/\pi}$ by Lemma~\ref{lem:gauss_1d_moments}.
 \end{proof}
 
 \begin{lemma}[Gaussian tail]\label{lem:gauss_tail}
-\lean{ProbabilityTheory.hasSubgaussianMGF_fun_id_gaussianReal}\leanok
+\lean{LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal}\leanok
 \uses{def:pg_gaussian_vector}
 Let $\mu \in \R$, $\sigma > 0$ and $Z \sim \Normal(\mu,\sigma^2)$. Then $Z - \mu$ has a
 sub-Gaussian moment generating function with constant $\sigma^2$
@@ -462,7 +462,7 @@ $n\eps^2/8 \ge \log(2/\delta)$.
 
 \begin{lemma}[Suprema over a compact set reduce to a countable dense subset]
 \label{lem:sup_countable_dense}
-\lean{supportFn, lipschitzWith_supportFn, convexOn_supportFn, continuous_supportFn, abs_supportFn_le, exists_supportFn_eq_inner, partialSupInner, monotone_partialSupInner, abs_partialSupInner_le, exists_forall_supportFn_eq_iSup, tendsto_partialSupInner}\leanok
+\lean{supportFn, lipschitzWith_supportFn, convexOn_supportFn, continuous_supportFn, abs_supportFn_le, exists_supportFn_eq_inner, partialSups, partialSups_monotone, abs_partialSups_inner_le, exists_forall_supportFn_eq_iSup, tendsto_partialSups_inner}\leanok
 Let $\Xs \subset \R^d$ be nonempty and compact and $R := \max_{x\in\Xs}\norm{x}$.
 \begin{enumerate}
   \item[(i)] There is a countable dense subset $D \subseteq \Xs$; fix an enumeration
@@ -505,7 +505,7 @@ through this countable form, and Chapter~\ref{chap:pre_concentration} uses the p
 $\max_{i\le n}\ip{q_i}{G}$ as the finite approximations.
 
 \begin{lemma}[Expected maximum of $m$ sub-Gaussian variables]\label{lem:gauss_max_upper}
-\lean{ProbabilityTheory.integral_iSup_le_of_hasSubgaussianMGF, ProbabilityTheory.integrable_iSup_of_hasSubgaussianMGF, ProbabilityTheory.HasSubgaussianMGF.mono, ProbabilityTheory.hasSubgaussianMGF_inner_stdGaussian, ProbabilityTheory.integral_iSup_inner_stdGaussian_le, ProbabilityTheory.gaussianWidth_stdGaussian_le_of_finite}\leanok
+\lean{ProbabilityTheory.integral_iSup_le_of_hasSubgaussianMGF, MeasureTheory.Integrable.iSup, ProbabilityTheory.HasSubgaussianMGF.mono, ProbabilityTheory.hasSubgaussianMGF_inner_stdGaussian, ProbabilityTheory.integral_iSup_inner_stdGaussian_le, ProbabilityTheory.gaussianWidth_stdGaussian_le_of_finite}\leanok
 \uses{lem:gauss_tail}
 Let $m \ge 1$, $\sigma \ge 0$ and $Z_1,\dots,Z_m$ be real random variables on a common
 probability space, each with a sub-Gaussian moment generating function with constant

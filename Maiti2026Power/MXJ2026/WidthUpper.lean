@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.OptimalDesign
-public import Maiti2026Power.Mathlib.Probability.SubgaussianMax
+public import Maiti2026Power.ForLMLExplore.Probability.SubgaussianMax
 
 /-!
 # Upper bounds on the width for a `G`-optimal design matrix, regionalized width

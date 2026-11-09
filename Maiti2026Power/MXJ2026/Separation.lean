@@ -8,10 +8,10 @@ module
 public import Maiti2026Power.MXJ2026.WidthBall
 public import Maiti2026Power.MXJ2026.LowerNonadaptive
 public import Maiti2026Power.MXJ2026.LowerAdaptive
-public import Maiti2026Power.LeanMachineLearning.FixedDesignTransport
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignTransport
 public import Maiti2026Power.MXJ2026.BlockProof
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Inner
-public import Maiti2026Power.Mathlib.MeasureTheory.Measure.Real
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.Measure.Real
 
 /-!
 # Polynomial separation between adaptive and non-adaptive algorithms (Theorem 7)
@@ -47,6 +47,7 @@ algorithm, of which `exists_isPAC_blockBallSet` is the existence form).
 @[expose] public section
 
 open MeasureTheory ProbabilityTheory Real Learning Learning.LinearBandit Finset
+open LMLExplore.Identification
 open scoped RealInnerProductSpace
 
 namespace Maiti2026Power
@@ -56,8 +57,8 @@ fixed-design algorithm `A` with design `x` is `(ε, δ)`-PAC on the block-ball s
 design `blockDesign i x` on the unit ball of `ℝ^d`, with the recommendation of `A` projected on
 block `i`, is `(ε, δ)`-PAC on the unit ball. -/
 lemma isPAC_fixedDesignTransport_blockProjBall {k d T : ℕ}
-    {A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)} (hA : A.IsFixedBudget T)
-    {x : ℕ → blockBallSet k d} (hx : A.alg = fixedDesignAlg x)
+    {A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)} (hA : IsFixedBudget A T)
+    {x : ℕ → blockBallSet k d} (hx : A.alg = Algorithm.ofSeq x)
     {ε δ : ℝ} (hpac : IsPAC (blockBallSet k d) A ε δ) (i : Fin k) :
     IsPAC (unitBall (Fin d))
       (fixedDesignTransport A T x (blockDesign i x) (measurable_blockProjBall i)) ε δ :=
@@ -65,13 +66,13 @@ lemma isPAC_fixedDesignTransport_blockProjBall {k d T : ℕ}
     (fun _ ϑ ↦ (inner_blockEmb_right i _ ϑ).symm) (measurable_blockProjBall i)
     (fun ϑ y ↦ (simpleRegret_blockBallSet_blockEmb i ϑ y).symm.le)
 
-/-- **Theorem 7, non-adaptive lower bound**: a fixed-design (non-adaptive) identification
-algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]` and
-`δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
+/-- **Theorem 7, non-adaptive lower bound** [MXJ26, Theorem 7]: a fixed-design (non-adaptive)
+identification algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]`
+and `δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
 theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : ℝ}
     (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ}
-    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : A.IsFixedBudget T)
-    (hdes : A.IsFixedDesign)
+    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : IsFixedBudget A T)
+    (hdes : IsFixedDesign A.alg)
     (hpac : IsPAC (blockBallSet k d) A ε δ) :
     k * (d : ℝ) ^ 2 / (210 * ε ^ 2) ≤ T := by
   rcases Nat.eq_zero_or_pos k with rfl | hk
@@ -79,7 +80,7 @@ theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : �
   rcases Nat.eq_zero_or_pos d with rfl | hd
   · simp
   have hε0 : 0 < ε := hε.1
-  obtain ⟨x, hx⟩ := hdes
+  obtain ⟨x, hx⟩ := isFixedDesign_iff.1 hdes
   -- pigeonhole: some block receives at most `T / k` rounds
   obtain ⟨i, hi⟩ := exists_mul_card_blockRounds_le hk x T
   -- the transported algorithm on the unit ball of `ℝ^d` is PAC
@@ -135,12 +136,12 @@ theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : �
     _ ≤ 210 * ε ^ 2 * T := by gcongr
     _ = T * (210 * ε ^ 2) := by ring
 
-/-- **Theorem 7, adaptive lower bound** (from Theorem 2): an identification algorithm which is
-`(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, `kd ≥ 2`, with `δ < 1/16`, has budget
-`T ≥ kd log(1/δ) / (20000 ε²)`. -/
+/-- **Theorem 7, adaptive lower bound** [MXJ26, Theorem 7] (from Theorem 2): an identification
+algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, `kd ≥ 2`, with `δ < 1/16`, has
+budget `T ≥ kd log(1/δ) / (20000 ε²)`. -/
 theorem blockBallSet_le_budget_of_isPAC (k d : ℕ) (hkd : 2 ≤ k * d) {ε δ : ℝ} (hε : 0 < ε)
     (hδ : δ ∈ Set.Ioo 0 (1 / 16)) {T : ℕ}
-    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : A.IsFixedBudget T)
+    (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : IsFixedBudget A T)
     (hpac : IsPAC (blockBallSet k d) A ε δ) :
     k * d * log (1 / δ) / (20000 * ε ^ 2) ≤ T := by
   have hcard : Fintype.card (Fin k × Fin d) = k * d := by simp [Fintype.card_prod]
@@ -150,13 +151,13 @@ theorem blockBallSet_le_budget_of_isPAC (k d : ℕ) (hkd : 2 ≤ k * d) {ε δ :
   push_cast at this
   exact this
 
-/-- **Theorem 7, adaptive upper bound**: for `k ≥ 1`, `ε ∈ (0, 1]` and `δ ∈ (0, 1)`, there is an
-(adaptive) `(ε, δ)`-PAC identification algorithm on the block-ball set of `ℝ^{kd}` with budget
-`T ≤ 2·10⁶ (kd log(8k/δ) + d²) / ε²`. -/
+/-- **Theorem 7, adaptive upper bound** [MXJ26, Theorem 7]: for `k ≥ 1`, `ε ∈ (0, 1]` and `δ ∈ (0,
+1)`, there is an (adaptive) `(ε, δ)`-PAC identification algorithm on the block-ball set of `ℝ^{kd}`
+with budget `T ≤ 2·10⁶ (kd log(8k/δ) + d²) / ε²`. -/
 theorem exists_isPAC_blockBallSet (k d : ℕ) (hk : 1 ≤ k) {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1)
     (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 2000000 * (k * d * log (8 * k / δ) + (d : ℝ) ^ 2) / ε ^ 2 ∧
-      ∃ A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d), A.IsFixedBudget T ∧
+      ∃ A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d), IsFixedBudget A T ∧
         IsPAC (blockBallSet k d) A ε δ := by
   classical
   have : Nonempty (blockBallSet k d) := (blockBallSet_nonempty ⟨0, hk⟩).to_subtype
@@ -166,9 +167,9 @@ theorem exists_isPAC_blockBallSet (k d : ℕ) (hk : 1 ≤ k) {ε δ : ℝ} (hε 
     measurableSet_lt measurable_const (measurable_simpleRegret _ θ)
   rcases Nat.eq_zero_or_pos d with rfl | hd
   · -- degenerate case `d = 0`: every reward vector is `0` and every recommendation is optimal
-    refine ⟨0, by simp, IdentAlg.fixedBudget (Q.alg 0).toAlgorithm 0
+    refine ⟨0, by simp, fixedBudget (Q.alg 0).toAlgorithm 0
       (Kernel.deterministic (fun _ ↦ Q.zeroBB 0) measurable_const),
-      IdentAlg.isFixedBudget_fixedBudget _ _ _, ?_⟩
+      isFixedBudget_fixedBudget _ _ _, ?_⟩
     refine SeededAlg.linearBandit_isPAC_fixedBudget_deterministic (Q.alg 0) measurable_const hbad
       fun θ ↦ ?_
     have hθ : θ = 0 := by
@@ -181,9 +182,9 @@ theorem exists_isPAC_blockBallSet (k d : ℕ) (hk : 1 ≤ k) {ε δ : ℝ} (hε 
           (not_lt.2 (by simp [simpleRegret, hθ, hε.1.le]))
     rw [hempty, measureReal_empty]
     exact hδ.1.le
-  · refine ⟨Q.T d, Q.T_le hd, IdentAlg.fixedBudget (Q.alg d).toAlgorithm (Q.T d)
+  · refine ⟨Q.T d, Q.T_le hd, fixedBudget (Q.alg d).toAlgorithm (Q.T d)
       (Kernel.deterministic (Q.output d) Q.measurable_output),
-      IdentAlg.isFixedBudget_fixedBudget _ _ _, ?_⟩
+      isFixedBudget_fixedBudget _ _ _, ?_⟩
     exact SeededAlg.linearBandit_isPAC_fixedBudget_deterministic (Q.alg d) Q.measurable_output
       hbad fun θ ↦ measureReal_lt_le_of_one_sub_le_measureReal_le
         ((measurable_simpleRegret _ θ).comp (Q.measurable_output.comp
