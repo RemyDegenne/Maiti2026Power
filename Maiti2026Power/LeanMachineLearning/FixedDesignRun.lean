@@ -110,9 +110,9 @@ include h
 /-- Under the fixed design `x`, the actions are `x t` almost surely. -/
 lemma _root_.Learning.IsAlgEnvSeq.ae_action_eq_of_fixedDesign :
     ∀ᵐ ω ∂P, ∀ t, X t ω = x t := by
-  have h' : IsAlgEnvSeq O X Y (detAlgorithm (fun n _ ↦ x n) fun _ ↦ measurable_const)
+  have h' : IsAlgEnvSeq O X Y (Algorithm.deterministic (fun n _ ↦ x n) fun _ ↦ measurable_const)
       (linearGaussianEnv 𝒳 θ) P := h
-  filter_upwards [h'.action_detAlgorithm_ae_all_eq] with ω hω t
+  filter_upwards [h'.action_ae_all_eq_deterministic] with ω hω t
   exact hω t
 
 /-- Under the fixed design `x`, the observations are `Y t = ⟪x t, θ⟫ + noise t` almost surely. -/

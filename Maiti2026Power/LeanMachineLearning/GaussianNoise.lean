@@ -89,10 +89,11 @@ lemma _root_.Learning.IsAlgEnvSeq.hasCondDistrib_noise (n : ℕ) :
 lemma _root_.Learning.IsAlgEnvSeq.hasCondDistrib_noise_zero :
     HasCondDistrib (noise θ X Y 0) (X 0) (Kernel.const _ (gaussianReal 0 1)) P := by
   have h0 := h.hasCondDistrib_feedback_zero
-  rw [linearGaussianEnv, ν0_stationaryEnv] at h0
+  rw [linearGaussianEnv, feedbackZero_bandit] at h0
   exact (hasCondDistrib_sub_inner_of_hasCondDistrib measurable_snd h0).const_comp_right
     measurable_snd
 
+omit [IsProbabilityMeasure P] in
 lemma _root_.Learning.IsAlgEnvSeq.measurable_noise (t : ℕ) : Measurable (noise θ X Y t) :=
   (h.measurable_feedback t).sub
     ((continuous_id.inner continuous_const).measurable.comp
@@ -138,6 +139,7 @@ noncomputable def _root_.Learning.IsAlgEnvSeq.shiftedFiltrationAction (n : ℕ) 
   le' s := h.filtrationAction.le _
 
 omit [StandardBorelSpace Ω] in
+omit [IsProbabilityMeasure P] in
 /-- The shifted noise process `s ↦ noise (n + s)` is adapted to the shifted filtration. -/
 lemma _root_.Learning.IsAlgEnvSeq.stronglyAdapted_noise_shifted (n : ℕ) :
     StronglyAdapted (h.shiftedFiltrationAction n) fun s ↦ noise θ X Y (n + s) := by

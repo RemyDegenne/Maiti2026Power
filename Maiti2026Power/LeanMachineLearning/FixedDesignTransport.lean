@@ -60,7 +60,7 @@ noncomputable def fixedDesignTransport (A : IdentAlg Unit 𝒳 ℝ 𝒳) (T : �
     (x' : ℕ → 𝒴) {π : 𝒳 → 𝒴} (hπ : Measurable π) : IdentAlg Unit 𝒴 ℝ 𝒴 :=
   haveI : Nonempty 𝒴 := ⟨x' 0⟩
   IdentAlg.fixedBudget (fixedDesignAlg x') T
-    (transportKernel (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) x hπ)
+    (transportKernel (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) x hπ)
 
 variable {A : IdentAlg Unit 𝒳 ℝ 𝒳} {x : ℕ → 𝒳} {x' : ℕ → 𝒴} {π : 𝒳 → 𝒴} {hπ : Measurable π}
 
@@ -75,8 +75,8 @@ lemma isFixedDesign_fixedDesignTransport : (fixedDesignTransport A T x x' hπ).I
   ⟨x', rfl⟩
 
 lemma output_fixedDesignTransport :
-    (fixedDesignTransport A T x x' hπ).output.comap (Sigma.mk T) (measurable_sigma_mk T) =
-      transportKernel (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) x hπ :=
+    (fixedDesignTransport A T x x' hπ).output.comap (Sigma.mk T) (measurable_sigmaMk T) =
+      transportKernel (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) x hπ :=
   haveI : Nonempty 𝒴 := ⟨x' 0⟩
   IdentAlg.output_fixedBudget _ _ _
 

@@ -50,7 +50,7 @@ lemma IsRun.klDiv_map_out_le (hA : A.IsFixedBudget T) (h : A.IsRun env O X Y out
   have hfin : Measurable (history O X Y T) := h.isAlgEnvSeq.measurable_history T
   have hfin' : Measurable (history O' X' Y' T) := h'.isAlgEnvSeq.measurable_history T
   let ι : Hist Unit 𝓐 𝓨 T → Σ n, Hist Unit 𝓐 𝓨 n := Sigma.mk (β := fun n ↦ Hist Unit 𝓐 𝓨 n) T
-  have hι : Measurable ι := measurable_sigma_mk _
+  have hι : Measurable ι := measurable_sigmaMk _
   calc klDiv (P.map out) (P'.map out')
       ≤ klDiv (P.map (A.stoppedHist O X Y)) (P'.map (A.stoppedHist O' X' Y')) :=
         h.klDiv_map_out_le_stoppedHist h'

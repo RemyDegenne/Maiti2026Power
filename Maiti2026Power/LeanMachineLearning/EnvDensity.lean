@@ -101,16 +101,16 @@ variable {Ω Ω₀ : Type*} [MeasurableSpace Ω] [MeasurableSpace Ω₀] {P : Me
 under the stationary environment with kernel `κ` is the law under the environment with kernel
 `κ₀`, with density `envDensity ρ n = ∏ t < n, ρ (x t) (y t)`. -/
 lemma IsAlgEnvSeq.map_history_eq_withDensity_env (hρ : Measurable (Function.uncurry ρ))
-    (hκ : κ = κ₀.withDensity ρ) (h : IsAlgEnvSeq O X Y alg (stationaryEnv κ) P)
-    (h₀ : IsAlgEnvSeq O₀ X₀ Y₀ alg (stationaryEnv κ₀) P₀) (n : ℕ) :
+    (hκ : κ = κ₀.withDensity ρ) (h : IsAlgEnvSeq O X Y alg (Environment.bandit κ) P)
+    (h₀ : IsAlgEnvSeq O₀ X₀ Y₀ alg (Environment.bandit κ₀) P₀) (n : ℕ) :
     P.map (history O X Y n) = (P₀.map (history O₀ X₀ Y₀ n)).withDensity (envDensity ρ n) := by
   induction n with
   | zero =>
     rw [(hasLaw_history_zero O X Y).map_eq, (hasLaw_history_zero O₀ X₀ Y₀).map_eq,
       show envDensity ρ 0 = 1 from funext (envDensity_zero ρ), withDensity_one]
   | succ n ih =>
-    have hs : stepKernel alg (stationaryEnv κ) n =
-        (stepKernel alg (stationaryEnv κ₀) n).withDensity fun _ p ↦ ρ p.action p.feedback := by
+    have hs : stepKernel alg (Environment.bandit κ) n =
+        (stepKernel alg (Environment.bandit κ₀) n).withDensity fun _ p ↦ ρ p.action p.feedback := by
       have hρ' : Measurable
           (Function.uncurry fun (p : (Hist Unit 𝓐 𝓨 n × Unit) × 𝓐) b ↦ ρ p.2 b) :=
         hρ.comp (measurable_fst.snd.prodMk measurable_snd)
@@ -121,10 +121,10 @@ lemma IsAlgEnvSeq.map_history_eq_withDensity_env (hρ : Measurable (Function.unc
           fun p b ↦ ρ p.2 b) := by
         rw [← Kernel.prodMkLeft_withDensity _ _ hρ, ← hκ]
         infer_instance
-      have h1 : stepKernel alg (stationaryEnv κ) n =
+      have h1 : stepKernel alg (Environment.bandit κ) n =
           Kernel.const _ (Measure.dirac ()) ⊗ₖ (alg.policy n ⊗ₖ
             (κ₀.prodMkLeft (Hist Unit 𝓐 𝓨 n × Unit)).withDensity fun p b ↦ ρ p.2 b) := by
-        rw [stepKernel_def, obs_stationaryEnv, feedback_stationaryEnv, hκ,
+        rw [stepKernel_def, obs_bandit, feedback_bandit, hκ,
           Kernel.prodMkLeft_withDensity _ _ hρ]
       have h2 : alg.policy n ⊗ₖ
             (κ₀.prodMkLeft (Hist Unit 𝓐 𝓨 n × Unit)).withDensity (fun p b ↦ ρ p.2 b) =
@@ -138,7 +138,7 @@ lemma IsAlgEnvSeq.map_history_eq_withDensity_env (hρ : Measurable (Function.unc
         infer_instance
       rw [h1, h2, Kernel.compProd_withDensity_right _ _ hρ'']
       rfl
-    have : IsMarkovKernel ((stepKernel alg (stationaryEnv κ₀) n).withDensity
+    have : IsMarkovKernel ((stepKernel alg (Environment.bandit κ₀) n).withDensity
         fun _ p ↦ ρ p.action p.feedback) := by
       rw [← hs]
       infer_instance

@@ -130,7 +130,7 @@ lemma sum_apply_toEuclideanLin_single_self
     refine Finset.sum_congr rfl fun j _ ↦ ?_
     simp [EuclideanSpace.basisFun_apply, EuclideanSpace.inner_single_left]
   simp_rw [hcol, map_sum, map_smul, _root_.sum_apply, _root_.smul_apply,
-    smul_eq_mul, Finset.mul_sum, mul_apply, transpose_apply, Finset.sum_mul]
+    smul_eq_mul, Finset.mul_sum, Matrix.mul_apply, Matrix.transpose_apply, Finset.sum_mul]
   conv_rhs => rw [Finset.sum_comm]
   conv_lhs => rw [Finset.sum_comm]
   refine Finset.sum_congr rfl fun l _ ↦ ?_

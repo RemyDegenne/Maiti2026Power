@@ -101,10 +101,10 @@ noncomputable def toAlgorithm : Algorithm Unit 𝓐 𝓨 where
 
 @[simp] lemma policy_toAlgorithm (n : ℕ) : A.toAlgorithm.policy n = A.policy n := rfl
 
-@[simp] lemma p0_toAlgorithm :
-    A.toAlgorithm.p0 = Kernel.const Unit (A.seed.map (A.next 0 default)) := by
+@[simp] lemma policyZero_toAlgorithm :
+    A.toAlgorithm.policyZero = Kernel.const Unit (A.seed.map (A.next 0 default)) := by
   ext o : 1
-  rw [Algorithm.p0_apply, policy_toAlgorithm, policy_apply, Kernel.const_apply]
+  rw [Algorithm.policyZero_apply, policy_toAlgorithm, policy_apply, Kernel.const_apply]
 
 end SeededAlg
 
@@ -124,14 +124,15 @@ lemma noiseKernel_apply (x : 𝓐) : noiseKernel μe F hF x = μe.map (F x) :=
   Kernel.mapOfConst_apply _ x
 
 /-- The stationary environment answering the action `x` with `F x e`, `e ~ μe`. -/
-noncomputable def noiseEnv : Environment Unit 𝓐 𝓨 := stationaryEnv (noiseKernel μe F hF)
+noncomputable def noiseEnv : Environment Unit 𝓐 𝓨 := Environment.bandit (noiseKernel μe F hF)
 
-lemma ν0_noiseEnv : (noiseEnv μe F hF).ν0 = (noiseKernel μe F hF).prodMkLeft Unit :=
-  ν0_stationaryEnv _
+lemma feedbackZero_noiseEnv :
+    (noiseEnv μe F hF).feedbackZero = (noiseKernel μe F hF).prodMkLeft Unit :=
+  feedbackZero_bandit
 
 lemma feedback_noiseEnv (n : ℕ) :
     (noiseEnv μe F hF).feedback n = (noiseKernel μe F hF).prodMkLeft _ :=
-  feedback_stationaryEnv _ n
+  feedback_bandit n
 
 end NoiseEnv
 
@@ -162,7 +163,7 @@ lemma LinearBandit.linearGaussianEnv_eq_noiseEnv :
       = (gaussianReal 0 1).map (fun e ↦ inner ℝ (x : E) θ + e)
     rw [gaussianReal_map_const_add, zero_add]
   have key : ∀ (κ₁ κ₂ : Kernel 𝒳 ℝ) [IsMarkovKernel κ₁] [IsMarkovKernel κ₂], κ₁ = κ₂ →
-      stationaryEnv κ₁ = stationaryEnv κ₂ := by
+      Environment.bandit κ₁ = Environment.bandit κ₂ := by
     rintro κ₁ κ₂ _ _ rfl
     congr
   exact key _ _ hk

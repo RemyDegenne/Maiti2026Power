@@ -51,7 +51,7 @@ variable {𝓞 𝓐 𝓨 𝓓 : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : M
 /-- The deterministic algorithm that plays the fixed sequence `x : ℕ → 𝓐` regardless of the
 observations (a *fixed design*). -/
 noncomputable def fixedDesignAlg (x : ℕ → 𝓐) : Algorithm Unit 𝓐 𝓨 :=
-  detAlgorithm (fun n _ ↦ x n) fun _ ↦ measurable_const
+  Algorithm.deterministic (fun n _ ↦ x n) fun _ ↦ measurable_const
 
 namespace IdentAlg
 
@@ -91,11 +91,11 @@ lemma isFixedBudget_fixedBudget [Nonempty 𝓓] (alg : Algorithm 𝓞 𝓐 𝓨)
 /-- The output rule of `fixedBudget alg T ρ` on histories of length `T` is `ρ`. -/
 lemma output_fixedBudget [Nonempty 𝓓] (alg : Algorithm 𝓞 𝓐 𝓨) (T : ℕ)
     (ρ : Kernel (Hist 𝓞 𝓐 𝓨 T) 𝓓) [IsMarkovKernel ρ] :
-    (fixedBudget alg T ρ).output.comap (Sigma.mk T) (measurable_sigma_mk T) = ρ := by
+    (fixedBudget alg T ρ).output.comap (Sigma.mk T) (measurable_sigmaMk T) = ρ := by
   rw [show (fixedBudget alg T ρ).output = Kernel.sigma fun n ↦
       if h : n = T then ρ.comap (fun (x : Hist 𝓞 𝓐 𝓨 n) i ↦ x (Fin.cast h.symm i)) (by fun_prop)
       else Kernel.const _ (Measure.dirac (Classical.arbitrary 𝓓)) from rfl,
-    Kernel.comap_sigma_mk]
+    Kernel.comap_sigmaMk]
   simp only [↓reduceDIte, Fin.cast_eq_self]
   ext y u _
   simp
@@ -130,24 +130,23 @@ variable {P : Measure Ω} [IsProbabilityMeasure P] {out : Ω → 𝓓} {env : En
 the first `T` rounds.** -/
 lemma IsRun.hasCondDistrib_output_history (hA : A.IsFixedBudget T)
     (h : A.IsRun env O X Y out P) :
-    HasCondDistrib out (history O X Y T) (A.output.comap (Sigma.mk T) (measurable_sigma_mk T))
+    HasCondDistrib out (history O X Y T) (A.output.comap (Sigma.mk T) (measurable_sigmaMk T))
       P := by
   have h1 := h.hasCondDistrib_output
   rw [show A.stoppedHist O X Y = Sigma.mk T ∘ history O X Y T from
     funext hA.stoppedHist_eq] at h1
-  exact h1.of_measurableEmbedding_comp_right (measurableEmbedding_sigma_mk T)
+  exact h1.of_measurableEmbedding_comp_right (measurableEmbedding_sigmaMk T)
 
 /-- For a fixed-budget algorithm whose output rule on histories of length `T` is the
 deterministic map `g` of the history, the output of a run is `g` of the history of the first `T`
 rounds, almost surely. -/
 lemma IsRun.output_ae_eq_of_output_eq_deterministic [MeasurableEq 𝓓] (hA : A.IsFixedBudget T)
     (h : A.IsRun env O X Y out P) {g : Hist 𝓞 𝓐 𝓨 T → 𝓓} (hg : Measurable g)
-    (hout : A.output.comap (Sigma.mk T) (measurable_sigma_mk T) = Kernel.deterministic g hg) :
+    (hout : A.output.comap (Sigma.mk T) (measurable_sigmaMk T) = Kernel.deterministic g hg) :
     out =ᵐ[P] fun ω ↦ g (history O X Y T ω) := by
   have h1 := h.hasCondDistrib_output_history hA
   rw [hout] at h1
-  exact ae_eq_of_hasCondDistrib_deterministic hg (h.isAlgEnvSeq.measurable_history T).aemeasurable
-    h.hasCondDistrib_output.aemeasurable_snd h1
+  exact h1.ae_eq_of_deterministic
 
 /-- For a run of a fixed-budget algorithm with budget `0`, the law of the output is the output
 rule applied to the empty history. -/

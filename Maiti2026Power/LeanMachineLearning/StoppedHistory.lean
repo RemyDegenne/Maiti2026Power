@@ -118,12 +118,12 @@ def truncHist (M : ℕ) (h : Σ n : ℕ, Hist 𝓞 𝓐 𝓨 n) : Σ n : ℕ, Hi
 
 lemma measurable_truncHist (M : ℕ) :
     Measurable (truncHist (𝓞 := 𝓞) (𝓐 := 𝓐) (𝓨 := 𝓨) M) := by
-  refine measurable_sigma_of_measurable_comp_mk fun n ↦ ?_
+  refine measurable_sigma fun n ↦ ?_
   by_cases hn : n ≤ M
   · simp only [Function.comp_def, truncHist, hn, dite_true]
-    exact measurable_sigma_mk n
+    exact measurable_sigmaMk n
   · simp only [Function.comp_def, truncHist, hn, dite_false]
-    exact (measurable_sigma_mk M).comp
+    exact (measurable_sigmaMk M).comp
       (Measurable.of_eval fun i ↦ measurable_pi_apply (Fin.castLE (not_le.1 hn).le i))
 
 omit m𝓞 m𝓐 m𝓨 in
@@ -212,7 +212,7 @@ lemma exists_measurableSet_preimage_lt_hittingAfter_sigmaHistory (hS : Measurabl
   refine ⟨⋂ j, ⋂ (hj : j ≤ n),
     {h | (⟨j, fun i ↦ h (Fin.castLE hj i)⟩ : Σ n, Hist 𝓞 𝓐 𝓨 n) ∉ S}, ?_, ?_⟩
   · refine MeasurableSet.iInter fun j ↦ MeasurableSet.iInter fun hj ↦ ?_
-    exact ((measurable_sigma_mk j).comp (Measurable.of_eval fun _ ↦ measurable_pi_apply _))
+    exact ((measurable_sigmaMk j).comp (Measurable.of_eval fun _ ↦ measurable_pi_apply _))
       hS.compl
   · ext ω
     simp only [Set.mem_ofPred_eq, lt_hittingAfter_sigmaHistory_iff, Set.mem_preimage,
@@ -245,7 +245,7 @@ lemma map_stoppedProcess_sigmaHistory_eq_add (hτ : Measurable τ) (M : ℕ) :
   conv_lhs => rw [← Measure.restrict_add_restrict_compl (μ := P) hle, Measure.map_add _ _ hZ,
     compl_setOf_le_natCast]
   congr 1
-  rw [Measure.map_map (measurable_sigma_mk M) (measurable_history hO hX hY M)]
+  rw [Measure.map_map (measurable_sigmaMk M) (measurable_history hO hX hY M)]
   refine Measure.map_congr ((ae_restrict_iff' (hle.compl.congr ?_)).2
     (Filter.Eventually.of_forall fun ω hω ↦ ?_))
   · exact compl_setOf_le_natCast τ M
@@ -268,7 +268,7 @@ lemma map_stoppedProcess_sigmaHistory_succ_eq_add (hτ : Measurable τ) (M : ℕ
       (Filter.Eventually.of_forall fun ω hω ↦ ?_))
     rw [stoppedProcess_eq_of_ge (i := M) hω,
       stoppedProcess_eq_of_ge (i := M + 1) (hω.trans (WithTop.coe_le_coe.2 (Nat.le_add_right M 1)))]
-  · rw [Measure.map_map (measurable_sigma_mk (M + 1)) (measurable_history hO hX hY (M + 1))]
+  · rw [Measure.map_map (measurable_sigmaMk (M + 1)) (measurable_history hO hX hY (M + 1))]
     refine Measure.map_congr ((ae_restrict_iff' (hle.compl.congr (compl_setOf_le_natCast τ M))).2
       (Filter.Eventually.of_forall fun ω hω ↦ ?_))
     refine stoppedProcess_eq_of_le (i := M + 1) ?_
@@ -309,9 +309,9 @@ lemma map_restrict_stoppedProcess_sigmaHistory_apply_compl_fst_le (hτ : Measura
 lemma map_restrict_lt_hittingAfter_sigmaHistory_map_sigmaMk_apply (hS : MeasurableSet S) (M : ℕ) :
     (((P.restrict {ω | (M : WithTop ℕ) < hittingAfter (sigmaHistory O X Y) S 0 ω}).map
       (history O X Y M)).map (Sigma.mk M)) S = 0 := by
-  rw [Measure.map_map (measurable_sigma_mk M) (measurable_history hO hX hY M)]
+  rw [Measure.map_map (measurable_sigmaMk M) (measurable_history hO hX hY M)]
   exact Measure.map_restrict_apply_of_forall_notMem
-    ((measurable_sigma_mk M).comp (measurable_history hO hX hY M)) hS
+    ((measurable_sigmaMk M).comp (measurable_history hO hX hY M)) hS
     fun ω hω ↦ notMem_of_lt_hittingAfter (k := M) hω (Nat.zero_le M)
 
 end law

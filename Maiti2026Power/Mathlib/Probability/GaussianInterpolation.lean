@@ -6,6 +6,8 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.Mathlib.Probability.SteinIdentity
+public import Mathlib.Analysis.Calculus.ParametricIntegral
+public import Mathlib.Analysis.SpecialFunctions.Sqrt
 
 /-!
 # Gaussian interpolation

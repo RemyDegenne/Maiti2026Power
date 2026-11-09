@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.Mathlib.Probability.SteinExpGrowth
+public import Mathlib.Analysis.InnerProductSpace.Calculus
 
 /-!
 # Gaussian posterior identities

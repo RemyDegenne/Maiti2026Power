@@ -99,7 +99,7 @@ variable (A : IdentAlg Unit (unitBall ι) ℝ (unitBall ι)) (T : ℕ) (σ : ℝ
 
 /-- The law of (history, recommendation) of `A` under pure noise. -/
 noncomputable def noisePairLaw : Measure (Hist Unit (unitBall ι) ℝ T × unitBall ι) :=
-  noiseHistLaw A.alg T ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T)
+  noiseHistLaw A.alg T ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T)
 
 instance : IsProbabilityMeasure (noisePairLaw A T) := by
   unfold noisePairLaw

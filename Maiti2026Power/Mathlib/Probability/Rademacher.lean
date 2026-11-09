@@ -35,7 +35,7 @@ noncomputable def signMeasure : Measure ℝ :=
 
 instance : IsProbabilityMeasure signMeasure := by
   constructor
-  rw [signMeasure, Measure.smul_apply, Measure.add_apply, measure_univ, measure_univ, smul_eq_mul,
+  rw [signMeasure, _root_.smul_apply, _root_.add_apply, measure_univ, measure_univ, smul_eq_mul,
     one_add_one_eq_two, ENNReal.inv_mul_cancel two_ne_zero ENNReal.ofNat_ne_top]
 
 lemma integrable_signMeasure {E : Type*} [NormedAddCommGroup E] (f : ℝ → E) :
@@ -64,7 +64,7 @@ lemma integral_sq_signMeasure : ∫ x, x ^ 2 ∂signMeasure = 1 := by
   norm_num
 
 lemma ae_signMeasure_mem_Icc : ∀ᵐ x ∂signMeasure, x ∈ Set.Icc (-1 : ℝ) 1 := by
-  rw [ae_iff, signMeasure, Measure.smul_apply, Measure.add_apply, Measure.dirac_apply,
+  rw [ae_iff, signMeasure, _root_.smul_apply, _root_.add_apply, Measure.dirac_apply,
     Measure.dirac_apply]
   simp
 
@@ -225,7 +225,7 @@ noncomputable def uniformBool : Measure Bool :=
 
 instance : IsProbabilityMeasure uniformBool := by
   constructor
-  rw [uniformBool, Measure.smul_apply, Measure.add_apply, measure_univ, measure_univ, smul_eq_mul,
+  rw [uniformBool, _root_.smul_apply, _root_.add_apply, measure_univ, measure_univ, smul_eq_mul,
     one_add_one_eq_two, ENNReal.inv_mul_cancel two_ne_zero ENNReal.ofNat_ne_top]
 
 /-- The sign of a Boolean: `true ↦ 1`, `false ↦ -1`. -/

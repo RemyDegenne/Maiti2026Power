@@ -228,7 +228,7 @@ lemma measurable_nextAction (n : ℕ) : Measurable (A.nextAction n) := by
 action `act ℓ s j` where `s` is the state computed from the observations before the phase and
 `j = t - start ℓ`. -/
 noncomputable def toAlgorithm : Algorithm Unit 𝓐 𝓨 :=
-  detAlgorithm (fun n p ↦ A.nextAction n p.1)
+  Algorithm.deterministic (fun n p ↦ A.nextAction n p.1)
     fun n ↦ (A.measurable_nextAction n).comp measurable_fst
 
 /-- The state at the start of phase `ℓ` as a function of the history of the first `start ℓ`
@@ -329,9 +329,9 @@ include h
 /-- Along a run of the phased algorithm, the actions are given by `actionAt` applied to the
 observation process. -/
 lemma ae_action_eq : ∀ᵐ ω ∂P, ∀ t, X t ω = A.actionAt t fun s ↦ Y s ω := by
-  have h' : IsAlgEnvSeq O X Y (detAlgorithm (fun n p ↦ A.nextAction n p.1)
+  have h' : IsAlgEnvSeq O X Y (Algorithm.deterministic (fun n p ↦ A.nextAction n p.1)
       fun n ↦ (A.measurable_nextAction n).comp measurable_fst) env P := h
-  filter_upwards [h'.action_detAlgorithm_ae_all_eq] with ω hω t
+  filter_upwards [h'.action_ae_all_eq_deterministic] with ω hω t
   rw [hω t, nextAction]
   split_ifs with ht
   · exact A.actionAt_congr fun s hs ↦ extendObs_history O X Y t ht ω hs
@@ -370,7 +370,7 @@ lemma alg_toIdentAlg : (A.toIdentAlg L out hout).alg = A.toAlgorithm := rfl
 
 lemma output_toIdentAlg :
     (A.toIdentAlg L out hout).output.comap (Sigma.mk (A.start L))
-        (measurable_sigma_mk (A.start L)) =
+        (measurable_sigmaMk (A.start L)) =
       Kernel.deterministic (fun hist ↦ out (A.stateOfFinHistory L hist))
         (hout.comp (A.measurable_stateOfFinHistory L)) :=
   haveI : Nonempty 𝓓 := ⟨out A.init⟩

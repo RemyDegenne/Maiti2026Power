@@ -46,7 +46,8 @@ lemma HasCondDistrib.hasCondSubgaussianMGF_of_const [StandardBorelSpace Ω] {W :
     have h1 := condExp_ae_eq_trim_integral_condExpKernel_of_stronglyMeasurable hm
       (f := fun ω ↦ exp ((q : ℝ) * W ω)) (by fun_prop) (hint q)
     have h2 : P[fun ω ↦ exp ((q : ℝ) * W ω) | m𝓧.comap Z] =ᵐ[P] fun _ ↦ mgf (fun x ↦ x) ν q := by
-      have := h.condExp_comp_eq hZ (g := fun x ↦ exp ((q : ℝ) * x)) (by fun_prop) (hint q)
+      have := HasCondDistrib.condExp_comp_ae_eq h hZ (g := fun x ↦ exp ((q : ℝ) * x)) (by fun_prop)
+        (hint q)
       filter_upwards [this] with ω hω
       rw [hω, Kernel.const_apply]
       rfl

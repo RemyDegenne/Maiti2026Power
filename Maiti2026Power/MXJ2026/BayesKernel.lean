@@ -89,7 +89,7 @@ variable {A : IdentAlg Unit 𝒳 ℝ 𝒳} {T : ℕ}
 Markov kernel in `θ`**: the history kernel composed with the output rule. -/
 noncomputable def pairKernel (A : IdentAlg Unit 𝒳 ℝ 𝒳) (T : ℕ) :
     Kernel E (Hist Unit 𝒳 ℝ T × 𝒳) :=
-  histKernel A.alg T ⊗ₖ (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).prodMkLeft E
+  histKernel A.alg T ⊗ₖ (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).prodMkLeft E
 
 instance : IsMarkovKernel (pairKernel (E := E) A T) := by
   unfold pairKernel
@@ -97,7 +97,7 @@ instance : IsMarkovKernel (pairKernel (E := E) A T) := by
 
 lemma pairKernel_apply (θ : E) :
     pairKernel A T θ =
-      histKernel A.alg T θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T) := by
+      histKernel A.alg T θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T) := by
   rw [pairKernel, Kernel.compProd_apply_eq_compProd_sectR]
   congr 1
 

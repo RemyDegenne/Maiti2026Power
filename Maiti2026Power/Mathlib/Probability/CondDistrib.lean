@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Mathlib.Probability.HasCondDistrib
+public import LeanMachineLearning.ForMathlib.Probability.HasCondDistrib
 
 /-!
 # Lemmas on conditional distributions and kernels
@@ -14,8 +15,6 @@ General facts about `HasCondDistrib` (and a few kernel identities) used througho
 sequential-learning developments:
 
 * `Kernel.const_comap_eq`: a kernel identity;
-* `HasCondDistrib.comp_hasLaw`: a conditional distribution is transported along a map `g`
-  carrying `P` to `P'`;
 * `HasCondDistrib.const_comp_right`: a constant conditional law given `Z` is a constant
   conditional law given any measurable function of `Z`;
 * `hasCondDistrib_snd_compProd_comap`: the conditional law of the second coordinate under
@@ -48,25 +47,6 @@ lemma Kernel.const_comap_eq (ν : Measure β) {f : 𝓧 → 𝓩} (hf : Measurab
   simp [Kernel.comap_apply]
 
 end kernel
-
-section transport
-
-variable {Ω Ω' 𝓧 𝓩 : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
-  {m𝓧 : MeasurableSpace 𝓧} {m𝓩 : MeasurableSpace 𝓩} {P : Measure Ω} {P' : Measure Ω'}
-  {g : Ω → Ω'}
-
-/-- A conditional distribution is transported along a map `g` carrying `P` to `P'`. -/
-lemma HasCondDistrib.comp_hasLaw {X : Ω' → 𝓧} {Z : Ω' → 𝓩}
-    {κ : Kernel 𝓧 𝓩} (h : HasCondDistrib Z X κ P') (hg : HasLaw g P' P) :
-    HasCondDistrib (Z ∘ g) (X ∘ g) κ P := by
-  have h' : HasLaw ((fun ω ↦ (X ω, Z ω)) ∘ g) (P'.map X ⊗ₘ κ) P := HasLaw.comp h hg
-  have hX : P'.map X = P.map (X ∘ g) := by
-    rw [← hg.map_eq, AEMeasurable.map_map_of_aemeasurable (hg.map_eq ▸ h.aemeasurable_fst)
-      hg.aemeasurable]
-  rw [hX] at h'
-  exact h'
-
-end transport
 
 section const
 

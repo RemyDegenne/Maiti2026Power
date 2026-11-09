@@ -227,10 +227,10 @@ lemma IsGOptimalDesign.exp_neg_le_of_mixture [Nonempty ι] (hw : IsGOptimalDesig
     rw [measureReal_def]
     refine ENNReal.toReal_le_of_le_ofReal hβ0 ?_
     unfold mixtureHistLaw
-    rw [Measure.finsetSum_apply]
+    rw [_root_.sum_apply]
     calc ∑ x ∈ w.support, ((designWeight w x : ℝ≥0∞) • histLaw alg N (mixtureParam w ε x)) Eᶜ
         = ∑ x ∈ w.support, (designWeight w x : ℝ≥0∞) * histLaw alg N (mixtureParam w ε x) Eᶜ := by
-          simp only [Measure.smul_apply, smul_eq_mul]
+          simp only [_root_.smul_apply, smul_eq_mul]
       _ ≤ ∑ x ∈ w.support, (designWeight w x : ℝ≥0∞) * ENNReal.ofReal β := by
           gcongr with x hx
           exact (ENNReal.le_ofReal_iff_toReal_le (measure_ne_top _ _) hβ0).2 (hβ x hx)

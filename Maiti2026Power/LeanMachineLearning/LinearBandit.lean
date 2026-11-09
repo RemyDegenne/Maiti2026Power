@@ -59,12 +59,12 @@ instance (𝒳 : Set E) (θ : E) : IsMarkovKernel (linearGaussianKernel 𝒳 θ)
 /-- The linear Gaussian environment on the action set `𝒳` with reward vector `θ`: the stationary
 environment with reward kernel `linearGaussianKernel 𝒳 θ`.
 
-The Markov-kernel argument of `stationaryEnv` is given inline rather than through the instance
+The Markov-kernel argument of `Environment.bandit` is given inline rather than through the instance
 above: the nested proof of an exposed `def` becomes a public auxiliary constant, whereas the proof
 inside an instance (a theorem) becomes a module-private one, which the standalone comparator
 challenges (`comparator/`) could not reproduce. -/
 noncomputable def linearGaussianEnv (𝒳 : Set E) (θ : E) : Environment Unit 𝒳 ℝ :=
-  @stationaryEnv _ _ _ _ (linearGaussianKernel 𝒳 θ)
+  @Environment.bandit _ _ _ _ (linearGaussianKernel 𝒳 θ)
     ⟨fun _ ↦ inferInstanceAs (IsProbabilityMeasure (gaussianReal _ 1))⟩
 
 /-- Simple regret of the arm `x` for the reward vector `θ` on the action set `𝒳`:

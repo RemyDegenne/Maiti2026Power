@@ -73,8 +73,9 @@ identification algorithm in two stationary environments with reward kernels `κ`
 almost surely finite stopping times, the divergence between the laws of the outputs is at most
 the series over the rounds `t` of the conditional divergences of the reward kernels given the
 played action, on the event that the algorithm has not stopped after `t` rounds. -/
-lemma IsRun.klDiv_map_out_le_tsum_compProd (h : A.IsRun (stationaryEnv κ) O X Y out P)
-    (h' : A.IsRun (stationaryEnv κ') O' X' Y' out' P') (hτ : ∀ᵐ ω ∂P, A.stoppingTime O X Y ω ≠ ⊤)
+lemma IsRun.klDiv_map_out_le_tsum_compProd (h : A.IsRun (Environment.bandit κ) O X Y out P)
+    (h' : A.IsRun (Environment.bandit κ') O' X' Y' out' P')
+    (hτ : ∀ᵐ ω ∂P, A.stoppingTime O X Y ω ≠ ⊤)
     (hτ' : ∀ᵐ ω ∂P', A.stoppingTime O' X' Y' ω ≠ ⊤) :
     klDiv (P.map out) (P'.map out') ≤
       ∑' t : ℕ, klDiv ((P.restrict {ω | (t : ℕ∞) < A.stoppingTime O X Y ω}).map (X t) ⊗ₘ κ)
@@ -89,10 +90,11 @@ almost surely finite stopping times, the divergence between the laws of the outp
 the expected sum, along the first run, of the divergences of the reward kernels at the actions
 played before stopping. -/
 lemma IsRun.klDiv_map_out_le_lintegral [MeasurableSpace.CountablyGenerated 𝓨]
-    (h : A.IsRun (stationaryEnv κ) O X Y out P) (h' : A.IsRun (stationaryEnv κ') O' X' Y' out' P')
+    (h : A.IsRun (Environment.bandit κ) O X Y out P)
+    (h' : A.IsRun (Environment.bandit κ') O' X' Y' out' P')
     (hτ : ∀ᵐ ω ∂P, A.stoppingTime O X Y ω ≠ ⊤) (hτ' : ∀ᵐ ω ∂P', A.stoppingTime O' X' Y' ω ≠ ⊤) :
     klDiv (P.map out) (P'.map out') ≤
-      ∫⁻ ω, ∑ t ∈ range (A.stoppingTime O X Y ω).toNat, klDiv (κ (X t ω)) (κ' (X t ω)) ∂P :=
+      ∫⁻ ω, ∑ t ∈ range (ENat.toNat (A.stoppingTime O X Y ω)), klDiv (κ (X t ω)) (κ' (X t ω)) ∂P :=
   (h.klDiv_map_out_le_stoppedHist h').trans_eq
     (h.isAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory h'.isAlgEnvSeq A.measurableSet_stopSet
       hτ hτ')

@@ -91,6 +91,7 @@ variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [IsFiniteMeasu
   {env : Environment Unit 𝓐 𝓨} {n : ℕ}
   {ρ : Kernel (Hist Unit 𝓐 𝓨 (n + 1)) 𝓐} [IsMarkovKernel ρ]
 
+omit [IsFiniteMeasure P] in
 /-- An algorithm-environment sequence of `alg.thenRepeat n ρ` is an algorithm-environment
 sequence for `alg` until time `n + 1`. -/
 lemma IsAlgEnvSeq.isAlgEnvSeqUntil_of_thenRepeat
@@ -112,10 +113,8 @@ lemma IsAlgEnvSeq.action_ae_eq_of_thenRepeat [MeasurableEq 𝓐]
     X t =ᵐ[P] X (n + 1) := by
   have h1 := h.hasCondDistrib_action t
   rw [Algorithm.thenRepeat_policy_of_gt alg n ρ ht] at h1
-  exact ae_eq_of_hasCondDistrib_deterministic
-    (f := fun x : Hist Unit 𝓐 𝓨 t × Unit ↦ (x.1 ⟨n + 1, ht⟩).action) (by fun_prop)
-    ((h.measurable_history t).prodMk (h.measurable_obs t)).aemeasurable
-    (h.measurable_action t).aemeasurable h1
+  exact HasCondDistrib.ae_eq_of_deterministic
+    (f := fun x : Hist Unit 𝓐 𝓨 t × Unit ↦ (x.1 ⟨n + 1, ht⟩).action) h1
 
 /-- Under `alg.thenRepeat n ρ`, the action at time `n + 1 + s` is the one at time `n + 1`. -/
 lemma IsAlgEnvSeq.action_add_ae_eq_of_thenRepeat [MeasurableEq 𝓐]
@@ -140,7 +139,7 @@ variable {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [IsProbability
 /-- The test algorithm built from an identification algorithm `A` with budget `n + 1` whose
 outputs are actions: play `A` for `n + 1` rounds, then repeat its recommendation forever. -/
 noncomputable def testAlg (A : IdentAlg Unit 𝓐 𝓨 𝓐) (n : ℕ) : Algorithm Unit 𝓐 𝓨 :=
-  A.alg.thenRepeat n (A.output.comap (Sigma.mk (n + 1)) (measurable_sigma_mk (n + 1)))
+  A.alg.thenRepeat n (A.output.comap (Sigma.mk (n + 1)) (measurable_sigmaMk (n + 1)))
 
 /-- **The PAC guarantee of `A` applies to the recommendation played by the test algorithm.** -/
 lemma IsPAC.measureReal_bad_action_succ_of_testAlg {A : IdentAlg Unit 𝓐 𝓨 𝓐} {Θ : Type*}

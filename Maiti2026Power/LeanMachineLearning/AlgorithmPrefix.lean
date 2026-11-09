@@ -56,6 +56,7 @@ lemma mono (h : alg.AgreeUntil alg' N) {N' : ℕ} (hN : N' ≤ N) : alg.AgreeUnt
 
 end Algorithm.AgreeUntil
 
+omit [IsFiniteMeasure P] in
 /-- An algorithm-environment sequence until time `N` for `alg` is one for every algorithm agreeing
 with `alg` until time `N`. -/
 lemma IsAlgEnvSeqUntil.of_agreeUntil (h : IsAlgEnvSeqUntil O X Y alg env P N)
@@ -67,6 +68,7 @@ lemma IsAlgEnvSeqUntil.of_agreeUntil (h : IsAlgEnvSeqUntil O X Y alg env P N)
   hasCondDistrib_action n hn := hagree.policy_eq n hn ▸ h.hasCondDistrib_action n hn
   hasCondDistrib_feedback n hn := h.hasCondDistrib_feedback n hn
 
+omit [IsFiniteMeasure P] in
 /-- An algorithm-environment sequence for `alg` is an algorithm-environment sequence until time
 `N` for every algorithm agreeing with `alg` until time `N`. -/
 lemma IsAlgEnvSeq.isAlgEnvSeqUntil_of_agreeUntil (h : IsAlgEnvSeq O X Y alg env P)
@@ -77,6 +79,7 @@ namespace IdentAlg
 
 variable {𝓓 : Type*} {m𝓓 : MeasurableSpace 𝓓} {A : IdentAlg Unit 𝓐 𝓨 𝓓} {T : ℕ} {out : Ω → 𝓓}
 
+omit [IsFiniteMeasure P] in
 /-- If `A` has budget `T`, `(O, X, Y)` is an algorithm-environment sequence for `A.alg` until
 time `T` and `out` has conditional law `A.output.comap (Sigma.mk T) _` (the output rule on
 histories of length `T`) given the history of the first `T` rounds, then (history, output) has
@@ -84,17 +87,17 @@ the same law as under the canonical run of `A` (`runMeasure`). -/
 lemma map_history_out_eq [IsProbabilityMeasure P] (hA : A.IsFixedBudget T)
     (h : IsAlgEnvSeqUntil O X Y A.alg env P T)
     (hout : HasCondDistrib out (history O X Y T)
-      (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) P) :
+      (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) P) :
     P.map (fun ω ↦ (history O X Y T ω, out ω)) =
       (A.runMeasure env).map (fun ω ↦ (history IT.obs IT.action IT.feedback T ω.1, ω.2)) := by
   have h1 : (A.runMeasure env).map (fun ω ↦ history IT.obs IT.action IT.feedback T ω.1) =
       ((A.runMeasure env).map Prod.fst).map (history IT.obs IT.action IT.feedback T) :=
     (Measure.map_map (measurable_history_traj T) measurable_fst).symm
   calc P.map (fun ω ↦ (history O X Y T ω, out ω))
-      = P.map (history O X Y T) ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T) :=
+      = P.map (history O X Y T) ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T) :=
         hout.map_eq
     _ = (A.runMeasure env).map (fun ω ↦ history IT.obs IT.action IT.feedback T ω.1) ⊗ₘ
-          A.output.comap (Sigma.mk T) (measurable_sigma_mk T) := by
+          A.output.comap (Sigma.mk T) (measurable_sigmaMk T) := by
         rw [h.map_history, h1,
           show (A.runMeasure env).map Prod.fst = trajMeasure A.alg env from
             Measure.fst_compProd _ _]
@@ -102,6 +105,7 @@ lemma map_history_out_eq [IsProbabilityMeasure P] (hA : A.IsFixedBudget T)
     _ = (A.runMeasure env).map (fun ω ↦ (history IT.obs IT.action IT.feedback T ω.1, ω.2)) :=
         ((A.isRun_runMeasure env).hasCondDistrib_output_history hA).map_eq.symm
 
+omit [IsFiniteMeasure P] in
 /-- **Transfer of a PAC guarantee to a partial run.** If `A` is PAC at level `δ` with budget
 `T`, `(O, X, Y)` is an algorithm-environment sequence for `A.alg` until time `T` in `env θ` and
 `out` has conditional law `A.output.comap (Sigma.mk T) _` (the output rule on histories of
@@ -112,7 +116,7 @@ lemma IsPAC.measureReal_bad_of_isAlgEnvSeqUntil [IsProbabilityMeasure P] {Θ : T
     (hpac : A.IsPAC env bad δ) (hA : A.IsFixedBudget T) (θ : Θ)
     (h : IsAlgEnvSeqUntil O X Y A.alg (env θ) P T)
     (hout : HasCondDistrib out (history O X Y T)
-      (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) P)
+      (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) P)
     (hbad : MeasurableSet {d | bad θ d}) :
     P.real {ω | bad θ (out ω)} ≤ δ := by
   have hp := hpac.measureReal_bad_of_isRun hbad (A.isRun_runMeasure (env θ))

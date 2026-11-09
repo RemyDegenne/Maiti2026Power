@@ -219,7 +219,9 @@ lemma one_sub_le_measureReal_round (hS : S.card = s) (a₀ : Fin K) (μ : Fin K 
   have hE₂ : P.real {η | (s : ℝ) / 2 ≤ N η} ≤ 2 * δ / 3 := by
     have hmk := mul_meas_ge_le_integral_of_nonneg hNnn hNint ((s : ℝ) / 2)
     have hint : ∫ η, N η ∂P ≤ s * (δ / 3) := by
-      rw [hN_def, integral_finsetSum S fun a _ ↦ (integrable_const 1).indicator (hmeas a)]
+      rw [hN_def, integral_finsetSum S
+        (f := fun a η ↦ ({η | ε / 2 ≤ roundScore S s n η a} : Set _).indicator 1 η)
+        fun a _ ↦ (integrable_const 1).indicator (hmeas a)]
       calc ∑ a ∈ S, ∫ η, ({η | ε / 2 ≤ roundScore S s n η a} : Set _).indicator 1 η ∂P
           = ∑ a ∈ S, P.real {η | ε / 2 ≤ roundScore S s n η a} :=
             sum_congr rfl fun a _ ↦ integral_indicator_one (hmeas a)

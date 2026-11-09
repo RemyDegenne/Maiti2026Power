@@ -102,8 +102,8 @@ lemma _root_.Learning.IsAlgEnvSeq.map_history_eq_withDensity_likelihood
     (h₀ : IsAlgEnvSeq O₀ X₀ Y₀ alg (linearGaussianEnv 𝒳 0) P₀) (T : ℕ) :
     P.map (history O X Y T) =
       (P₀.map (history O₀ X₀ Y₀ T)).withDensity fun h ↦ ENNReal.ofReal (likelihood θ h) := by
-  have h' : IsAlgEnvSeq O X Y alg (stationaryEnv (linearGaussianKernel 𝒳 θ)) P := h
-  have h₀' : IsAlgEnvSeq O₀ X₀ Y₀ alg (stationaryEnv (linearGaussianKernel 𝒳 0)) P₀ := h₀
+  have h' : IsAlgEnvSeq O X Y alg (Environment.bandit (linearGaussianKernel 𝒳 θ)) P := h
+  have h₀' : IsAlgEnvSeq O₀ X₀ Y₀ alg (Environment.bandit (linearGaussianKernel 𝒳 0)) P₀ := h₀
   rw [h'.map_history_eq_withDensity_env (measurable_uncurry_stepLR θ)
     (linearGaussianKernel_eq_withDensity θ) h₀' T]
   congr 1

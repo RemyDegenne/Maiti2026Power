@@ -33,7 +33,7 @@ lemma isProbabilityMeasure_finsetSum_smul [∀ i, IsProbabilityMeasure (ν i)] {
     (hc : ∑ i ∈ s, c i = 1) :
     IsProbabilityMeasure (∑ i ∈ s, (c i : ℝ≥0∞) • ν i) where
   measure_univ := by
-    simp only [Measure.finsetSum_apply, Measure.smul_apply, measure_univ, smul_eq_mul, mul_one]
+    simp only [_root_.sum_apply, _root_.smul_apply, measure_univ, smul_eq_mul, mul_one]
     rw [← ENNReal.ofNNReal_finsetSum, hc, ENNReal.coe_one]
 
 /-- A finite mixture of probability measures, with weights summing to `1`, is a probability

@@ -319,7 +319,7 @@ lemma measurable_bayesHist : Measurable (bayesHist x hx τ) := by
 
 /-- The recommendation kernel of the Bayesian model: `(g, η) ↦ A.output ⟨T, history⟩`. -/
 noncomputable def bayesKernel : Kernel (EuclideanSpace ℝ ι × EuclideanSpace ℝ (Fin T)) 𝒳 :=
-  (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).comap (bayesHist x hx τ)
+  (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).comap (bayesHist x hx τ)
     (measurable_bayesHist x hx τ)
 
 instance : IsMarkovKernel (bayesKernel A x hx τ) := by
@@ -337,7 +337,7 @@ instance : IsProbabilityMeasure (bayesJoint A x hx τ) := by
 
 /-- The mean recommendation `∫ rec ∂A.output ⟨T, h⟩` as a function of the history `h`. -/
 noncomputable def meanOutput (h : Hist Unit 𝒳 ℝ T) : EuclideanSpace ℝ ι :=
-  ∫ z, (z : EuclideanSpace ℝ ι) ∂(A.output.comap (Sigma.mk T) (measurable_sigma_mk T) h)
+  ∫ z, (z : EuclideanSpace ℝ ι) ∂(A.output.comap (Sigma.mk T) (measurable_sigmaMk T) h)
 
 omit [DecidableEq ι] in
 lemma measurable_meanOutput : Measurable (meanOutput A (T := T)) := by
@@ -348,7 +348,7 @@ lemma measurable_meanOutput : Measurable (meanOutput A (T := T)) := by
 omit [DecidableEq ι] in
 lemma norm_meanOutput_le (hR : ∀ z ∈ 𝒳, ‖z‖ ≤ R)
     (h : Hist Unit 𝒳 ℝ T) : ‖meanOutput A h‖ ≤ R := by
-  have hae : ∀ᵐ z : 𝒳 ∂(A.output.comap (Sigma.mk T) (measurable_sigma_mk T) h),
+  have hae : ∀ᵐ z : 𝒳 ∂(A.output.comap (Sigma.mk T) (measurable_sigmaMk T) h),
       ‖Subtype.val z‖ ≤ R :=
     ae_of_all _ fun z ↦ hR z z.2
   refine (norm_integral_le_of_norm_le_const hae).trans ?_
@@ -602,7 +602,7 @@ omit [MeasurableEq 𝒳] in
 /-- The kernel of the Bayesian model, conditionally on `g`. -/
 lemma bayesKernel_comap (g : EuclideanSpace ℝ ι) :
     (bayesKernel A x hx τ).comap (Prod.mk g) measurable_prodMk_left =
-      (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)).comap (fun η ↦ bayesHist x hx τ (g, η))
+      (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)).comap (fun η ↦ bayesHist x hx τ (g, η))
         (measurable_bayesHist x hx τ |>.comp measurable_prodMk_left) := by
   ext η s _
   simp [bayesKernel, Kernel.comap_apply]
@@ -644,7 +644,7 @@ lemma measureReal_lt_simpleRegret_comap_eq (g : EuclideanSpace ℝ ι) {ε : ℝ
     refine measurableSet_lt measurable_const ?_
     exact (continuous_const.sub (continuous_subtype_val.inner continuous_const)).measurable
   have hmap := map_snd_compProd_comap (stdGaussian (EuclideanSpace ℝ (Fin T)))
-    (A.output.comap (Sigma.mk T) (measurable_sigma_mk T)) hg
+    (A.output.comap (Sigma.mk T) (measurable_sigmaMk T)) hg
     (fun _ ↦ inferInstance)
   rw [bayesKernel_comap A x hx τ g, fixedDesignPairLaw, ← map_bayesHist_stdGaussian x hx τ g]
   have h1 : ∀ (μ : Measure (Hist Unit 𝒳 ℝ T × 𝒳)),

@@ -157,7 +157,7 @@ lemma lipschitzWith_logSumExp (hβ : 0 < β) : LipschitzWith 1 (logSumExp β : (
 lemma contDiff_logSumExp (n : WithTop ℕ∞) (β : ℝ) :
     ContDiff ℝ n (logSumExp β : (ι → ℝ) → ℝ) := by
   have h : ContDiff ℝ n fun z : ι → ℝ ↦ ∑ i, exp (β * z i) :=
-    ContDiff.sum fun i _ ↦ (contDiff_const.mul (contDiff_apply ℝ ℝ i)).exp
+    ContDiff.sum fun i _ ↦ (contDiff_const.mul (contDiff_apply ℝ (fun _ : ι ↦ ℝ) i)).exp
   exact contDiff_const.mul (h.log fun z ↦ (sum_exp_mul_pos β z).ne')
 
 omit [Nonempty ι] in

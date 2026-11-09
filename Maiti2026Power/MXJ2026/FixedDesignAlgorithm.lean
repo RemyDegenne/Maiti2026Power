@@ -64,7 +64,7 @@ lemma isFixedBudget_fixedDesignIdentAlg : (fixedDesignIdentAlg T x s hs).IsFixed
 lemma isFixedDesign_fixedDesignIdentAlg : (fixedDesignIdentAlg T x s hs).IsFixedDesign := ⟨x, rfl⟩
 
 lemma output_fixedDesignIdentAlg :
-    (fixedDesignIdentAlg T x s hs).output.comap (Sigma.mk T) (measurable_sigma_mk T) =
+    (fixedDesignIdentAlg T x s hs).output.comap (Sigma.mk T) (measurable_sigmaMk T) =
       Kernel.deterministic (lsRecommend T x s) (measurable_lsRecommend T x hs) :=
   haveI : Nonempty 𝒳 := ⟨x 0⟩
   IdentAlg.output_fixedBudget _ _ _

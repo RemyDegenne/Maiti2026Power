@@ -102,7 +102,7 @@ lemma sqrt_log_le_gwMat (hw : IsDesign 𝒳 w) (hA : (designMatrix w).PosDef) (h
     simp only [mulVec, dotProduct, hC_def, Matrix.of_apply]
     exact Finset.sum_congr rfl fun j _ ↦ mul_comm _ _
   have hCC : ∀ k l, (C * Cᵀ) k l = ⟪y k, y l⟫ := fun k l ↦ by
-    simp only [mul_apply, transpose_apply, hC_def, Matrix.of_apply,
+    simp only [hC_def,
       EuclideanSpace.inner_eq_star_dotProduct, star_trivial, dotProduct]
     exact Finset.sum_congr rfl fun j _ ↦ mul_comm _ _
   have hlaw : (stdGaussian (EuclideanSpace ℝ ι)).map

@@ -53,7 +53,7 @@ instance (x : Fin T → 𝒳) (θ : E) : IsProbabilityMeasure (fixedDesignHistLa
 the fixed design `x` in the linear Gaussian environment with reward vector `θ`. -/
 noncomputable def fixedDesignPairLaw (A : IdentAlg Unit 𝒳 ℝ 𝒳) (x : Fin T → 𝒳) (θ : E) :
     Measure (Hist Unit 𝒳 ℝ T × 𝒳) :=
-  fixedDesignHistLaw x θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigma_mk T)
+  fixedDesignHistLaw x θ ⊗ₘ A.output.comap (Sigma.mk T) (measurable_sigmaMk T)
 
 instance (A : IdentAlg Unit 𝒳 ℝ 𝒳) (x : Fin T → 𝒳) (θ : E) :
     IsProbabilityMeasure (fixedDesignPairLaw A x θ) := by
