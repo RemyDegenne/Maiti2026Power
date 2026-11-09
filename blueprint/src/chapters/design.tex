@@ -94,7 +94,7 @@ the quantity is $> 0$ when $A \prec B$.
 $M^\top$, i.e.\ \texttt{Function.Injective M.vecMul}) applied to $B - A$.
 
 \begin{lemma}[Eigenvalues and quadratic forms]\label{lem:eigen_quadratic_bounds}
-\lean{Matrix.IsHermitian.trace_cfc, Matrix.IsHermitian.trace_inv_sub_smul_one, Matrix.IsHermitian.trace_inv_sub_smul_one_sq, Matrix.IsHermitian.posSemidef_sub_smul_one_iff, Matrix.IsHermitian.posDef_sub_smul_one_iff, Matrix.IsHermitian.smul_one_le_iff, Matrix.PosDef.pos_of_mem_spectrum}
+\lean{Matrix.IsHermitian.trace_cfc, Matrix.IsHermitian.trace_inv_sub_smul_one, Matrix.IsHermitian.trace_inv_sub_smul_one_sq, algebraMap_le_iff_le_spectrum, Matrix.IsHermitian.posDef_sub_smul_one_iff, IsStrictlyPositive.spectrum_pos}
 \uses{lem:loewner_quadratic}
 Let $A \in \Sym$. There is an orthonormal basis $u_1, \dots, u_d$ of $\R^d$ with
 $A u_j = \lambda_j(A) u_j$, i.e.\ $A = U \operatorname{diag}(\lambda_1(A),\dots,\lambda_d(A))
@@ -157,7 +157,7 @@ argument; the operator-norm statements (iii) and the bound $\tr(A^2) \le d\lambd
 formalized.
 
 \begin{lemma}[Square roots of positive definite matrices]\label{lem:sqrt_props}
-\lean{Matrix.PosDef.sqrt, Matrix.PosSemidef.sqrt_mul_sqrt, Matrix.PosDef.sqrt_mul_sqrt_inv, Matrix.PosDef.sqrt_inv_mul_sqrt, Matrix.PosDef.sqrt_inv_mul_mul_sqrt_inv, Matrix.PosDef.sqrt_mul_inv_mul_sqrt, Matrix.transpose_sqrt, Matrix.norm_toEuclideanCLM_sqrt_sq, Matrix.norm_toEuclideanCLM_sqrt_inv_sq, Matrix.inner_toEuclideanCLM_sqrt_sqrt_inv}
+\lean{IsStrictlyPositive.sqrt, CFC.sqrt_mul_sqrt_self, Matrix.PosDef.sqrt_mul_sqrt_inv, Matrix.PosDef.sqrt_inv_mul_sqrt, Matrix.PosDef.sqrt_inv_mul_mul_sqrt_inv, Matrix.PosDef.sqrt_mul_inv_mul_sqrt, Matrix.transpose_sqrt, Matrix.norm_toEuclideanCLM_sqrt_sq, Matrix.norm_toEuclideanCLM_sqrt_inv_sq, Matrix.inner_toEuclideanCLM_sqrt_sqrt_inv}
 \uses{lem:eigen_quadratic_bounds}
 Let $A \in \PD$ with spectral decomposition $A = U\operatorname{diag}(\lambda_j)U^\top$. The
 matrix $A^{1/2} := U\operatorname{diag}(\sqrt{\lambda_j})U^\top$ is the unique $S \in \PSD$ with

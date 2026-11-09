@@ -257,8 +257,9 @@ lemma sum_fderiv_fderiv_logSumExp_gaussianInterp_nonpos {β : ℝ} (hβ : 0 < β
         (EuclideanSpace.basisFun (ι ⊕ ι) ℝ k))
       (gaussianInterpDeriv (blockInr (CFC.sqrt T)) (blockInl (CFC.sqrt S)) t
         (EuclideanSpace.basisFun (ι ⊕ ι) ℝ k)) ≤ 0 := by
-  rw [sum_apply_gaussianInterp_block _ _ _ ht, transpose_sqrt, transpose_sqrt, hS.sqrt_mul_sqrt,
-    hT.sqrt_mul_sqrt, sum_mul_fderiv_fderiv_logSumExp_basisFun hβ.ne',
+  rw [sum_apply_gaussianInterp_block _ _ _ ht, transpose_sqrt, transpose_sqrt,
+    CFC.sqrt_mul_sqrt_self _ hS.nonneg, CFC.sqrt_mul_sqrt_self _ hT.nonneg,
+    sum_mul_fderiv_fderiv_logSumExp_basisFun hβ.ne',
     sum_mul_fderiv_fderiv_logSumExp_basisFun hβ.ne']
   have := sum_mul_sub_sum_mul_le (softmax_nonneg β ⇑(EuclideanSpace.basisFun ι ℝ)
     (gaussianInterp (blockInr (CFC.sqrt T)) (blockInl (CFC.sqrt S)) t g))
@@ -311,10 +312,10 @@ theorem sudakov_fernique {S T : Matrix ι ι ℝ} (hS : S.PosSemidef) (hT : T.Po
   have hmain : ∫ z, F z ∂multivariateGaussian 0 S ≤ ∫ z, F z ∂multivariateGaussian 0 T := by
     have hSmap : multivariateGaussian 0 S =
         (stdGaussian (EuclideanSpace ℝ (ι ⊕ ι))).map (blockInl (CFC.sqrt S)) := by
-      rw [map_blockInl_stdGaussian, transpose_sqrt, hS.sqrt_mul_sqrt]
+      rw [map_blockInl_stdGaussian, transpose_sqrt, CFC.sqrt_mul_sqrt_self _ hS.nonneg]
     have hTmap : multivariateGaussian 0 T =
         (stdGaussian (EuclideanSpace ℝ (ι ⊕ ι))).map (blockInr (CFC.sqrt T)) := by
-      rw [map_blockInr_stdGaussian, transpose_sqrt, hT.sqrt_mul_sqrt]
+      rw [map_blockInr_stdGaussian, transpose_sqrt, CFC.sqrt_mul_sqrt_self _ hT.nonneg]
     rw [hSmap, hTmap, integral_map (by fun_prop) hF.continuous.aestronglyMeasurable,
       integral_map (by fun_prop) hF.continuous.aestronglyMeasurable]
     exact integral_comp_le_of_gaussianInterp_nonpos hF hK (EuclideanSpace.basisFun (ι ⊕ ι) ℝ)

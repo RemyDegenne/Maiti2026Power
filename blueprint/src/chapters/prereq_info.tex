@@ -114,7 +114,7 @@ term $\nu(\Omega)-\mu(\Omega)$ vanishes).
 \end{proof}
 
 \begin{lemma}[Divergence of two Bernoulli measures]\label{lem:pi_kl_bernoulli}
-\lean{InformationTheory.klBerReal, InformationTheory.klBer, InformationTheory.klDiv_bernoulliMeasure_eq_klBerReal, InformationTheory.klDiv_bernoulliMeasure, InformationTheory.ofReal_le_klDiv_bernoulliMeasure, ProbabilityTheory.lintegral_bernoulliMeasure, ProbabilityTheory.bernoulliMeasure_eq_withDensity, ProbabilityTheory.rnDeriv_bernoulliMeasure}\leanok
+\lean{ProbabilityTheory.lintegral_bernoulliMeasure, ProbabilityTheory.bernoulliMeasure_eq_withDensity}\leanok
 For $p \in [0,1]$ write $\mathrm{B}(p) := p\,\delta_1 + (1-p)\,\delta_0$ for the Bernoulli
 measure on $\{0,1\}$. Let $p \in [0,1]$ and $q \in (0,1)$. Then
 \[
@@ -124,6 +124,11 @@ measure on $\{0,1\}$. Let $p \in [0,1]$ and $q \in (0,1)$. Then
 with the convention $0 \log 0 = 0$. If $q \in \{0,1\}$ and $p \ne q$ then
 $\KL(\mathrm{B}(p)\|\mathrm{B}(q)) = \infty$.
 \end{lemma}
+
+\textbf{Lean remark.} The binary divergence is LMLExplore's \texttt{LMLExplore.klBer} (and
+\texttt{LMLExplore.klBerReal}), identified with the divergence of Bernoulli measures on
+$\{0,1\} \subseteq \R$ by \texttt{LMLExplore.klDiv\_bernoulliMeasure}; the project does not use it,
+since it takes Pinsker's inequality (Lemma~\ref{lem:pinsker}) from Tau Ceti.
 
 \begin{proof}
 \leanok
@@ -140,10 +145,13 @@ $q = 1$ is symmetric.
 \end{proof}
 
 \begin{lemma}[Pinsker's inequality for Bernoulli measures]\label{lem:kl_bernoulli_pinsker}
-\lean{InformationTheory.sq_sub_le_klBerReal, InformationTheory.sq_sub_le_klBer}\leanok
+\leanok
 \uses{lem:pi_kl_bernoulli}
 For $p \in [0,1]$ and $q \in (0,1)$, $\mathrm{kl}(p,q) \ge 2(p-q)^2$.
 \end{lemma}
+
+\textbf{Lean remark.} This is LMLExplore's \texttt{LMLExplore.two\_mul\_sq\_le\_klBerReal} and
+\texttt{LMLExplore.ofReal\_two\_mul\_sq\_le\_klBer}, not used by the project.
 
 \begin{proof}
 \leanok
@@ -163,7 +171,7 @@ so $h \ge 0$ on $(0,1]$. The case $p = 0$ is the case $p = 1$ with $q$ replaced 
 \end{proof}
 
 \begin{lemma}[Pinsker's inequality]\label{lem:pinsker}
-\lean{InformationTheory.sq_sub_le_klDiv, InformationTheory.abs_sub_le_sqrt_klDiv}\leanok
+\lean{TauCeti.two_mul_sq_measureReal_sub_le_klDiv, InformationTheory.abs_sub_le_sqrt_klDiv}\leanok
 \uses{lem:pi_kl_bernoulli, lem:kl_bernoulli_pinsker}
 Let $\mu, \nu$ be probability measures on a measurable space and $A$ a measurable set. Then
 \[
@@ -188,7 +196,7 @@ $2(p-q)^2 \le \mathrm{kl}(p,q) = \KL(\mathrm{B}(p)\|\mathrm{B}(q)) \le \KL(\mu\|
 \end{proof}
 
 \begin{lemma}[Bretagnolle--Huber inequality]\label{lem:bretagnolle_huber}
-\lean{InformationTheory.bretagnolle_huber}\leanok
+\lean{LMLExplore.exp_neg_klDiv_div_two_le}\leanok
 Let $\mu, \nu$ be probability measures on a measurable space and $A$ a measurable set. Then
 \[
   \mu(A) + \nu(A^c) \ge \tfrac12 \exp\big(-\KL(\mu\|\nu)\big),
@@ -344,7 +352,7 @@ last claim is Mathlib \texttt{klDiv\_compProd\_eq\_add} followed by the equality
 \end{proof}
 
 \begin{lemma}[Sufficient statistics and the divergence]\label{lem:kl_sufficient_statistic}
-\lean{InformationTheory.klDiv_map_of_leftInverse, InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.prodMk_const_left, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.restrict_compProd_prod_univ}\leanok
+\lean{InformationTheory.klDiv_map_of_eq_withDensity_comp, InformationTheory.klDiv_compProd_comap, MeasureTheory.Measure.map_compProd_comap, MeasureTheory.Measure.map_compProd_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.map_of_forall_map_eq, ProbabilityTheory.HasCondDistrib.prodMk_const_left, ProbabilityTheory.HasCondDistrib.restrict_preimage, MeasureTheory.Measure.restrict_compProd_prod_univ}\leanok
 \uses{lem:pi_kl_measurable_equiv}
 Let $\mu,\nu$ be finite measures on $\Omega$.
 \begin{enumerate}
@@ -375,6 +383,10 @@ $f_*\mu\otimes\eta$; the sections of $D$ integrate to $\kappa(b,t)$ for $f_*\mu$
 for each fixed measurable $t$, so $\mu\otimes(\kappa\circ f)$ and $(D\circ(f\times\mathrm{id}))\cdot(\mu\otimes(\eta\circ f))$
 agree on rectangles, hence everywhere, and (ii) applies with $g = f\times\mathrm{id}$.
 \end{proof}
+
+\textbf{Lean remark.} Item (i) is not formalized, since the project does not use it; for a
+measurable embedding $g$ it is LML's \texttt{klDiv\_map\_measurableEmbedding}
+(Lemma~\ref{lem:pi_kl_measurable_equiv}).
 
 \begin{lemma}[One step of an algorithm-environment pair]\label{lem:pi_kl_step}
 \lean{ProbabilityTheory.Kernel.compProd_prodMkLeft_apply, InformationTheory.klDiv_compProd_compProd_prodMkLeft_eq_klDiv_comp_compProd, Learning.klDiv_compProd_compProd_prodMkLeft}\leanok

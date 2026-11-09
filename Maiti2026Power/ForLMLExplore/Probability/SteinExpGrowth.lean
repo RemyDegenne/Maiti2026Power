@@ -237,7 +237,7 @@ lemma integral_inner_mul_stdGaussian_basis_of_le_exp (b : OrthonormalBasis (Fin 
     integral_stdGaussian_eq_integral_insertNth b hint2 i]
   congr 1
   ext y
-  simp only [b.inner_sum_smul, Fin.insertNth_apply_same]
+  simp only [b.orthonormal.inner_right_fintype, Fin.insertNth_apply_same]
   have hd : ∀ t, HasDerivAt
       (fun t ↦ F (∑ j, (Fin.insertNth i t y : Fin (n + 1) → ℝ) j • b j))
       (fderiv ℝ F (∑ j, (Fin.insertNth i t y : Fin (n + 1) → ℝ) j • b j) (b i)) t := fun t ↦
@@ -318,13 +318,13 @@ lemma integral_inner_mul_multivariateGaussian_of_le_exp {S : Matrix ι ι ℝ} (
   have hmap : multivariateGaussian 0 S = (stdGaussian (EuclideanSpace ℝ ι)).map M := by
     rw [← multivariateGaussian_zero_one,
       multivariateGaussian_zero_map_toEuclideanCLM Matrix.PosSemidef.one, Matrix.mul_one,
-      Matrix.transpose_sqrt, hS.sqrt_mul_sqrt]
+      Matrix.transpose_sqrt, CFC.sqrt_mul_sqrt_self _ hS.nonneg]
   have hsymm : ∀ x y, ⟪x, M y⟫ = ⟪M x, y⟫ := fun x y ↦ by
     rw [← ContinuousLinearMap.adjoint_inner_left, hM, Matrix.adjoint_toEuclideanCLM,
       Matrix.transpose_sqrt]
   have hMM : ∀ x, M (M x) = Matrix.toEuclideanCLM (𝕜 := ℝ) S x := fun x ↦ by
     change (M * M) x = _
-    rw [hM, ← map_mul, hS.sqrt_mul_sqrt]
+    rw [hM, ← map_mul, CFC.sqrt_mul_sqrt_self _ hS.nonneg]
   have hFM : ContDiff ℝ 1 (F ∘ M) := hF.comp M.contDiff
   have hdM : ∀ g, fderiv ℝ (F ∘ M) g = (fderiv ℝ F (M g)).comp M := fun g ↦ by
     rw [fderiv_comp g (hF.differentiable one_ne_zero _) M.differentiableAt, M.fderiv]

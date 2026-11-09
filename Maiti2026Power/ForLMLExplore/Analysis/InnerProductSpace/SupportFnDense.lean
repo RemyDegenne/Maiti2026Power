@@ -6,6 +6,8 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.SupportFn
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
+public import Mathlib.Order.PartialSups
 
 /-!
 # The support function as a supremum over a dense sequence
@@ -13,9 +15,9 @@ public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.SupportFn
 For a nonempty compact set `K` of a separable inner product space there is a sequence
 `q : ℕ → K` dense in `K`, and the support function `supportFn K v = sup_{x ∈ K} ⟪x, v⟫` is the
 supremum of the sequence `⟪q n, v⟫` (`exists_forall_supportFn_eq_iSup`), hence the limit of the
-nondecreasing partial maxima `partialSupInner q n v = max_{i ≤ n} ⟪q i, v⟫`
-(`tendsto_partialSupInner`). This is the countable reduction used to pass from finite to compact
-index sets in the Borell–TIS inequality (blueprint `lem:sup_countable_dense`).
+nondecreasing partial maxima `partialSups (fun i ↦ ⟪q i, v⟫) n = max_{i ≤ n} ⟪q i, v⟫` (Mathlib's
+`partialSups`, `tendsto_partialSups_inner`). This is the countable reduction used to pass from
+finite to compact index sets in the Borell–TIS inequality (blueprint `lem:sup_countable_dense`).
 -/
 
 @[expose] public section
@@ -25,40 +27,22 @@ open scoped RealInnerProductSpace
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] {K : Set E} {R : ℝ}
 
-/-- The partial maxima `max_{i ≤ n} ⟪q i, v⟫` of the linear forms of a sequence `q`. -/
-noncomputable def partialSupInner (q : ℕ → E) (n : ℕ) (v : E) : ℝ := ⨆ i : Fin (n + 1), ⟪q i, v⟫
-
 lemma bddAbove_range_inner_seq {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R)
     (v : E) : BddAbove (Set.range fun n ↦ ⟪q n, v⟫) :=
   ⟨R * ‖v‖, by
     rintro _ ⟨n, rfl⟩
     exact (real_inner_le_norm _ _).trans (mul_le_mul_of_nonneg_right (hR _ (hq n)) (norm_nonneg _))⟩
 
-lemma inner_le_partialSupInner (q : ℕ → E) {n : ℕ} (i : Fin (n + 1)) (v : E) :
-    ⟪q i, v⟫ ≤ partialSupInner q n v := by
-  unfold partialSupInner
-  exact le_ciSup (Finite.bddAbove_range fun i : Fin (n + 1) ↦ ⟪q i, v⟫) i
+lemma abs_partialSups_inner_le {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R) (n : ℕ)
+    (v : E) : |partialSups (fun i ↦ ⟪q i, v⟫) n| ≤ R * ‖v‖ := by
+  have : Nonempty (Set.Iic n) := ⟨⟨n, Set.mem_Iic.2 le_rfl⟩⟩
+  rw [partialSups_eq_ciSup_Iic]
+  exact abs_ciSup_le fun i ↦ (abs_real_inner_le_norm _ _).trans
+    (mul_le_mul_of_nonneg_right (hR _ (hq i)) (norm_nonneg _))
 
-lemma partialSupInner_le {q : ℕ → E} {n : ℕ} {v : E} {c : ℝ} (h : ∀ i : Fin (n + 1), ⟪q i, v⟫ ≤ c) :
-    partialSupInner q n v ≤ c := by
-  unfold partialSupInner
-  exact ciSup_le h
-
-lemma monotone_partialSupInner (q : ℕ → E) (v : E) : Monotone fun n ↦ partialSupInner q n v :=
-  monotone_nat_of_le_succ fun n ↦ partialSupInner_le fun i ↦
-    (inner_le_partialSupInner q (Fin.castSucc i) v).trans_eq' (by simp)
-
-lemma abs_partialSupInner_le {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R) (n : ℕ)
-    (v : E) : |partialSupInner q n v| ≤ R * ‖v‖ := by
-  have hb : ∀ i : Fin (n + 1), |⟪q i, v⟫| ≤ R * ‖v‖ := fun i ↦
-    (abs_real_inner_le_norm _ _).trans (mul_le_mul_of_nonneg_right (hR _ (hq i)) (norm_nonneg _))
-  refine abs_le.2 ⟨?_, partialSupInner_le fun i ↦ (le_abs_self _).trans (hb i)⟩
-  calc -(R * ‖v‖) ≤ ⟪q (0 : Fin (n + 1)), v⟫ := neg_le.2 ((neg_le_abs _).trans (hb 0))
-    _ ≤ partialSupInner q n v := inner_le_partialSupInner q 0 v
-
-lemma partialSupInner_le_supportFn {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R)
-    (n : ℕ) (v : E) : partialSupInner q n v ≤ supportFn K v :=
-  partialSupInner_le fun i ↦ inner_le_supportFn hR (hq i) v
+lemma partialSups_inner_le_supportFn {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R)
+    (n : ℕ) (v : E) : partialSups (fun i ↦ ⟪q i, v⟫) n ≤ supportFn K v :=
+  partialSups_le _ _ _ fun i _ ↦ inner_le_supportFn hR (hq i) v
 
 /-- **The support function of a compact set is a supremum over a dense sequence**
 (blueprint `lem:sup_countable_dense`): for a nonempty compact `K` in a separable space there is
@@ -92,21 +76,11 @@ lemma exists_forall_supportFn_eq_iSup [SecondCountableTopology E] (hK : IsCompac
 
 /-- The partial maxima `max_{i ≤ n} ⟪q i, v⟫` converge to `supportFn K v` when `q` is dense in
 the compact set `K` (in the sense of `exists_forall_supportFn_eq_iSup`). -/
-lemma tendsto_partialSupInner {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R)
+lemma tendsto_partialSups_inner {q : ℕ → E} (hq : ∀ n, q n ∈ K) (hR : ∀ x ∈ K, ‖x‖ ≤ R)
     (hsup : ∀ v, supportFn K v = ⨆ n, ⟪q n, v⟫) (v : E) :
-    Tendsto (fun n ↦ partialSupInner q n v) atTop (𝓝 (supportFn K v)) := by
-  have hbdd : BddAbove (Set.range fun n ↦ partialSupInner q n v) :=
-    ⟨supportFn K v, by
-      rintro _ ⟨n, rfl⟩
-      exact partialSupInner_le_supportFn hq hR n v⟩
-  have heq : (⨆ n, partialSupInner q n v) = supportFn K v := by
-    refine le_antisymm (ciSup_le fun n ↦ partialSupInner_le_supportFn hq hR n v) ?_
-    rw [hsup v]
-    refine ciSup_le fun n ↦ ?_
-    calc ⟪q n, v⟫ = ⟪q (Fin.last n : Fin (n + 1)), v⟫ := by simp
-      _ ≤ partialSupInner q n v := inner_le_partialSupInner q _ v
-      _ ≤ ⨆ n, partialSupInner q n v := le_ciSup hbdd n
-  rw [← heq]
-  exact tendsto_atTop_ciSup (monotone_partialSupInner q v) hbdd
+    Tendsto (fun n ↦ partialSups (fun i ↦ ⟪q i, v⟫) n) atTop (𝓝 (supportFn K v)) := by
+  rw [hsup v, ← ciSup_partialSups_eq' (fun i ↦ ⟪q i, v⟫)]
+  exact tendsto_atTop_ciSup (partialSups _).monotone
+    (bddAbove_range_partialSups.2 (bddAbove_range_inner_seq hq hR v))
 
 end

@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.Width
-public import Maiti2026Power.ForLMLExplore.Analysis.Convex.CompactHull
+public import LMLExplore.Analysis.Convex.Caratheodory
 
 /-!
 # Basic properties of the design matrices of an action set
@@ -24,11 +24,10 @@ For an action set `𝒳 ⊆ EuclideanSpace ℝ ι`, the set of design matrices i
 * the design set of the image of `𝒳` by a matrix `M` is the image of `designSet 𝒳` by
   `A ↦ M A Mᵀ` (`designSet_image_toEuclideanCLM`).
 
-The general ingredients (`outerSelf`, `isCompact_convexHull`, `Matrix.convex_posSemidef`,
-`Matrix.span_image_toEuclideanCLM_eq_top`) are in `Maiti2026Power.MXJ2026.OuterSelf`,
-`Maiti2026Power.ForLMLExplore.Analysis.Convex.CompactHull`,
-`Maiti2026Power.ForLMLExplore.Analysis.Matrix.Loewner` and
-`Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.EuclideanMatrix`.
+The general ingredients are `outerSelf` (`Maiti2026Power.MXJ2026.OuterSelf`), LMLExplore's
+`IsCompact.convexHull`, the convexity of the positive semidefinite cone (Mathlib's `convex_Ici`
+for the Loewner order) and `Matrix.span_image_toEuclideanCLM_eq_top`
+(`Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.EuclideanMatrix`).
 -/
 
 @[expose] public section
@@ -71,10 +70,13 @@ lemma inv_card_smul_sum_outerSelf_mem_designSet {t : Finset (EuclideanSpace ℝ 
 variable [Fintype ι]
 
 omit [Fintype ι] in
+open scoped MatrixOrder in
 /-- Every design matrix is positive semidefinite. -/
-lemma posSemidef_of_mem_designSet [Finite ι] (hA : A ∈ designSet 𝒳) : A.PosSemidef :=
-  convexHull_min (by rintro _ ⟨x, -, rfl⟩; exact outerSelf_posSemidef x)
-    (Matrix.convex_posSemidef (𝕜 := ℝ)) hA
+lemma posSemidef_of_mem_designSet [Finite ι] (hA : A ∈ designSet 𝒳) : A.PosSemidef := by
+  have := Fintype.ofFinite ι
+  have hconv : Convex ℝ {A : Matrix ι ι ℝ | A.PosSemidef} := by
+    simpa [Set.Ici, Matrix.nonneg_iff_posSemidef] using convex_Ici (𝕜 := ℝ) (0 : Matrix ι ι ℝ)
+  exact convexHull_min (by rintro _ ⟨x, -, rfl⟩; exact outerSelf_posSemidef x) hconv hA
 
 /-- If `𝒳` is contained in the ball of radius `R`, every design matrix has trace at most
 `R ^ 2`. -/
@@ -89,7 +91,7 @@ omit [Fintype ι] in
 /-- The set of design matrices of a compact action set is compact. -/
 lemma isCompact_designSet [Finite ι] (h𝒳 : IsCompact 𝒳) : IsCompact (designSet 𝒳) := by
   have := Fintype.ofFinite ι
-  exact isCompact_convexHull (h𝒳.image continuous_outerSelf)
+  exact (h𝒳.image continuous_outerSelf).convexHull ℝ
 
 omit [Fintype ι] in
 /-- If `𝒳` spans the space, there is a positive definite design matrix: the uniform average of

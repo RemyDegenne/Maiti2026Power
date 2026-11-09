@@ -12,8 +12,9 @@ public import Mathlib.LinearAlgebra.Matrix.PosDef
 # Matrices as linear maps on Euclidean spaces
 
 Small lemmas about `Matrix.toEuclideanLin` and `Matrix.toEuclideanCLM` for real matrices:
-coordinates of `toEuclideanLin M v`, products, adjoints, inverses, spans of images, and the
-continuity of the quadratic form `x ↦ xᵀ M x`.
+adjoints, inverses, spans of images, and the continuity of the quadratic form `x ↦ xᵀ M x`.
+Coordinates and products are Mathlib's `Matrix.toLpLin_apply` and `Matrix.toLpLin_mul_same`
+(`Matrix.toEuclideanLin` is `Matrix.toLpLin 2 2`).
 -/
 
 @[expose] public section
@@ -21,17 +22,6 @@ continuity of the quadratic form `x ↦ xᵀ M x`.
 open scoped RealInnerProductSpace
 
 namespace Matrix
-
-lemma ofLp_toEuclideanLin {ι κ : Type*} [Fintype κ] [DecidableEq κ] (M : Matrix ι κ ℝ)
-    (v : EuclideanSpace ℝ κ) :
-    WithLp.ofLp (Matrix.toEuclideanLin M v) = M *ᵥ WithLp.ofLp v := rfl
-
-lemma toEuclideanLin_mul_apply {ι : Type*} [Fintype ι] [DecidableEq ι] (A B : Matrix ι ι ℝ)
-    (v : EuclideanSpace ℝ ι) :
-    Matrix.toEuclideanLin (A * B) v = Matrix.toEuclideanLin A (Matrix.toEuclideanLin B v) := by
-  apply WithLp.ofLp_injective
-  change (A * B) *ᵥ WithLp.ofLp v = A *ᵥ (B *ᵥ WithLp.ofLp v)
-  rw [Matrix.mulVec_mulVec]
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {𝒳 : Set (EuclideanSpace ℝ ι)}
 

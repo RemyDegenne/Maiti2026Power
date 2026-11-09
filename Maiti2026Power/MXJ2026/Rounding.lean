@@ -7,6 +7,7 @@ module
 
 public import Maiti2026Power.ForLMLExplore.Analysis.BarrierSum
 public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.HermitianCFC
+public import TauCeti.Analysis.Matrix.Resolvent.Basic
 public import Maiti2026Power.MXJ2026.OptimalDesign
 
 /-!
@@ -66,8 +67,8 @@ lemma eigenvalues_gt (hB : B.IsHermitian) (hl : ∀ x ∈ spectrum ℝ B, l < x)
 
 /-- `Φ_l(B) = ∑ᵢ (λᵢ - l)⁻¹` for `l` below the spectrum of `B`. -/
 lemma barrier_eq_sum (hB : B.IsHermitian) (hl : ∀ x ∈ spectrum ℝ B, l < x) :
-    barrier l B = ∑ i, (hB.eigenvalues i - l)⁻¹ :=
-  hB.trace_inv_sub_smul_one fun x hx ↦ (hl x hx).ne'
+    barrier l B = ∑ i, (hB.eigenvalues i - l)⁻¹ := by
+  simpa [barrier] using hB.trace_inv_sub_smul_one (z := l) fun h ↦ lt_irrefl l (hl l h)
 
 /-- `Φ_{-d}(0) = 1`. -/
 lemma barrier_neg_card_zero [Nonempty ι] :
@@ -242,7 +243,8 @@ lemma exists_rounding [Nonempty ι] (hw : IsDesign 𝒳 w) (hA : (designMatrix w
   have hB : (∑ s, outerSelf (L (x s))).IsHermitian := (posSemidef_sum_outerSelf _ _).1
   -- `(T / 4) I ≤ B_T`
   have h1 : ((T : ℝ) / 4) • (1 : Matrix ι ι ℝ) ≤ ∑ s, outerSelf (L (x s)) := by
-    refine hB.smul_one_le_iff.2 fun μ hμ ↦ ?_
+    rw [← Algebra.algebraMap_eq_smul_one]
+    refine (algebraMap_le_iff_le_spectrum hB.isSelfAdjoint).2 fun μ hμ ↦ ?_
     have hT' : (4 * Fintype.card ι : ℝ) ≤ T := by exact_mod_cast hT
     linarith [hspec μ hμ]
   -- un-whitening by `√A`
@@ -250,7 +252,8 @@ lemma exists_rounding [Nonempty ι] (hw : IsDesign 𝒳 w) (hA : (designMatrix w
   rw [Matrix.conjTranspose_eq_transpose_of_trivial, Matrix.transpose_sqrt] at hcongr
   have hLHS : CFC.sqrt (designMatrix w) * (((T : ℝ) / 4) • (1 : Matrix ι ι ℝ)) *
       CFC.sqrt (designMatrix w) = ((T : ℝ) / 4) • designMatrix w := by
-    rw [Matrix.mul_smul, Matrix.mul_one, Matrix.smul_mul, hA.posSemidef.sqrt_mul_sqrt]
+    rw [Matrix.mul_smul, Matrix.mul_one, Matrix.smul_mul,
+      CFC.sqrt_mul_sqrt_self _ hA.posSemidef.nonneg]
   have hmul : Matrix.toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt (designMatrix w)) * L = 1 := by
     rw [hL, hS, ← map_mul, hA.sqrt_mul_sqrt_inv, map_one]
   have hRHS : CFC.sqrt (designMatrix w) * (∑ s, outerSelf (L (x s))) * CFC.sqrt (designMatrix w) =

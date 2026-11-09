@@ -436,8 +436,8 @@ product space $E$) and a bound $\sigma$ on the norms of the index vectors, which
 $S = I_d$; the case of a general covariance $S \in \PSD$ is the image of this one under
 $S^{1/2}$ (Lemma~\ref{lem:gauss_law_of_cov}(iii) and \texttt{supportFn\_image}), see
 \texttt{ProbabilityTheory.hasSubgaussianMGF\_supportFn\_multivariateGaussian}. The supremum
-over $\Xs$ is \texttt{supportFn K} and the partial maxima are \texttt{partialSupInner q n}
-(\texttt{⨆ i : Fin (n+1), ⟪q i, v⟫}) for the dense sequence of
+over $\Xs$ is \texttt{supportFn K} and the partial maxima are Mathlib's
+\texttt{partialSups (fun i ↦ ⟪q i, v⟫) n} for the dense sequence of
 Lemma~\ref{lem:sup_countable_dense}; the two limits are \texttt{Filter.Tendsto} statements
 along \texttt{atTop} proved by dominated convergence. Lemma~\ref{lem:finite_sup_subgaussian}
 is stated for a family \texttt{y : ι → E} indexed by a nonempty finite type, and the limit

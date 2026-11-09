@@ -5,7 +5,6 @@ public import Maiti2026Power.ForLMLExplore.Analysis.BarrierSum
 public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.Gradient
 public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.LocalExtr
 public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.QuarterCircle
-public import Maiti2026Power.ForLMLExplore.Analysis.Convex.CompactHull
 public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.EuclideanMatrix
 public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.IsotropicSeparated
 public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.LogSumExp
@@ -16,7 +15,6 @@ public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.HermitianCFC
 public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.Loewner
 public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.LoewnerInv
 public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.TraceInv
-public import Maiti2026Power.ForLMLExplore.Analysis.SpecialFunctions.Log.Basic
 public import Maiti2026Power.ForLMLExplore.Analysis.SpecialFunctions.LogSumExp
 public import Maiti2026Power.ForLMLExplore.Data.Finset.PowersetCardSum
 public import Maiti2026Power.ForLMLExplore.Data.Finset.TopBy
@@ -36,9 +34,6 @@ public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.Medi
 public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianEliminationSchedule
 public import Maiti2026Power.ForLMLExplore.Identification.Run
 public import Maiti2026Power.ForLMLExplore.Identification.RunDivergence
-public import Maiti2026Power.ForLMLExplore.InformationTheory.BretagnolleHuber
-public import Maiti2026Power.ForLMLExplore.InformationTheory.KLBer
-public import Maiti2026Power.ForLMLExplore.InformationTheory.KLMap
 public import Maiti2026Power.ForLMLExplore.InformationTheory.Pinsker
 public import Maiti2026Power.ForLMLExplore.MeasureTheory.ApproxArgmax
 public import Maiti2026Power.ForLMLExplore.MeasureTheory.Measure.Real

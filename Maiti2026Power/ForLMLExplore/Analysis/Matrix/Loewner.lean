@@ -6,6 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.LoewnerInv
+public import TauCeti.LinearAlgebra.Matrix.SchurComplement
 
 /-!
 # The Loewner order, quadratic forms and square roots
@@ -21,9 +22,11 @@ Elementary facts about the Loewner order `A ≤ B` on matrices (`Matrix.le_iff :
   `B⁻¹ ≤ c⁻¹ • A⁻¹`, hence `x* B⁻¹ x ≤ c⁻¹ x* A⁻¹ x` (`PosDef.inv_le_inv_smul`,
   `PosDef.dotProduct_inv_mulVec_le_of_smul_le`).
 
-We also record the matrix determinant lemma in `vecMulVec` form (`det_add_vecMulVec`) and facts
-about the positive square root `CFC.sqrt A` of a positive definite matrix: `CFC.sqrt A⁻¹ * A *
-CFC.sqrt A⁻¹ = 1` (`PosDef.sqrt_inv_mul_mul_sqrt_inv`), and for the associated linear maps on
+We also record the matrix determinant lemma in `vecMulVec` form (`det_add_vecMulVec`), the trace
+form of the Sherman–Morrison formula (Tau Ceti's `Matrix.inv_add_vecMulVec`) for a symmetric
+update (`trace_inv_add_vecMulVec_self`), and facts about the positive square root `CFC.sqrt A` of
+a positive definite matrix: `CFC.sqrt A⁻¹ * A * CFC.sqrt A⁻¹ = 1`
+(`PosDef.sqrt_inv_mul_mul_sqrt_inv`), and for the associated linear maps on
 `EuclideanSpace ℝ n`, `‖√A x‖ ^ 2 = x ⬝ᵥ A *ᵥ x` (`norm_toEuclideanCLM_sqrt_sq`) and
 `⟪√A u, √A⁻¹ v⟫ = ⟪u, v⟫` (`inner_toEuclideanCLM_sqrt_sqrt_inv`).
 -/
@@ -46,25 +49,6 @@ lemma det_add_vecMulVec {A : Matrix n n R} (hA : IsUnit A.det) (u v : n → R) :
       one_mulVec]
   rw [h, det_mul, vecMulVec_eq Unit, det_one_add_replicateCol_mul_replicateRow]
 
-/-- The **Sherman–Morrison formula**: the inverse of a rank-one update `A + u vᵀ` of an
-invertible matrix `A` with `1 + vᵀ A⁻¹ u ≠ 0`. -/
-lemma inv_add_vecMulVec {K : Type*} [Field K] {A : Matrix n n K} (hA : IsUnit A.det)
-    (u v : n → K) (h : 1 + v ⬝ᵥ A⁻¹ *ᵥ u ≠ 0) :
-    (A + vecMulVec u v)⁻¹ =
-      A⁻¹ - (1 + v ⬝ᵥ A⁻¹ *ᵥ u)⁻¹ • vecMulVec (A⁻¹ *ᵥ u) (v ᵥ* A⁻¹) := by
-  set s := v ⬝ᵥ A⁻¹ *ᵥ u with hs
-  refine inv_eq_right_inv ?_
-  have h1 : A * vecMulVec (A⁻¹ *ᵥ u) (v ᵥ* A⁻¹) = vecMulVec u (v ᵥ* A⁻¹) := by
-    rw [mul_vecMulVec, mulVec_mulVec, mul_nonsing_inv A hA, one_mulVec]
-  have h2 : vecMulVec u v * vecMulVec (A⁻¹ *ᵥ u) (v ᵥ* A⁻¹) = s • vecMulVec u (v ᵥ* A⁻¹) := by
-    rw [vecMulVec_mul_vecMulVec, vecMulVec_smul]
-  have h3 : vecMulVec u v * A⁻¹ = vecMulVec u (v ᵥ* A⁻¹) := vecMulVec_mul _ _ _
-  rw [Matrix.add_mul, Matrix.mul_sub, Matrix.mul_sub, mul_nonsing_inv A hA, Matrix.mul_smul,
-    Matrix.mul_smul, h1, h2, h3, smul_smul]
-  have h4 : (1 + s)⁻¹ * s = 1 - (1 + s)⁻¹ := by field_simp; ring
-  rw [h4, sub_smul, one_smul]
-  abel
-
 /-- The trace form of the Sherman–Morrison formula for a symmetric update `A + u uᵀ` of an
 invertible symmetric matrix `A`. -/
 lemma trace_inv_add_vecMulVec_self {K : Type*} [Field K] {A : Matrix n n K} (hA : IsUnit A.det)
@@ -73,8 +57,9 @@ lemma trace_inv_add_vecMulVec_self {K : Type*} [Field K] {A : Matrix n n K} (hA 
   have key : (A⁻¹ *ᵥ u) ⬝ᵥ (u ᵥ* A⁻¹) = u ⬝ᵥ (A⁻¹ * A⁻¹) *ᵥ u := by
     rw [← mulVec_transpose, transpose_nonsing_inv, hAt, dotProduct_mulVec, ← mulVec_transpose,
       transpose_nonsing_inv, hAt, mulVec_mulVec, dotProduct_comm]
-  rw [inv_add_vecMulVec hA u u h, trace_sub, trace_smul, trace_vecMulVec, smul_eq_mul,
-    div_eq_inv_mul, key]
+  rw [inv_add_vecMulVec A ((isUnit_iff_isUnit_det A).2 hA) u u (isUnit_iff_ne_zero.2 h),
+    Ring.inverse_eq_inv', trace_sub, trace_smul, trace_vecMulVec, smul_eq_mul, div_eq_inv_mul,
+    key]
 
 end det
 
@@ -141,22 +126,8 @@ section sqrt
 
 variable {𝕜 n : Type*} [RCLike 𝕜] [Fintype n] {A : Matrix n n 𝕜}
 
--- `CFC.sqrt` needs a `DecidableEq n` instance only in proofs: these statements take it from
--- `Classical` rather than as a hypothesis.
-/-- The square root of a positive definite matrix is positive definite. -/
-lemma PosDef.sqrt (hA : A.PosDef) : open scoped Classical in (CFC.sqrt A).PosDef := by
-  classical
-  have hnn : (CFC.sqrt A).PosSemidef := nonneg_iff_posSemidef.mp (CFC.sqrt_nonneg A)
-  refine hnn.posDef_iff_isUnit.mpr ?_
-  rw [CFC.isUnit_sqrt_iff A hA.posSemidef.nonneg]
-  exact hA.isUnit
-
-/-- `√A * √A = A` for a positive semidefinite matrix. -/
-lemma PosSemidef.sqrt_mul_sqrt (hA : A.PosSemidef) :
-    open scoped Classical in CFC.sqrt A * CFC.sqrt A = A := by
-  classical
-  exact CFC.sqrt_mul_sqrt_self A hA.nonneg
-
+-- `CFC.sqrt` needs a `DecidableEq n` instance only to find the functional calculus, a
+-- `Prop`-valued class: this statement takes it from `Classical` rather than as a hypothesis.
 /-- The square root of a real matrix is symmetric (`CFC.sqrt A` is positive semidefinite for
 every `A`, being `0` when `A` is not positive semidefinite). -/
 lemma transpose_sqrt (A : Matrix n n ℝ) : open scoped Classical in (CFC.sqrt A)ᵀ = CFC.sqrt A := by
@@ -168,17 +139,19 @@ variable [DecidableEq n]
 
 /-- `√A * √(A⁻¹) = 1` for a positive definite matrix. -/
 lemma PosDef.sqrt_mul_sqrt_inv (hA : A.PosDef) : CFC.sqrt A * CFC.sqrt A⁻¹ = 1 := by
-  rw [← hA.posSemidef.inv_sqrt, mul_nonsing_inv _ ((isUnit_iff_isUnit_det _).mp hA.sqrt.isUnit)]
+  rw [← hA.posSemidef.inv_sqrt, mul_nonsing_inv _
+    ((isUnit_iff_isUnit_det _).mp (IsStrictlyPositive.isUnit_cfcSqrt _ hA.isStrictlyPositive))]
 
 /-- `√(A⁻¹) * √A = 1` for a positive definite matrix. -/
 lemma PosDef.sqrt_inv_mul_sqrt (hA : A.PosDef) : CFC.sqrt A⁻¹ * CFC.sqrt A = 1 := by
-  rw [← hA.posSemidef.inv_sqrt, nonsing_inv_mul _ ((isUnit_iff_isUnit_det _).mp hA.sqrt.isUnit)]
+  rw [← hA.posSemidef.inv_sqrt, nonsing_inv_mul _
+    ((isUnit_iff_isUnit_det _).mp (IsStrictlyPositive.isUnit_cfcSqrt _ hA.isStrictlyPositive))]
 
 /-- `√(A⁻¹) * A * √(A⁻¹) = 1` for a positive definite matrix: `√(A⁻¹)` whitens `A`. -/
 lemma PosDef.sqrt_inv_mul_mul_sqrt_inv (hA : A.PosDef) : CFC.sqrt A⁻¹ * A * CFC.sqrt A⁻¹ = 1 := by
   calc CFC.sqrt A⁻¹ * A * CFC.sqrt A⁻¹
       = CFC.sqrt A⁻¹ * (CFC.sqrt A * CFC.sqrt A) * CFC.sqrt A⁻¹ := by
-        rw [hA.posSemidef.sqrt_mul_sqrt]
+        rw [CFC.sqrt_mul_sqrt_self A hA.posSemidef.nonneg]
     _ = 1 := by
         rw [← mul_assoc, mul_assoc _ (CFC.sqrt A), hA.sqrt_mul_sqrt_inv, mul_one,
           hA.sqrt_inv_mul_sqrt]
@@ -187,7 +160,7 @@ lemma PosDef.sqrt_inv_mul_mul_sqrt_inv (hA : A.PosDef) : CFC.sqrt A⁻¹ * A * C
 lemma PosDef.sqrt_mul_inv_mul_sqrt (hA : A.PosDef) : CFC.sqrt A * A⁻¹ * CFC.sqrt A = 1 := by
   calc CFC.sqrt A * A⁻¹ * CFC.sqrt A
       = CFC.sqrt A * (CFC.sqrt A⁻¹ * CFC.sqrt A⁻¹) * CFC.sqrt A := by
-        rw [hA.inv.posSemidef.sqrt_mul_sqrt]
+        rw [CFC.sqrt_mul_sqrt_self A⁻¹ hA.inv.posSemidef.nonneg]
     _ = 1 := by
         rw [← mul_assoc, mul_assoc _ (CFC.sqrt A⁻¹), hA.sqrt_inv_mul_sqrt, mul_one,
           hA.sqrt_mul_sqrt_inv]
@@ -203,7 +176,7 @@ lemma norm_toEuclideanCLM_sqrt_sq (hA : A.PosSemidef) (x : EuclideanSpace ℝ n)
     ‖toEuclideanCLM (𝕜 := ℝ) (CFC.sqrt A) x‖ ^ 2 = WithLp.ofLp x ⬝ᵥ A *ᵥ WithLp.ofLp x := by
   rw [← real_inner_self_eq_norm_sq, EuclideanSpace.inner_eq_star_dotProduct, star_trivial,
     ofLp_toEuclideanCLM, dotProduct_mulVec, ← mulVec_transpose, transpose_sqrt, mulVec_mulVec,
-    hA.sqrt_mul_sqrt, dotProduct_comm]
+    CFC.sqrt_mul_sqrt_self A hA.nonneg, dotProduct_comm]
 
 /-- `‖√(A⁻¹) x‖ ^ 2 = xᵀ A⁻¹ x` for a positive definite matrix `A`. -/
 lemma norm_toEuclideanCLM_sqrt_inv_sq (hA : A.PosDef) (x : EuclideanSpace ℝ n) :
@@ -220,16 +193,5 @@ lemma inner_toEuclideanCLM_sqrt_sqrt_inv (hA : A.PosDef) (u v : EuclideanSpace �
     dotProduct_comm]
 
 end euclidean
-
-section convex
-
-variable {𝕜 n : Type*} [RCLike 𝕜]
-
-/-- The cone of positive semidefinite matrices is convex. -/
-lemma convex_posSemidef : Convex ℝ {A : Matrix n n 𝕜 | A.PosSemidef} := by
-  intro A hA B hB a b ha hb _
-  exact (hA.smul ha).add (hB.smul hb)
-
-end convex
 
 end Matrix

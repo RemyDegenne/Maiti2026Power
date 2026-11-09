@@ -677,7 +677,7 @@ noncomputable def mtS : Matrix (Σ j, Fin (d j)) (Σ j, Fin (d j)) ℝ := mtLmat
 
 lemma toEuclideanLin_mtS (v : EuclideanSpace ℝ (Σ j, Fin (d j))) :
     Matrix.toEuclideanLin (mtS d) v = mtL d (mtL d v) := by
-  rw [mtS, toEuclideanLin_mul_apply, toEuclideanLin_mtLmat]
+  rw [mtS, Matrix.toLpLin_mul_same, LinearMap.comp_apply, toEuclideanLin_mtLmat]
 
 lemma mtS_posSemidef : (mtS d).PosSemidef := by
   have h := Matrix.posSemidef_self_mul_conjTranspose (mtLmat d)

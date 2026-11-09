@@ -141,25 +141,31 @@ theorem hasSubgaussianMGF_supportFn_stdGaussian (hK : IsCompact K) (hne : K.None
   obtain ⟨q, hq, hsup⟩ := exists_forall_supportFn_eq_iSup hK hne
   -- the supremum and the partial maxima
   set M : E → ℝ := supportFn K with hM
-  set Mn : ℕ → E → ℝ := fun n ↦ partialSupInner q n with hMn
+  set Mn : ℕ → E → ℝ := fun n v ↦ partialSups (fun i ↦ ⟪q i, v⟫) n with hMn
+  have hMn' : ∀ n, Mn n = fun v ↦ ⨆ i : Set.Iic n, ⟪q i, v⟫ := fun n ↦
+    funext fun v ↦ partialSups_eq_ciSup_Iic _ n
   have hMle : ∀ v, |M v| ≤ 0 + R * ‖v‖ := fun v ↦ by
     rw [zero_add]
     exact abs_supportFn_le hne hR v
   have hMnle : ∀ n v, |Mn n v| ≤ 0 + R * ‖v‖ := fun n v ↦ by
     rw [zero_add]
-    exact abs_partialSupInner_le hq hR n v
+    exact abs_partialSups_inner_le hq hR n v
   have hMm : AEStronglyMeasurable M μ := (continuous_supportFn hne hR).aestronglyMeasurable
-  have hMnm : ∀ n, AEStronglyMeasurable (Mn n) μ := fun n ↦
-    (measurable_ciSup_inner (fun i : Fin (n + 1) ↦ q i)).aestronglyMeasurable
+  have hMnm : ∀ n, AEStronglyMeasurable (Mn n) μ := fun n ↦ by
+    rw [hMn' n]
+    exact (measurable_ciSup_inner (fun i : Set.Iic n ↦ q i)).aestronglyMeasurable
   have hMi : Integrable M μ := IsGaussian.integrable_of_abs_le_add_mul_norm hMm hMle
   have hexpM : ∀ t, Integrable (fun v ↦ exp (t * M v)) μ :=
     IsGaussian.integrable_exp_of_abs_le_add_mul_norm hMm hMle
   have hlimM : ∀ v, Tendsto (fun n ↦ Mn n v) atTop (𝓝 (M v)) := fun v ↦
-    tendsto_partialSupInner hq hR hsup v
+    tendsto_partialSups_inner hq hR hsup v
   -- the bound for each partial maximum
   have hsg : ∀ n, HasSubgaussianMGF (fun v ↦ Mn n v - ∫ w, Mn n w ∂μ)
-      (gaussianConcentrationConst * R ^ 2) μ := fun n ↦
-    hasSubgaussianMGF_iSup_inner_stdGaussian (y := fun i : Fin (n + 1) ↦ q i) fun i ↦ hR _ (hq i)
+      (gaussianConcentrationConst * R ^ 2) μ := fun n ↦ by
+    have : Nonempty (Set.Iic n) := ⟨⟨n, Set.mem_Iic.2 le_rfl⟩⟩
+    rw [hMn' n]
+    exact hasSubgaussianMGF_iSup_inner_stdGaussian (y := fun i : Set.Iic n ↦ q i)
+      fun i ↦ hR _ (hq i)
   refine ⟨fun t ↦ ?_, fun t ↦ ?_⟩
   · refine ((hexpM t).const_mul (exp (-(t * ∫ w, M w ∂μ)))).congr
       (Filter.Eventually.of_forall fun v ↦ ?_)

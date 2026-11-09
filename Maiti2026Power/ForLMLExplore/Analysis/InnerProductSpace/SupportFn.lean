@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.InnerProductSpace.Continuous
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
 
 /-!
 # The support function of a set in an inner product space
@@ -78,8 +79,10 @@ lemma neg_mul_norm_le_supportFn (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ �
   linarith [(abs_le.1 h1).1]
 
 lemma abs_supportFn_le (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) (ξ : E) :
-    |supportFn K ξ| ≤ R * ‖ξ‖ :=
-  abs_le.2 ⟨neg_mul_norm_le_supportFn hne hK ξ, supportFn_le_mul_norm hne hK ξ⟩
+    |supportFn K ξ| ≤ R * ‖ξ‖ := by
+  have : Nonempty K := hne.to_subtype
+  exact abs_ciSup_le fun x ↦ (abs_real_inner_le_norm _ _).trans
+    (mul_le_mul_of_nonneg_right (hK x x.2) (norm_nonneg _))
 
 lemma supportFn_sub_le (hne : K.Nonempty) (hK : ∀ x ∈ K, ‖x‖ ≤ R) (ξ ξ' : E) :
     supportFn K ξ - supportFn K ξ' ≤ R * ‖ξ - ξ'‖ := by
@@ -176,16 +179,12 @@ lemma exists_supportFn_eq_inner (hK : IsCompact K) (hne : K.Nonempty) (ξ : E) :
 
 section finite
 
-variable {ι : Type*} [Finite ι] [Nonempty ι] {y : ι → E} {σ : ℝ≥0}
+variable {ι : Type*} [Nonempty ι] {y : ι → E} {σ : ℝ≥0}
 
 lemma abs_ciSup_inner_le (hσ : ∀ i, ‖y i‖ ≤ σ) (v : E) :
-    |⨆ i, ⟪y i, v⟫| ≤ σ * ‖v‖ := by
-  have hb : ∀ i, |⟪y i, v⟫| ≤ σ * ‖v‖ := fun i ↦
+    |⨆ i, ⟪y i, v⟫| ≤ σ * ‖v‖ :=
+  abs_ciSup_le fun i ↦
     (abs_real_inner_le_norm _ _).trans (mul_le_mul_of_nonneg_right (hσ i) (norm_nonneg _))
-  refine abs_le.2 ⟨?_, ciSup_le fun i ↦ (le_abs_self _).trans (hb i)⟩
-  obtain ⟨i⟩ := ‹Nonempty ι›
-  exact (neg_le.2 ((neg_le_abs _).trans (hb i))).trans
-    (le_ciSup (Finite.bddAbove_range fun i ↦ ⟪y i, v⟫) i)
 
 end finite
 

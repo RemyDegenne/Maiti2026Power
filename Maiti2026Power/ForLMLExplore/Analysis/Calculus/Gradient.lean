@@ -8,6 +8,7 @@ module
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.Analysis.Calculus.MeanValue
 public import Mathlib.Analysis.Calculus.ContDiff.Comp
+public import TauCeti.Analysis.Calculus.Gradient
 
 /-!
 # Functions with a bounded gradient
@@ -20,7 +21,8 @@ public import Mathlib.Analysis.Calculus.ContDiff.Comp
   `L`-Lipschitz;
 * `abs_le_of_norm_gradient_le`: it has linear growth `|f x| ≤ |f 0| + L ‖x‖`;
 * `abs_inner_gradient_le`: `|⟪∇f x, v⟫| ≤ L ‖v‖`;
-* `ContDiff.continuous_gradient`: the gradient of a `C¹` function is continuous.
+* `ContDiff.continuous_gradient`: the gradient of a `C¹` function is continuous (the case `m = 0`
+  of Tau Ceti's `ContDiff.gradient_right`).
 
 ## TODO
 
@@ -101,9 +103,5 @@ lemma abs_inner_gradient_le (hL : ∀ x, ‖gradient f x‖ ≤ L) (x v : E) :
   (abs_real_inner_le_norm _ _).trans (mul_le_mul_of_nonneg_right (hL x) (norm_nonneg _))
 
 /-- The gradient of a `C¹` function is continuous. -/
-lemma ContDiff.continuous_gradient (hf : ContDiff ℝ 1 f) : Continuous (gradient f) := by
-  have h : gradient f = (toDual ℝ E).symm ∘ fderiv ℝ f := by
-    funext x
-    rw [Function.comp_apply, ← toDual_gradient, LinearIsometryEquiv.symm_apply_apply]
-  rw [h]
-  exact (toDual ℝ E).symm.continuous.comp (hf.continuous_fderiv one_ne_zero)
+lemma ContDiff.continuous_gradient (hf : ContDiff ℝ 1 f) : Continuous (gradient f) :=
+  (hf.gradient_right (m := 0) (by simp)).continuous

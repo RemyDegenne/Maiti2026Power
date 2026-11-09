@@ -64,7 +64,7 @@ lemma map_sqrtInvDesign_stdGaussian (hS : (∑ t, outerSelf (x t)).PosDef) :
       multivariateGaussian 0 (∑ t, outerSelf (x t))⁻¹ := by
   rw [sqrtInvDesign, ← multivariateGaussian_zero_one,
     multivariateGaussian_zero_map_toEuclideanLin PosSemidef.one, Matrix.mul_one, transpose_sqrt,
-    hS.inv.posSemidef.sqrt_mul_sqrt]
+    CFC.sqrt_mul_sqrt_self _ hS.inv.posSemidef.nonneg]
 
 /-- The reward vector of the Bayesian model has law `N(0, τ² Σ⁻¹)`. -/
 lemma map_bayesParam_stdGaussian (hS : (∑ t, outerSelf (x t)).PosDef) :
@@ -219,7 +219,7 @@ lemma bayesW₁_comp_adjoint_bayesY₁_add (hS : (∑ t, outerSelf (x t)).PosDef
     adjoint_euclideanClm, euclideanClm_comp]
   have hM : CFC.sqrt (∑ t, outerSelf (x t))⁻¹ * (CFC.sqrt (∑ t, outerSelf (x t))⁻¹)ᵀ =
       (∑ t, outerSelf (x t))⁻¹ := by
-    rw [transpose_sqrt, hS.inv.posSemidef.sqrt_mul_sqrt]
+    rw [transpose_sqrt, CFC.sqrt_mul_sqrt_self _ hS.inv.posSemidef.nonneg]
   have hmat : ((1 - bayesC τ) * τ) • CFC.sqrt (∑ t, outerSelf (x t))⁻¹ *
       (τ • (designRows x * CFC.sqrt (∑ t, outerSelf (x t))⁻¹))ᵀ + (-bayesC τ) • lsMatrix x = 0 := by
     rw [transpose_smul, transpose_mul, Matrix.smul_mul, Matrix.mul_smul, smul_smul,

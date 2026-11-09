@@ -60,8 +60,8 @@ noncomputable def lsMatrix (x : Fin T → EuclideanSpace ℝ ι) : Matrix ι (Fi
 lemma leastSquares_eq_toEuclideanLin (x : Fin T → EuclideanSpace ℝ ι) (y : Fin T → ℝ) :
     leastSquares x y = Matrix.toEuclideanLin (lsMatrix x) (WithLp.toLp 2 y) := by
   apply WithLp.ofLp_injective
-  rw [leastSquares, Matrix.ofLp_toEuclideanCLM, ofLp_toEuclideanLin, lsMatrix,
-    ← Matrix.mulVec_mulVec, WithLp.ofLp_toLp, transpose_designRows_mulVec]
+  rw [leastSquares, Matrix.ofLp_toEuclideanCLM, Matrix.ofLp_toLpLin, Matrix.toLin'_apply,
+    lsMatrix, ← Matrix.mulVec_mulVec, WithLp.ofLp_toLp, transpose_designRows_mulVec]
 
 /-- If the observations are `y t = ⟪x t, θ⟫ + η t`, the least-squares estimate is
 `θ + Σ⁻¹ Xᵀ η`. -/

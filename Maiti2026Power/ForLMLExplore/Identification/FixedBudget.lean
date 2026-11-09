@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.ForLMLExplore.Identification.RunDivergence
-public import Maiti2026Power.ForLMLExplore.InformationTheory.BretagnolleHuber
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 
 /-!
 # Runs of fixed-budget identification algorithms and data processing
@@ -121,7 +121,7 @@ lemma IsRun.exp_neg_le_measureReal_add_of_sq_le {C : ℝ} (hC : ∀ x ∈ 𝒳, 
         exact ENNReal.toReal_le_of_le_ofReal (by positivity) hkl
     _ ≤ (P.map out).real B + (P'.map out').real Bᶜ := by
         rw [one_div_mul_eq_div]
-        exact bretagnolle_huber hB hne
+        exact LMLExplore.exp_neg_klDiv_div_two_le hB hne
     _ = P.real (out ⁻¹' B) + P'.real (out' ⁻¹' Bᶜ) := by
         rw [map_measureReal_apply_of_aemeasurable hout hB,
           map_measureReal_apply_of_aemeasurable hout' hB.compl]

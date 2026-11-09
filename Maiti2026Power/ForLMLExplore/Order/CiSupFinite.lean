@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Analysis.SpecialFunctions.Exp
 public import Mathlib.Data.Fintype.Order
+public import LMLExplore.Order.ConditionallyCompleteLattice.Group
 
 /-!
 # Suprema of finitely many real numbers
@@ -29,13 +30,9 @@ open Real
 
 variable {ι : Type*}
 
-lemma abs_le_sum_abs_iSup [Fintype ι] [Nonempty ι] (f : ι → ℝ) : |⨆ i, f i| ≤ ∑ i, |f i| := by
-  refine abs_le.2 ⟨?_, ciSup_le fun i ↦ (le_abs_self _).trans (Finset.single_le_sum
-    (f := fun i ↦ |f i|) (fun i _ ↦ abs_nonneg _) (Finset.mem_univ i))⟩
-  obtain ⟨i⟩ := ‹Nonempty ι›
-  refine (neg_le.2 ?_).trans (le_ciSup (Finite.bddAbove_range f) i)
-  exact (neg_le_abs _).trans (Finset.single_le_sum (f := fun i ↦ |f i|)
-    (fun i _ ↦ abs_nonneg _) (Finset.mem_univ i))
+lemma abs_le_sum_abs_iSup [Fintype ι] [Nonempty ι] (f : ι → ℝ) : |⨆ i, f i| ≤ ∑ i, |f i| :=
+  abs_ciSup_le fun i ↦
+    Finset.single_le_sum (f := fun i ↦ |f i|) (fun j _ ↦ abs_nonneg (f j)) (Finset.mem_univ i)
 
 lemma exp_mul_iSup_le_sum [Fintype ι] [Nonempty ι] (t : ℝ) (f : ι → ℝ) :
     exp (t * ⨆ i, f i) ≤ ∑ i, exp (t * f i) := by

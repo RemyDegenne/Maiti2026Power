@@ -9,7 +9,7 @@ public import Maiti2026Power.ForLMLExplore.SequentialLearning.DivergenceDecompos
 public import LeanMachineLearning.SequentialLearning.IonescuTulceaSpace
 public import Maiti2026Power.MXJ2026.NormalizedDesign
 public import LeanMachineLearning.ForMathlib.InformationTheory.KullbackLeibler.Convex
-public import Maiti2026Power.ForLMLExplore.InformationTheory.BretagnolleHuber
+public import LMLExplore.InformationTheory.KullbackLeibler.BretagnolleHuber
 public import Maiti2026Power.ForLMLExplore.MeasureTheory.MixtureMeasure
 
 /-!
@@ -218,7 +218,8 @@ lemma IsGOptimalDesign.exp_neg_le_of_mixture [Nonempty ι] (hw : IsGOptimalDesig
   have hkl := hw.klDiv_histLaw_zero_mixtureHistLaw_le alg N hR ε
   have hne : klDiv (histLaw alg N 0) (mixtureHistLaw alg N w ε) ≠ ∞ :=
     ne_top_of_le_ne_top ENNReal.ofReal_ne_top hkl
-  have hbh := bretagnolle_huber (μ := histLaw alg N 0) (ν := mixtureHistLaw alg N w ε) hE hne
+  have hbh := LMLExplore.exp_neg_klDiv_div_two_le (μ := histLaw alg N 0)
+    (ν := mixtureHistLaw alg N w ε) hE hne
   have hC : 0 ≤ N * (9 * ε ^ 2 / (2 * Fintype.card ι)) := by positivity
   have h1 : exp (-(N * (9 * ε ^ 2 / (2 * Fintype.card ι)))) ≤
       exp (-(klDiv (histLaw alg N 0) (mixtureHistLaw alg N w ε)).toReal) :=

@@ -5,13 +5,15 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.HermitianCFC
+public import Mathlib.Analysis.Matrix.Order
+public import TauCeti.Analysis.Matrix.Resolvent.Basic
 
 /-!
 # Trace of the inverse: AM–HM
 
 For a positive definite real matrix `A` with eigenvalues `λ i`, the trace of `A⁻¹` is
-`∑ i, (λ i)⁻¹` (`Matrix.PosDef.trace_inv_eq_sum_inv_eigenvalues`), and the arithmetic–harmonic
+`∑ i, (λ i)⁻¹` (`Matrix.PosDef.trace_inv_eq_sum_inv_eigenvalues`, the case `z = 0` of Tau Ceti's
+`Matrix.IsHermitian.trace_inv_sub_smul_one`), and the arithmetic–harmonic
 mean inequality (a special case of Cauchy–Schwarz) between the eigenvalues gives
 
 * `Matrix.PosDef.card_sq_le_trace_mul_trace_inv`: `(card n) ^ 2 ≤ tr A * tr A⁻¹`;
@@ -19,6 +21,8 @@ mean inequality (a special case of Cauchy–Schwarz) between the eigenvalues giv
 -/
 
 @[expose] public section
+
+open scoped MatrixOrder
 
 namespace Matrix
 
@@ -28,7 +32,8 @@ variable {n : Type*} [Fintype n] [DecidableEq n] {A : Matrix n n ℝ}
 eigenvalues. -/
 lemma PosDef.trace_inv_eq_sum_inv_eigenvalues (hA : A.PosDef) :
     A⁻¹.trace = ∑ i, (hA.1.eigenvalues i)⁻¹ := by
-  simpa using hA.1.trace_inv_sub_smul_one fun x hx ↦ (hA.pos_of_mem_spectrum hx).ne'
+  simpa using hA.1.trace_inv_sub_smul_one (z := 0)
+    fun h ↦ lt_irrefl _ (hA.isStrictlyPositive.spectrum_pos h)
 
 /-- **AM–HM for the trace**: `(card n)² ≤ tr A · tr A⁻¹` for a positive definite real matrix. -/
 lemma PosDef.card_sq_le_trace_mul_trace_inv (hA : A.PosDef) :

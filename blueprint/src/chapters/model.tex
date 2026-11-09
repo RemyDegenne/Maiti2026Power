@@ -375,7 +375,8 @@ and every $A \in \designset(\Xs)$ satisfies $\tr(A) \le \sup_{x\in\Xs}\norm{x}^2
 \uses{def:design_matrix}
 The map $x \mapsto xx^\top$ is continuous, so $\{xx^\top : x\in\Xs\}$ is compact; the convex
 hull of a compact subset of a finite-dimensional space is compact
-(Mathlib \texttt{Set.Finite.isCompact\_convexHull} / \texttt{isCompact\_convexHull}).
+(Mathlib \texttt{Set.Finite.isCompact\_convexHull} for finite sets, LMLExplore
+\texttt{IsCompact.convexHull} in general).
 Positive semidefiniteness and the trace bound are preserved by convex combinations.
 \end{proof}
 
