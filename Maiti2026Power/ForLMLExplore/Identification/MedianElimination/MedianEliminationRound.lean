@@ -102,19 +102,6 @@ lemma measurable_roundScore (a : Fin K) :
 
 /-! ### Tail bounds for the empirical means under standard Gaussian noise -/
 
-/-- Each coordinate of the product of standard Gaussians is sub-Gaussian with proxy `1`. -/
-lemma hasSubgaussianMGF_eval (j : Fin (s * n)) :
-    HasSubgaussianMGF (fun η : Fin (s * n) → ℝ ↦ η j) 1
-      (Measure.pi fun _ : Fin (s * n) ↦ gaussianReal 0 1) := by
-  simpa using LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal
-    (measurePreserving_eval (fun _ : Fin (s * n) ↦ gaussianReal 0 1) j).hasLaw
-
-/-- The coordinates of the product of standard Gaussians are independent. -/
-lemma iIndepFun_eval :
-    iIndepFun (fun j (η : Fin (s * n) → ℝ) ↦ η j)
-      (Measure.pi fun _ : Fin (s * n) ↦ gaussianReal 0 1) :=
-  iIndepFun_pi (X := fun _ ↦ id) fun _ ↦ aemeasurable_id
-
 /-- The empirical mean of `n` i.i.d. `N(0,1)` coordinates is sub-Gaussian with proxy `1 / n`. -/
 lemma hasSubgaussianMGF_empMean (hn : 0 < n) (i : Fin s) :
     HasSubgaussianMGF (fun η ↦ empMean s n η i) (1 / n)
@@ -122,9 +109,14 @@ lemma hasSubgaussianMGF_empMean (hn : 0 < n) (i : Fin s) :
   have hn' : (n : ℝ) ≠ 0 := by positivity
   have hind : iIndepFun (fun (r : Fin n) (η : Fin (s * n) → ℝ) ↦ η (finProdFinEquiv (i, r)))
       (Measure.pi fun _ : Fin (s * n) ↦ gaussianReal 0 1) :=
-    iIndepFun_eval.precomp (finProdFinEquiv.injective.comp (Prod.mk_right_injective i))
+    (iIndepFun_pi (X := fun _ ↦ id) fun _ ↦ aemeasurable_id).precomp
+      (finProdFinEquiv.injective.comp (Prod.mk_right_injective i))
+  have heval (j : Fin (s * n)) : HasSubgaussianMGF (fun η : Fin (s * n) → ℝ ↦ η j) 1
+      (Measure.pi fun _ : Fin (s * n) ↦ gaussianReal 0 1) := by
+    simpa using LMLExplore.hasSubgaussianMGF_sub_of_hasLaw_gaussianReal
+      (measurePreserving_eval (fun _ : Fin (s * n) ↦ gaussianReal 0 1) j).hasLaw
   have h := (HasSubgaussianMGF.sum_of_iIndepFun hind (c := fun _ ↦ 1) (s := univ)
-    fun r _ ↦ hasSubgaussianMGF_eval _).const_mul (1 / n)
+    fun r _ ↦ heval _).const_mul (1 / n)
   convert h using 1
   · ext η
     simp [empMean, div_eq_inv_mul]

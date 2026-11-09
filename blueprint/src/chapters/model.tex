@@ -580,7 +580,7 @@ and the region algorithm of Chapter~\ref{chap:log_gains} are \emph{phased algori
 using the independence of the future noise from the past.
 
 \begin{lemma}[Algorithms agreeing on a prefix; transfer of PAC guarantees]\label{lem:prefix_transfer}
-\lean{Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq, Learning.IsAlgEnvSeqUntil.map_history, Learning.IdentAlg.map_history_out_eq, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
+\lean{Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq, Learning.IsAlgEnvSeqUntil.map_history, LMLExplore.Identification.IsFixedBudget.hasLaw_output_of_isAlgEnvSeqUntil, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
 \uses{def:bai_alg, def:pac}
 Let $\mathrm{alg}, \mathrm{alg}'$ be two algorithms with the same policies at the rounds
 $t < T$ (they \emph{agree until time $T$}). Then every

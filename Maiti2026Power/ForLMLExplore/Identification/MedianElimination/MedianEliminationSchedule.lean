@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Algebra.Order.Field.GeomSum
 public import Mathlib.Analysis.Complex.ExponentialBounds
+public import Mathlib.Analysis.SpecificLimits.Basic
 
 /-!
 # The schedule of Median Elimination
@@ -51,17 +52,13 @@ lemma deltaSched_lt_one (hδ : δ < 1) (ℓ : ℕ) : deltaSched δ ℓ < 1 := by
   rw [deltaSched, div_lt_one (by positivity)]
   exact hδ.trans_le (one_le_pow₀ (by norm_num))
 
-/-- Partial sums of a geometric series with ratio in `[0, 1)`. -/
-lemma sum_geom_le {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) (L : ℕ) :
-    ∑ ℓ ∈ range L, r ^ ℓ ≤ 1 / (1 - r) := by
-  have h := geom_sum_Ico_le_of_lt_one (m := 0) (n := L) hr0 hr1
-  rwa [← range_eq_Ico, pow_zero] at h
-
 /-- The sum of the round accuracies is at most `ε`. -/
 lemma sum_epsSched_le (hε : 0 ≤ ε) (L : ℕ) : ∑ ℓ ∈ range L, epsSched ε ℓ ≤ ε := by
   simp_rw [epsSched, ← mul_sum]
-  calc ε / 4 * ∑ ℓ ∈ range L, (3 / 4 : ℝ) ^ ℓ ≤ ε / 4 * (1 / (1 - 3 / 4)) :=
-    mul_le_mul_of_nonneg_left (sum_geom_le (by norm_num) (by norm_num) L) (by positivity)
+  have h := geom_sum_Ico_le_of_lt_one (x := (3 / 4 : ℝ)) (m := 0) (n := L) (by norm_num)
+    (by norm_num)
+  rw [← range_eq_Ico] at h
+  calc ε / 4 * ∑ ℓ ∈ range L, (3 / 4 : ℝ) ^ ℓ ≤ ε / 4 * ((3 / 4) ^ 0 / (1 - 3 / 4)) := by gcongr
   _ = ε := by ring
 
 /-- The sum of the round confidences is at most `δ`. -/
@@ -69,8 +66,8 @@ lemma sum_deltaSched_le (hδ : 0 ≤ δ) (L : ℕ) : ∑ ℓ ∈ range L, deltaS
   have h : ∀ ℓ, deltaSched δ ℓ = δ / 2 * (1 / 2) ^ ℓ := fun ℓ ↦ by
     rw [deltaSched, pow_succ, one_div_pow]; ring
   simp_rw [h, ← mul_sum]
-  calc δ / 2 * ∑ ℓ ∈ range L, (1 / 2 : ℝ) ^ ℓ ≤ δ / 2 * (1 / (1 - 1 / 2)) :=
-    mul_le_mul_of_nonneg_left (sum_geom_le (by norm_num) (by norm_num) L) (by positivity)
+  calc δ / 2 * ∑ ℓ ∈ range L, (1 / 2 : ℝ) ^ ℓ ≤ δ / 2 * 2 := by
+        gcongr; exact sum_geometric_two_le L
   _ = δ := by ring
 
 lemma log_deltaSched (hδ : 0 < δ) (ℓ : ℕ) :
@@ -239,9 +236,11 @@ lemma budget_le (hε : 0 < ε) (hδ : δ ∈ Set.Ioo 0 1) (K : ℕ) :
   set B := Real.log 2 with hB_def
   have hA : 0 ≤ A := Real.log_nonneg ((one_le_div hδ.1).2 (by linarith [hδ.2]))
   have hB : 0 ≤ B := Real.log_nonneg (by norm_num)
-  have h89 := sum_geom_le (r := 8 / 9) (by norm_num) (by norm_num) (numRounds K)
+  have h89 := geom_sum_Ico_le_of_lt_one (x := (8 / 9 : ℝ)) (m := 0) (n := numRounds K)
+    (by norm_num) (by norm_num)
+  rw [← range_eq_Ico] at h89
   have h89' := sum_succ_mul_geom_le (r := 8 / 9) (by norm_num) (by norm_num) (numRounds K)
-  have h12 := sum_geom_le (r := 1 / 2) (by norm_num) (by norm_num) (numRounds K)
+  have h12 := sum_geometric_two_le (numRounds K)
   norm_num at h89 h89' h12
   calc (budget K ε δ : ℝ)
       = ∑ ℓ ∈ range (numRounds K), (survivors K ℓ * numPulls ε δ ℓ : ℝ) := by

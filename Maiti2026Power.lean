@@ -64,7 +64,6 @@ public import Maiti2026Power.ForLMLExplore.Probability.SteinReal
 public import Maiti2026Power.ForLMLExplore.Probability.SubgaussianMax
 public import Maiti2026Power.ForLMLExplore.Probability.SubgaussianSquare
 public import Maiti2026Power.ForLMLExplore.Probability.SudakovFernique
-public import Maiti2026Power.ForLMLExplore.SequentialLearning.AlgorithmPrefix
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.DivergenceDecomposition
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.EnvDensity
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.HistoryLaw

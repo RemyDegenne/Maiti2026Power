@@ -9,6 +9,7 @@ public import LeanMachineLearning.ForMathlib.Probability.Kernel.Sigma
 public import LeanMachineLearning.SequentialLearning.Deterministic
 public import LeanMachineLearning.SequentialLearning.IdentificationAlg
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.StoppedHistory
+public import LMLExplore.Identification.FixedBudget
 
 /-!
 # Fixed-budget and fixed-design identification algorithms
@@ -27,8 +28,8 @@ stopping rule `A.stopSet` (a measurable set of histories of variable length) and
   (`IsFixedBudget.stoppingTime_eq`), the history at the stopping time is the history of the
   first `T` rounds (`IsFixedBudget.stoppedHist_eq`) and the output has conditional law
   `A.output.comap (Sigma.mk T) _`, the output rule on histories of length `T`, given the
-  history of the first `T` rounds (`IsRun.hasCondDistrib_output_history`); when that output rule
-  is deterministic, the output is that function of the history
+  history of the first `T` rounds (LMLExplore's `IsRun.hasCondDistrib_output_history`); when
+  that output rule is deterministic, the output is that function of the history
   (`IsRun.output_ae_eq_of_output_eq_deterministic`).
 * A *fixed-design* (non-adaptive) algorithm is one whose sampling rule plays a fixed sequence of
   actions whatever the observations (`fixedDesignAlg x`, `IdentAlg.IsFixedDesign A`).
@@ -125,28 +126,15 @@ lemma IsFixedBudget.stoppingTime_ne_top (hA : A.IsFixedBudget T) (ω : Ω) :
 
 variable {P : Measure Ω} [IsProbabilityMeasure P] {out : Ω → 𝓓} {env : Environment 𝓞 𝓐 𝓨}
 
-/-- **The output of a run of a fixed-budget algorithm has conditional law
-`A.output.comap (Sigma.mk T) _`, the output rule on histories of length `T`, given the history of
-the first `T` rounds.** -/
-lemma IsRun.hasCondDistrib_output_history (hA : A.IsFixedBudget T)
-    (h : A.IsRun env O X Y out P) :
-    HasCondDistrib out (history O X Y T) (A.output.comap (Sigma.mk T) (measurable_sigmaMk T))
-      P := by
-  have h1 := h.hasCondDistrib_output
-  rw [show A.stoppedHist O X Y = Sigma.mk T ∘ history O X Y T from
-    funext hA.stoppedHist_eq] at h1
-  exact h1.of_measurableEmbedding_comp_right (measurableEmbedding_sigmaMk T)
-
 /-- For a fixed-budget algorithm whose output rule on histories of length `T` is the
 deterministic map `g` of the history, the output of a run is `g` of the history of the first `T`
 rounds, almost surely. -/
 lemma IsRun.output_ae_eq_of_output_eq_deterministic [MeasurableEq 𝓓] (hA : A.IsFixedBudget T)
     (h : A.IsRun env O X Y out P) {g : Hist 𝓞 𝓐 𝓨 T → 𝓓} (hg : Measurable g)
     (hout : A.output.comap (Sigma.mk T) (measurable_sigmaMk T) = Kernel.deterministic g hg) :
-    out =ᵐ[P] fun ω ↦ g (history O X Y T ω) := by
-  have h1 := h.hasCondDistrib_output_history hA
-  rw [hout] at h1
-  exact h1.ae_eq_of_deterministic
+    out =ᵐ[P] fun ω ↦ g (history O X Y T ω) :=
+  h.output_ae_eq_of_outputAt_eq_deterministic (LMLExplore.Identification.isFixedBudget_iff.2 hA)
+    hg ((LMLExplore.Identification.outputAt_eq_comap A T).trans hout)
 
 /-- For a run of a fixed-budget algorithm with budget `0`, the law of the output is the output
 rule applied to the empty history. -/

@@ -95,16 +95,8 @@ environment with reward vector `θ` has simple regret at most `ε` with probabil
 lemma IsPAC.le_measureReal_of_isRun (hpac : IsPAC 𝒳 A ε δ) {θ : E}
     (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P) :
     1 - δ ≤ P.real {ω | simpleRegret 𝒳 θ (out ω) ≤ ε} := by
-  have hmeas : MeasurableSet {x : 𝒳 | simpleRegret 𝒳 θ x ≤ ε} :=
-    measurableSet_le (measurable_simpleRegret 𝒳 θ) measurable_const
-  have h1 := hpac.measureReal_bad_of_isRun
+  simpa only [not_lt] using IdentAlg.IsPAC.one_sub_le_measureReal_of_isRun hpac
     (measurableSet_lt measurable_const (measurable_simpleRegret 𝒳 θ)) h
-  rw [h.hasLaw_output.measureReal_eq hmeas]
-  rw [h.hasLaw_output.measureReal_eq (measurableSet_lt measurable_const
-    (measurable_simpleRegret 𝒳 θ)), show {x : 𝒳 | ε < simpleRegret 𝒳 θ x} =
-      {x : 𝒳 | simpleRegret 𝒳 θ x ≤ ε}ᶜ by ext; simp, measureReal_compl hmeas, probReal_univ]
-    at h1
-  linarith
 
 /-- **PAC from a bound on every run**: `A` is `(ε, δ)`-PAC on `𝒳` as soon as, for every reward
 vector `θ` and every run of `A` in the linear Gaussian environment with reward vector `θ` on a

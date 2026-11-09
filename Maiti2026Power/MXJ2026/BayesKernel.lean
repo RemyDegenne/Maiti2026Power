@@ -107,9 +107,10 @@ lemma _root_.Learning.IdentAlg.IsRun.hasLaw_history_out_pairKernel
     (hA : A.IsFixedBudget T) {out : Ω → 𝒳}
     (h : A.IsRun (linearGaussianEnv 𝒳 θ) O X Y out P) :
     HasLaw (fun ω ↦ (history O X Y T ω, out ω)) (pairKernel A T θ) P := by
+  have hout := h.hasCondDistrib_output_history (LMLExplore.Identification.isFixedBudget_iff.2 hA)
+  rw [LMLExplore.Identification.outputAt_eq_comap] at hout
   rw [pairKernel_apply]
-  exact (h.isAlgEnvSeq.hasLaw_history_histKernel T).prodMk_of_hasCondDistrib
-    (h.hasCondDistrib_output_history hA)
+  exact (h.isAlgEnvSeq.hasLaw_history_histKernel T).prodMk_of_hasCondDistrib hout
 
 lemma measurableSet_simpleRegret_le (θ : E) (ε : ℝ) :
     MeasurableSet {p : Hist Unit 𝒳 ℝ T × 𝒳 | simpleRegret 𝒳 θ p.2 ≤ ε} :=

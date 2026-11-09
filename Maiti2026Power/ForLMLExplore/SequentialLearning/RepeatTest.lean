@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.ForLMLExplore.SequentialLearning.AlgorithmPrefix
+public import Maiti2026Power.ForLMLExplore.Identification.Run
 
 /-!
 # Playing an algorithm, then repeating a recommended action
@@ -28,7 +28,9 @@ For an algorithm-environment sequence `(O, X, Y)` of `alg.thenRepeat n ρ`:
 * `IsAlgEnvSeq.action_add_ae_eq_of_thenRepeat`: `X (n + 1 + s) = X (n + 1)` almost surely.
 
 `IdentAlg.IsPAC.measureReal_bad_action_succ_of_testAlg`: the PAC guarantee of `A` applies to the
-action at time `n + 1` of the test algorithm.
+action at time `n + 1` of the test algorithm (by LMLExplore's
+`IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil`, the transfer of a PAC guarantee to an
+interaction that follows `A` until its budget).
 -/
 
 @[expose] public section
@@ -144,8 +146,10 @@ lemma IsPAC.measureReal_bad_action_succ_of_testAlg {A : IdentAlg Unit 𝓐 𝓨 
     (hA : A.IsFixedBudget (n + 1)) (θ : Θ) (h : IsAlgEnvSeq O X Y (A.testAlg n) (env θ) P)
     (hbad : MeasurableSet {a | bad θ a}) :
     P.real {ω | bad θ (X (n + 1) ω)} ≤ δ :=
-  hpac.measureReal_bad_of_isAlgEnvSeqUntil hA θ h.isAlgEnvSeqUntil_of_thenRepeat
-    h.hasCondDistrib_action_succ_of_thenRepeat hbad
+  hpac.measureReal_bad_of_isAlgEnvSeqUntil (LMLExplore.Identification.isFixedBudget_iff.2 hA)
+    hbad h.isAlgEnvSeqUntil_of_thenRepeat
+    (by rw [LMLExplore.Identification.outputAt_eq_comap]
+        exact h.hasCondDistrib_action_succ_of_thenRepeat)
 
 end IdentAlg
 

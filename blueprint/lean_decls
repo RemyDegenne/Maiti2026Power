@@ -83,7 +83,7 @@ Maiti2026Power.gwMat_neg_set
 Maiti2026Power.gwMat_sub_set
 Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq
 Learning.IsAlgEnvSeqUntil.map_history
-Learning.IdentAlg.map_history_out_eq
+LMLExplore.Identification.IsFixedBudget.hasLaw_output_of_isAlgEnvSeqUntil
 Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil
 Learning.SeededAlg
 Learning.SeededAlg.toAlgorithm

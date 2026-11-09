@@ -113,8 +113,9 @@ lemma _root_.Learning.IdentAlg.IsRun.hasLaw_history_out_of_fixedDesign
   have hseq : IsAlgEnvSeq O X Y (fixedDesignAlg x) (linearGaussianEnv 𝒳 θ) P := by
     have := h.isAlgEnvSeq
     rwa [hdes] at this
-  exact (hseq.hasLaw_history_of_fixedDesign T).prodMk_of_hasCondDistrib
-    (h.hasCondDistrib_output_history hA)
+  have hout := h.hasCondDistrib_output_history (LMLExplore.Identification.isFixedBudget_iff.2 hA)
+  rw [LMLExplore.Identification.outputAt_eq_comap] at hout
+  exact (hseq.hasLaw_history_of_fixedDesign T).prodMk_of_hasCondDistrib hout
 
 end run
 
