@@ -43,8 +43,9 @@ namespace Real
 
 variable {ι : Type*} [Fintype ι] {β : ℝ} {z z' : ι → ℝ}
 
-/-- The coordinate projections `ι → ℝ` to `ℝ`, as continuous linear maps. -/
-local notation "proj[" i "]" => (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : ι ↦ ℝ) i)
+/-- The coordinate projection `z ↦ z i` of `ι → ℝ`, as a continuous linear map. -/
+abbrev coordProj (i : ι) : (ι → ℝ) →L[ℝ] ℝ :=
+  ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : ι ↦ ℝ) i
 
 /-- The softmax weights `exp (β z i) / ∑ j, exp (β z j)` of a vector `z`. -/
 noncomputable def softmax (β : ℝ) (z : ι → ℝ) (i : ι) : ℝ := exp (β * z i) / ∑ j, exp (β * z j)
@@ -164,15 +165,15 @@ omit [Nonempty ι] in
 /-- The Fréchet derivative of `z ↦ ∑ i, exp (β z i)`. -/
 lemma hasFDerivAt_sum_exp_mul (β : ℝ) (z : ι → ℝ) :
     HasFDerivAt (fun z : ι → ℝ ↦ ∑ i, exp (β * z i))
-      (∑ i, (exp (β * z i) * β) • proj[i]) z := by
+      (∑ i, (exp (β * z i) * β) • coordProj i) z := by
   refine HasFDerivAt.fun_sum fun i _ ↦ ?_
-  have h : HasFDerivAt (fun z : ι → ℝ ↦ β * z i) (β • proj[i]) z :=
+  have h : HasFDerivAt (fun z : ι → ℝ ↦ β * z i) (β • coordProj i) z :=
     (hasFDerivAt_apply (𝕜 := ℝ) i z).const_mul β
   simpa only [smul_smul] using h.exp
 
 /-- The Fréchet derivative of the log-sum-exp function: `∂ᵢ logSumExp β z = softmax β z i`. -/
 lemma hasFDerivAt_logSumExp (hβ : β ≠ 0) (z : ι → ℝ) :
-    HasFDerivAt (logSumExp β) (∑ i, softmax β z i • proj[i]) z := by
+    HasFDerivAt (logSumExp β) (∑ i, softmax β z i • coordProj i) z := by
   have h := ((hasFDerivAt_sum_exp_mul β z).log (sum_exp_mul_pos β z).ne').const_mul β⁻¹
   refine h.congr_fderiv ?_
   ext w
@@ -183,7 +184,7 @@ lemma hasFDerivAt_logSumExp (hβ : β ≠ 0) (z : ι → ℝ) :
 
 /-- The Fréchet derivative of the log-sum-exp function. -/
 lemma fderiv_logSumExp (hβ : β ≠ 0) (z : ι → ℝ) :
-    fderiv ℝ (logSumExp β) z = ∑ i, softmax β z i • proj[i] :=
+    fderiv ℝ (logSumExp β) z = ∑ i, softmax β z i • coordProj i :=
   (hasFDerivAt_logSumExp hβ z).fderiv
 
 /-- The operator norm of the derivative of the log-sum-exp function is at most `1` (for the
@@ -205,15 +206,15 @@ lemma norm_fderiv_logSumExp_le (hβ : β ≠ 0) (z : ι → ℝ) : ‖fderiv ℝ
 lemma hasFDerivAt_softmax (β : ℝ) (z : ι → ℝ) (i : ι) :
     HasFDerivAt (fun z ↦ softmax β z i)
       ((β * softmax β z i) •
-        (proj[i] - ∑ j, softmax β z j • proj[j])) z := by
+        (coordProj i - ∑ j, softmax β z j • coordProj j)) z := by
   have hS := sum_exp_mul_pos β z
   have hnum : HasFDerivAt (fun z : ι → ℝ ↦ exp (β * z i))
-      ((exp (β * z i) * β) • proj[i]) z := by
-    have h : HasFDerivAt (fun z : ι → ℝ ↦ β * z i) (β • proj[i]) z :=
+      ((exp (β * z i) * β) • coordProj i) z := by
+    have h : HasFDerivAt (fun z : ι → ℝ ↦ β * z i) (β • coordProj i) z :=
       (hasFDerivAt_apply (𝕜 := ℝ) i z).const_mul β
     simpa only [smul_smul] using h.exp
   have hden : HasFDerivAt (fun z : ι → ℝ ↦ (∑ j, exp (β * z j))⁻¹)
-      ((-((∑ j, exp (β * z j)) ^ 2)⁻¹) • ∑ j, (exp (β * z j) * β) • proj[j])
+      ((-((∑ j, exp (β * z j)) ^ 2)⁻¹) • ∑ j, (exp (β * z j) * β) • coordProj j)
       z :=
     (hasDerivAt_inv hS.ne').comp_hasFDerivAt z (hasFDerivAt_sum_exp_mul β z)
   simp_rw [softmax, div_eq_mul_inv]
@@ -237,14 +238,14 @@ lemma hasFDerivAt_softmax (β : ℝ) (z : ι → ℝ) (i : ι) :
 lemma hasFDerivAt_fderiv_logSumExp (hβ : β ≠ 0) (z : ι → ℝ) :
     HasFDerivAt (fderiv ℝ (logSumExp β))
       (β • (∑ i, softmax β z i •
-          (proj[i]).smulRight (proj[i]) -
-        (∑ i, softmax β z i • proj[i]).smulRight
-          (∑ i, softmax β z i • proj[i]))) z := by
-  have h : fderiv ℝ (logSumExp β) = fun z : ι → ℝ ↦ ∑ i, softmax β z i • proj[i] :=
+          (coordProj i).smulRight (coordProj i) -
+        (∑ i, softmax β z i • coordProj i).smulRight
+          (∑ i, softmax β z i • coordProj i))) z := by
+  have h : fderiv ℝ (logSumExp β) = fun z : ι → ℝ ↦ ∑ i, softmax β z i • coordProj i :=
     funext (fderiv_logSumExp hβ)
   rw [h]
   refine (HasFDerivAt.fun_sum fun i _ ↦
-    (hasFDerivAt_softmax β z i).smul_const (proj[i])).congr_fderiv ?_
+    (hasFDerivAt_softmax β z i).smul_const (coordProj i)).congr_fderiv ?_
   ext u w
   simp only [smul_apply, sub_apply, FunLike.coe_sum, Finset.sum_apply,
     ContinuousLinearMap.proj_apply, ContinuousLinearMap.smulRight_apply, smul_eq_mul]

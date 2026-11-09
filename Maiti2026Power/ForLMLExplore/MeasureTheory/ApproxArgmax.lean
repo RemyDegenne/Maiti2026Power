@@ -31,7 +31,6 @@ which `q n` is a good choice, check that the `U n` cover `E`, and send `v` to `q
 
 @[expose] public section
 
-set_option autoImplicit false
 
 open scoped RealInnerProductSpace
 

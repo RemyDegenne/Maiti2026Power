@@ -2,11 +2,13 @@
     "challenge_module": "Challenge_exists_isPAC_of_finite",
     "solution_module": "Solution",
     "theorem_names": [
-        "Maiti2026Power.exists_isPAC_of_finite"
+        "Maiti2026Power.exists_isPAC_of_finite",
+        "Learning.LinearBandit.linearGaussianKernel._proof_1",
+        "Learning.LinearBandit.linearGaussianEnv._proof_2"
     ],
     "permitted_axioms": [
         "propext",
-        "Classical.choice",
-        "Quot.sound"
+        "Quot.sound",
+        "Classical.choice"
     ]
 }

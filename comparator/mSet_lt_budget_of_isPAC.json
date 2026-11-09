@@ -2,11 +2,13 @@
     "challenge_module": "Challenge_mSet_lt_budget_of_isPAC",
     "solution_module": "Solution",
     "theorem_names": [
-        "Maiti2026Power.mSet_lt_budget_of_isPAC"
+        "Maiti2026Power.mSet_lt_budget_of_isPAC",
+        "Learning.LinearBandit.linearGaussianKernel._proof_1",
+        "Learning.LinearBandit.linearGaussianEnv._proof_2"
     ],
     "permitted_axioms": [
         "propext",
-        "Classical.choice",
-        "Quot.sound"
+        "Quot.sound",
+        "Classical.choice"
     ]
 }

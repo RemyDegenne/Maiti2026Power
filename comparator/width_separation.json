@@ -2,11 +2,13 @@
     "challenge_module": "Challenge_width_separation",
     "solution_module": "Solution",
     "theorem_names": [
-        "Maiti2026Power.width_separation"
+        "Maiti2026Power.width_separation",
+        "Maiti2026Power.intrinsicGw._proof_1",
+        "Maiti2026Power.intrinsicGw._proof_2"
     ],
     "permitted_axioms": [
         "propext",
-        "Classical.choice",
-        "Quot.sound"
+        "Quot.sound",
+        "Classical.choice"
     ]
 }

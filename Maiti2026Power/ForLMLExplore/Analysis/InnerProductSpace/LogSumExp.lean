@@ -28,7 +28,6 @@ vector `innerPi x v`:
 -/
 
 @[expose] public section
-set_option autoImplicit false
 
 open InnerProductSpace Finset
 open scoped RealInnerProductSpace
