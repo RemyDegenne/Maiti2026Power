@@ -741,71 +741,172 @@ alignment:
   note: >-
     The full source-to-Lean map is the blueprint: each theorem/lemma/definition environment in
     `blueprint/src/chapters/*.tex` carries a `\lean{}` tag naming the corresponding declaration.
-    Library-level material lives under `Maiti2026Power/LeanMachineLearning/` (namespace `Learning`) and
-    `Maiti2026Power/Mathlib/` (Mathlib namespaces); the paper's objects and results under
-    `Maiti2026Power/MXJ2026/`. Only the headline statements are repeated here.
+    The paper's objects and results live under `Maiti2026Power/MXJ2026/`, the library-shaped
+    material under `Maiti2026Power/ForLMLExplore/`. Only the headline statements are repeated
+    here, one entry per declaration when a result has several claims formalized separately. Each
+    has its Literature Links relation, read "paper relation Lean": exactMatch, closeMatch,
+    broadMatch (the Lean statement is more general), narrowMatch (the paper's is) or hasPart. The
+    O(·)/Ω(·) of the paper are explicit constants in Lean; notes/paper-errata.md records no
+    erratum.
   statements:
     - source: "thm:upper / cor:upper_exists — Theorem 1, fixed-design upper bound"
       lean: "Maiti2026Power.exists_isFixedDesign_isPAC"
       module: "Maiti2026Power.MXJ2026.Upper"
       status: "proved"
-      note: "Existential form; the explicit algorithm is `Maiti2026Power.fixedDesignIdentAlg`."
+      relation: "narrowMatch"
+      note: >-
+        Budget T ≤ 600 (w(𝒳)² + d log(2/δ))/ε² + 1, weaker than the paper's
+        T = 360 (d log(1/δ) + w(𝒳)²)/ε² (the rounding is a barrier argument, not the cited one).
+        Existential form; the explicit algorithm is `Maiti2026Power.fixedDesignIdentAlg`.
     - source: "thm:lower_adaptive — Theorem 2, adaptive lower bound"
       lean: "Maiti2026Power.le_budget_of_isPAC"
       module: "Maiti2026Power.MXJ2026.LowerAdaptive"
       status: "proved"
-      note: "Proved with the constant 1/20000; the proof follows the blueprint chapter."
-
+      relation: "narrowMatch"
+      note: >-
+        For fixed-budget algorithms, with d ≥ 2 and δ < 1/16 (the hypotheses of the theorem's
+        restatement in the paper's appendix, absent from Theorem 2). Proved with the constant
+        1/20000; the proof follows the blueprint chapter.
     - source: "thm:lower_nonadaptive — Theorem 3, non-adaptive lower bound"
       lean: "Maiti2026Power.le_budget_of_isFixedDesign_of_isPAC"
       module: "Maiti2026Power.MXJ2026.LowerNonadaptive"
       status: "proved"
+      relation: "narrowMatch"
       note: >-
+        For δ ≤ 1/10 and budget T ≥ 1, with the constant 1/70; the paper states no range of δ.
         Bayesian proof: `Maiti2026Power/MXJ2026/BayesModel.lean` (prior, orthogonal decomposition, Bayes
         identity, regret bounds) and `Maiti2026Power/MXJ2026/SingularDesign.lean` (singular designs).
         `cor:lower_nonadaptive_H` (the paper's `H₂` form) is not formalized.
-    - source: "prop:width_le_d, prop:width_finite, prop:width_lower_sqrt_dlogd — Proposition 4"
-      lean: "Maiti2026Power.gw_le_card, Maiti2026Power.gw_le_sqrt_log_ncard, Maiti2026Power.sqrt_log_le_gw"
+    - source: "prop:width_le_d — Proposition 4 (i), w(𝒳) ≤ O(d)"
+      lean: "Maiti2026Power.gw_le_card"
       module: "Maiti2026Power.MXJ2026.WidthBounds"
       status: "proved"
-      note: "All three parts proved; (iii) via `prereq_sudakov` (Stein's identity, Gaussian interpolation, Sudakov–Fernique, expected maximum of i.i.d. Gaussians), all formalized." 
+      relation: "hasPart"
+      note: "The upper bound O(d), as w(𝒳) ≤ d."
+    - source: "prop:width_finite — Proposition 4 (ii), w(𝒳) ≤ O(√(d log |𝒳|)) for finite 𝒳"
+      lean: "Maiti2026Power.gw_le_sqrt_log_ncard"
+      module: "Maiti2026Power.MXJ2026.WidthBounds"
+      status: "proved"
+      relation: "hasPart"
+      note: "The upper bound for finite 𝒳, as w(𝒳) ≤ √(2 d log |𝒳|)."
+    - source: "prop:width_lower_sqrt_dlogd — Proposition 4 (iii), w(𝒳) ≥ Ω(√(d log d))"
+      lean: "Maiti2026Power.sqrt_log_le_gw"
+      module: "Maiti2026Power.MXJ2026.WidthBounds"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The lower bound, as w(𝒳) ≥ (1/8) √(d log ⌊d/2⌋) for d ≥ 4. Proved via `prereq_sudakov`
+        (Stein's identity, Gaussian interpolation, Sudakov–Fernique, expected maximum of i.i.d.
+        Gaussians), all formalized.
     - source: "thm:width_separation — Theorem 5"
       lean: "Maiti2026Power.width_separation"
       module: "Maiti2026Power.MXJ2026.WidthBounds"
       status: "proved"
-      note: ""
+      relation: "closeMatch"
+      note: >-
+        For the paper's multi-task set (m - 1 blocks of size 2 and one of size m², m ≥ 2, so
+        d = m² + 2m - 2), with explicit constants. This 𝒳 does not span ℝ^d, so w(𝒳) is read as
+        its intrinsic width `intrinsicGw`, the width inside its span (of dimension r ∈ [d/2, d]).
     - source: "thm:log_gains / cor:log_gains_exists — Theorem 6"
       lean: "Maiti2026Power.exists_isPAC_of_finite"
       module: "Maiti2026Power.MXJ2026.LogGains"
       status: "proved"
-      note: "Existential form; proved through the phased Median-Elimination algorithm of `thm:log_gains`."
-    - source: "thm:lower_multitask, thm:lower_hypercube_pm, thm:lower_hypercube_01, thm:lower_msets — Table 1 lower bounds (multi-task, hypercubes, m-sets)"
-      lean: "Maiti2026Power.multitaskSet_lt_budget_of_isPAC, Maiti2026Power.hypercubePM_lt_budget_of_isPAC, Maiti2026Power.hypercube01_lt_budget_of_isPAC, Maiti2026Power.mSet_lt_budget_of_isPAC"
+      relation: "closeMatch"
+      note: >-
+        Budget at most 97281 d (log((|𝒳|/d)₊) + log(4/δ))/ε², the paper's
+        O(d log((|𝒳|/d)₊/δ)/ε²) with log(4/δ) for log(1/δ), which matters only for δ close to 1.
+        Existential form; proved through the phased Median-Elimination algorithm of `thm:log_gains`.
+    - source: "thm:lower_multitask / cor:lower_multitask_pac — Table 1, adaptive lower bound for multi-task MAB"
+      lean: "Maiti2026Power.multitaskSet_lt_budget_of_isPAC"
       module: "Maiti2026Power.MXJ2026.LogGains"
       status: "proved"
+      relation: "hasPart"
       note: >-
-        All four proved from the two- and three-point Pinsker toolkit of
-        `Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint`; the Lean forms are the contrapositives
-        (`le_of_isPAC_cubeSet`, `le_of_isPAC_multitaskSet`, `le_of_isPAC_mSet`).
+        The (∑ⱼ √dⱼ)²/ε² term, as T > (∑ⱼ √dⱼ)²/(20000 ε²) for fixed-budget algorithms with
+        T ≥ 1 and δ < 2/5. Proved (via `le_of_isPAC_multitaskSet`) from the two- and three-point
+        Pinsker toolkit of `Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint`.
+    - source: "thm:lower_hypercube_pm / cor:lower_hypercube_pm_pac — Table 1, adaptive lower bound for {-1, 1}^d"
+      lean: "Maiti2026Power.hypercubePM_lt_budget_of_isPAC"
+      module: "Maiti2026Power.MXJ2026.LogGains"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The d²/ε² term, as T > d²/(100 ε²) for fixed-budget algorithms with T ≥ 1 and δ < 1/6.
+        Proved (via `le_of_isPAC_cubeSet`) from the two- and three-point Pinsker toolkit of
+        `Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint`.
+    - source: "thm:lower_hypercube_01 / cor:lower_hypercube_01_pac — Table 1, adaptive lower bound for {0, 1}^d"
+      lean: "Maiti2026Power.hypercube01_lt_budget_of_isPAC"
+      module: "Maiti2026Power.MXJ2026.LogGains"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The d²/ε² term, as T > d²/(400 ε²) for fixed-budget algorithms with T ≥ 1 and δ < 1/6.
+        Proved (via `le_of_isPAC_cubeSet`) from the two- and three-point Pinsker toolkit of
+        `Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint`.
+    - source: "thm:lower_msets / cor:lower_msets_pac — Table 1, adaptive lower bound for m-sets"
+      lean: "Maiti2026Power.mSet_lt_budget_of_isPAC"
+      module: "Maiti2026Power.MXJ2026.LogGains"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The md/ε² term, as T > m(d - m + 1)/(2500 ε²) when d - m + 1 ≥ 20m (the paper's
+        m ≤ d/21), for fixed-budget algorithms with T ≥ 1 and δ < 2/9. Proved (via
+        `le_of_isPAC_mSet`) from the two- and three-point Pinsker toolkit of
+        `Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint`.
     - source: "cor:lower_ball_adaptive — Table 1 lower bound for the unit ball"
       lean: "Maiti2026Power.unitBall_le_budget_of_isPAC"
       module: "Maiti2026Power.MXJ2026.LogGains"
       status: "proved"
-      note: "Proved through the Gaussian-prior chapter `prereq_bayes` and the Bayesian regret bound of `LowerBall.lean`."
-    - source: "thm:separation_lower_nonadaptive, thm:separation / cor:separation_exists — Theorem 7"
-      lean: "Maiti2026Power.blockBallSet_le_budget_of_isFixedDesign_of_isPAC, Maiti2026Power.blockBallSet_le_budget_of_isPAC, Maiti2026Power.exists_isPAC_blockBallSet"
+      relation: "hasPart"
+      note: >-
+        The d²/ε² term, as T ≥ d²/(1000 ε²) for d ≥ 2, δ ≤ 1/500 and fixed-budget algorithms.
+        Proved through the Gaussian-prior chapter `prereq_bayes` and the Bayesian regret bound of
+        `LowerBall.lean`.
+    - source: "thm:separation_lower_nonadaptive — Theorem 7, non-adaptive lower bound Ω(kd²/ε²)"
+      lean: "Maiti2026Power.blockBallSet_le_budget_of_isFixedDesign_of_isPAC"
       module: "Maiti2026Power.MXJ2026.Separation"
       status: "proved"
-      note: "The two lower bounds and the existential upper bound are proved; the block algorithm of `thm:separation` is the seeded algorithm `Maiti2026Power.BlockParam.alg`, proved PAC with failure probability 15δ/16."
+      relation: "hasPart"
+      note: >-
+        The kd²/ε² term of the non-adaptive lower bound, as T ≥ kd²/(210 ε²) for all k and d and
+        δ ≤ 1/10, for deterministic fixed designs (the paper's non-adaptive algorithms may
+        randomize their design).
+    - source: "thm:separation_lower_nonadaptive — Theorem 7, lower bound Ω(kd log(1/δ)/ε²)"
+      lean: "Maiti2026Power.blockBallSet_le_budget_of_isPAC"
+      module: "Maiti2026Power.MXJ2026.Separation"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The kd log(1/δ)/ε² term of the non-adaptive lower bound, for every fixed-budget algorithm,
+        adaptive or not: Theorem 2 on the block-ball set, T ≥ kd log(1/δ)/(20000 ε²) for kd ≥ 2
+        and δ < 1/16.
+    - source: "thm:separation / cor:separation_exists — Theorem 7, adaptive upper bound"
+      lean: "Maiti2026Power.exists_isPAC_blockBallSet"
+      module: "Maiti2026Power.MXJ2026.Separation"
+      status: "proved"
+      relation: "hasPart"
+      note: >-
+        The adaptive upper bound, as budget ≤ 2·10⁶ (kd log(8k/δ) + d²)/ε² for all k ≥ 1 and d,
+        which is the paper's O((kd log(1/δ) + kd log k)/ε²) when 2 ≤ k and d ≤ k. The block
+        algorithm of `thm:separation` is the seeded algorithm `Maiti2026Power.BlockParam.alg`,
+        proved PAC with failure probability 15δ/16.
     - source: "thm:norm_estimation / cor:norm_estimation_exists — Theorem 8"
       lean: "Maiti2026Power.exists_isAccurateNormEst"
       module: "Maiti2026Power.MXJ2026.NormEstimation"
       status: "proved"
-      note: "Existential form; the meta-algorithm of `thm:norm_estimation` is `Maiti2026Power.NormEstParam.alg` (a seeded algorithm), proved accurate with failure probability 7δ/8."
+      relation: "closeMatch"
+      note: >-
+        Budget at most 10⁵ d log(4/δ)/ε², the paper's O(d log(1/δ)/ε²) with log(4/δ) for
+        log(1/δ), which matters only for δ close to 1. Existential form; the meta-algorithm of
+        `thm:norm_estimation` is `Maiti2026Power.NormEstParam.alg` (a seeded algorithm), proved
+        accurate with failure probability 7δ/8.
 
 acknowledgements: >-
-  Built on Mathlib. Depends on LeanMachineLearning/LML for the algorithm–environment interaction
-  model (`Learning.Algorithm`, `Learning.Environment`, `Learning.stationaryEnv`,
-  `Learning.detAlgorithm`, `Learning.trajMeasure`), on LeanSpec for specification statements, and
-  on Patrick Massot's leanblueprint/checkdecls for the blueprint infrastructure. The material under
-  `Maiti2026Power/LeanMachineLearning/` and `Maiti2026Power/Mathlib/` is written to be contributed upstream.
+  Built on LMLExplore (LeanMachineLearning/LMLExplore), which brings LML (LeanMachineLearning),
+  Tau Ceti and Mathlib at the versions it pins; with checkdecls, it is the project's only Lean
+  requirement. LML provides the algorithm–environment interaction model (`Learning.Algorithm`,
+  `Learning.Environment`, `Learning.Environment.bandit`, `Learning.Algorithm.deterministic`,
+  `Learning.trajMeasure`) and the identification algorithms `Learning.IdentAlg`; LMLExplore the
+  fixed budgets and fixed designs of `LMLExplore.Identification`. Patrick Massot's
+  leanblueprint/checkdecls provide the blueprint infrastructure. The material under
+  `Maiti2026Power/ForLMLExplore/` is written to be contributed to LMLExplore.
