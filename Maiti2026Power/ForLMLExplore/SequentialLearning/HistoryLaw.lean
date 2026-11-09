@@ -45,7 +45,7 @@ lemma map_history_succ_of_hasCondDistrib {Q : Measure Ω} {n : ℕ}
 
 /-- The law of the first `n + 1` rounds is the composition-product of the law of the first `n`
 rounds with the step kernel. -/
-lemma IsAlgEnvSeq.map_history_succ {P : Measure Ω} [IsFiniteMeasure P]
+lemma IsAlgEnvSeq.map_history_succ {P : Measure Ω}
     (h : IsAlgEnvSeq O X Y alg env P) (n : ℕ) :
     P.map (history O X Y (n + 1)) =
       (P.map (history O X Y n) ⊗ₘ stepKernel alg env n).map

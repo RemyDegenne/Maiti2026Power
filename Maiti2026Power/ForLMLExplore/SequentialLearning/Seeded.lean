@@ -51,6 +51,7 @@ variable {𝓞 𝓐 𝓨 Ω Ω' : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 :
   {alg : Algorithm 𝓞 𝓐 𝓨} {env : Environment 𝓞 𝓐 𝓨}
   {P : Measure Ω} {P' : Measure Ω'} [IsFiniteMeasure P] [IsFiniteMeasure P']
 
+omit [IsFiniteMeasure P] [IsFiniteMeasure P'] in
 /-- The law of the history of an algorithm-environment sequence is determined by the algorithm
 and the environment. -/
 lemma IsAlgEnvSeq.map_history_eq [IsProbabilityMeasure P] [IsProbabilityMeasure P']
