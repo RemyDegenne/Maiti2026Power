@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Matrix.Loewner
+public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.Loewner
 
 /-!
 # The rank-one matrices `x xᵀ`

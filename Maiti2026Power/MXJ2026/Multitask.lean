@@ -7,8 +7,8 @@ module
 
 public import Maiti2026Power.MXJ2026.IntrinsicWidth
 public import Maiti2026Power.MXJ2026.StructuredSets
-public import Maiti2026Power.Mathlib.Probability.SubgaussianMax
-public import Maiti2026Power.Mathlib.Data.Fintype.PiSplitAt
+public import Maiti2026Power.ForLMLExplore.Probability.SubgaussianMax
+public import Maiti2026Power.ForLMLExplore.Data.Fintype.PiSplitAt
 
 /-!
 # The multi-task action set: structure, span and intrinsic width

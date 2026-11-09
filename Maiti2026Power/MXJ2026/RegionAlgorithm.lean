@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.MedianElimination
+public import Maiti2026Power.ForLMLExplore.Identification.MedianElimination.MedianElimination
 public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
 

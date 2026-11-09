@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Analysis.Calculus.LocalExtr
+public import Maiti2026Power.ForLMLExplore.Analysis.Calculus.LocalExtr
 public import Maiti2026Power.MXJ2026.DesignSet
 
 /-!

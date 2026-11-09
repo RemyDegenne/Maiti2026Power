@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Probability.GaussianWidth
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianWidth
 public import Maiti2026Power.MXJ2026.OuterSelf
 
 /-!

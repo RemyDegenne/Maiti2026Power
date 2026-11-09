@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.GaussianLikelihood
-public import Maiti2026Power.LeanMachineLearning.TwoPoint
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
 
 /-!
 # The law of a run as a Markov kernel in the reward vector

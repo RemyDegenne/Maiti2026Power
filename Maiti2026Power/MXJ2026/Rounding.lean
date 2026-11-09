@@ -5,8 +5,8 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.Analysis.BarrierSum
-public import Maiti2026Power.Mathlib.Matrix.HermitianCFC
+public import Maiti2026Power.ForLMLExplore.Analysis.BarrierSum
+public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.HermitianCFC
 public import Maiti2026Power.MXJ2026.OptimalDesign
 
 /-!

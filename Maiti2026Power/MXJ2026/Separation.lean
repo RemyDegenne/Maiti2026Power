@@ -8,10 +8,10 @@ module
 public import Maiti2026Power.MXJ2026.WidthBall
 public import Maiti2026Power.MXJ2026.LowerNonadaptive
 public import Maiti2026Power.MXJ2026.LowerAdaptive
-public import Maiti2026Power.LeanMachineLearning.FixedDesignTransport
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignTransport
 public import Maiti2026Power.MXJ2026.BlockProof
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Inner
-public import Maiti2026Power.Mathlib.MeasureTheory.Measure.Real
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.Measure.Real
 
 /-!
 # Polynomial separation between adaptive and non-adaptive algorithms (Theorem 7)

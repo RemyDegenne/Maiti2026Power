@@ -13,8 +13,8 @@ public import Maiti2026Power.MXJ2026.RegionAlgorithm
 public import Maiti2026Power.MXJ2026.LogGainsArith
 public import Maiti2026Power.MXJ2026.LowerBall
 public import Maiti2026Power.MXJ2026.FixedDesignAlgorithm
-public import Maiti2026Power.Mathlib.MeasureTheory.ApproxArgmax
-public import Maiti2026Power.Mathlib.Data.Set.CoverSmall
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.ApproxArgmax
+public import Maiti2026Power.ForLMLExplore.Data.Set.CoverSmall
 
 /-!
 # Structured sets on which adaptivity gives at most logarithmic gains (Theorem 6, Table 1)

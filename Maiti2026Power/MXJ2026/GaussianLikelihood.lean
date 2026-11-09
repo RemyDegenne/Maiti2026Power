@@ -5,10 +5,10 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.EnvDensity
-public import Maiti2026Power.Mathlib.Probability.GaussianDensityRatio
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.EnvDensity
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianDensityRatio
 public import Mathlib.MeasureTheory.Function.SpecialFunctions.Inner
-public import Maiti2026Power.LeanMachineLearning.LinearBandit
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 
 /-!
 # Likelihood ratio of a linear Gaussian history

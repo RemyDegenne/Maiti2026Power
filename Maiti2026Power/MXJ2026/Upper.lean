@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.Mathlib.MeasureTheory.ApproxArgmax
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.ApproxArgmax
 public import Maiti2026Power.MXJ2026.FixedDesignAlgorithm
 public import Maiti2026Power.MXJ2026.MixedDesign
 public import Mathlib.Analysis.Real.Pi.Bounds

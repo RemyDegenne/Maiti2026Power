@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.Width
-public import Maiti2026Power.Mathlib.Analysis.Convex.CompactHull
+public import Maiti2026Power.ForLMLExplore.Analysis.Convex.CompactHull
 
 /-!
 # Basic properties of the design matrices of an action set
@@ -26,8 +26,9 @@ For an action set `𝒳 ⊆ EuclideanSpace ℝ ι`, the set of design matrices i
 
 The general ingredients (`outerSelf`, `isCompact_convexHull`, `Matrix.convex_posSemidef`,
 `Matrix.span_image_toEuclideanCLM_eq_top`) are in `Maiti2026Power.MXJ2026.OuterSelf`,
-`Maiti2026Power.Mathlib.Analysis.Convex.CompactHull`, `Maiti2026Power.Mathlib.Matrix.Loewner` and
-`Maiti2026Power.Mathlib.Analysis.InnerProductSpace.EuclideanMatrix`.
+`Maiti2026Power.ForLMLExplore.Analysis.Convex.CompactHull`,
+`Maiti2026Power.ForLMLExplore.Analysis.Matrix.Loewner` and
+`Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.EuclideanMatrix`.
 -/
 
 @[expose] public section

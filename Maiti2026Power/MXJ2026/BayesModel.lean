@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.FixedDesignLaw
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignLaw
 public import Maiti2026Power.MXJ2026.LeastSquares
 public import Maiti2026Power.MXJ2026.DifferenceProcess
-public import Maiti2026Power.Mathlib.Probability.StdGaussianProd
-public import Maiti2026Power.Mathlib.Probability.Kernel.PriorAverage
-public import Maiti2026Power.Mathlib.Probability.IndepIntegral
+public import Maiti2026Power.ForLMLExplore.Probability.StdGaussianProd
+public import Maiti2026Power.ForLMLExplore.Probability.Kernel.PriorAverage
+public import Maiti2026Power.ForLMLExplore.Probability.IndepIntegral
 
 /-!
 # The Bayesian model of the non-adaptive lower bound

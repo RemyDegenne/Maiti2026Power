@@ -5,9 +5,9 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.TwoPoint
-public import Maiti2026Power.LeanMachineLearning.Run
-public import Maiti2026Power.Mathlib.Data.Finset.PowersetCardSum
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.TwoPoint
+public import Maiti2026Power.ForLMLExplore.Identification.Run
+public import Maiti2026Power.ForLMLExplore.Data.Finset.PowersetCardSum
 public import Maiti2026Power.MXJ2026.MSetInstances
 
 /-!

@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.DivergenceDecomposition
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.DivergenceDecomposition
 public import LeanMachineLearning.SequentialLearning.IonescuTulceaSpace
 public import Maiti2026Power.MXJ2026.NormalizedDesign
 public import LeanMachineLearning.ForMathlib.InformationTheory.KullbackLeibler.Convex
-public import Maiti2026Power.Mathlib.InformationTheory.BretagnolleHuber
-public import Maiti2026Power.Mathlib.MeasureTheory.MixtureMeasure
+public import Maiti2026Power.ForLMLExplore.InformationTheory.BretagnolleHuber
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.MixtureMeasure
 
 /-!
 # The mixture testing problem

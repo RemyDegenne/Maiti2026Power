@@ -6,9 +6,9 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.NormalizedDesign
-public import Maiti2026Power.Mathlib.Probability.SudakovFernique
-public import Maiti2026Power.Mathlib.Probability.GaussianMaxLower
-public import Maiti2026Power.Mathlib.Analysis.InnerProductSpace.IsotropicSeparated
+public import Maiti2026Power.ForLMLExplore.Probability.SudakovFernique
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianMaxLower
+public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.IsotropicSeparated
 
 /-!
 # Lower bound on the Gaussian width term: `w(𝒳) ≥ (1/8) √(d log ⌊d/2⌋)`

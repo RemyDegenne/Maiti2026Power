@@ -5,7 +5,7 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.FixedDesignRun
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.FixedDesignRun
 public import Maiti2026Power.MXJ2026.Rounding
 
 /-!

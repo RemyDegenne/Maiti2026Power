@@ -8,8 +8,8 @@ module
 public import Maiti2026Power.MXJ2026.BayesKernel
 public import Maiti2026Power.MXJ2026.PosteriorGaussian
 public import Maiti2026Power.MXJ2026.UnitBall
-public import Maiti2026Power.Mathlib.Matrix.TraceInv
-public import Maiti2026Power.Mathlib.Probability.GaussianAbsMoment
+public import Maiti2026Power.ForLMLExplore.Analysis.Matrix.TraceInv
+public import Maiti2026Power.ForLMLExplore.Probability.GaussianAbsMoment
 public import Mathlib.Analysis.Real.Pi.Bounds
 
 /-!

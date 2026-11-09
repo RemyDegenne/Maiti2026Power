@@ -5,12 +5,12 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.LinearBandit
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 public import Maiti2026Power.MXJ2026.StructuredSets
 public import Maiti2026Power.MXJ2026.Width
 public import Maiti2026Power.MXJ2026.NormEstProof
 public import Maiti2026Power.MXJ2026.NormEstBudget
-public import Maiti2026Power.Mathlib.MeasureTheory.Measure.Real
+public import Maiti2026Power.ForLMLExplore.MeasureTheory.Measure.Real
 
 /-!
 # `ℓ₂`-norm estimation on the unit ball (Theorem 8)

@@ -1,0 +1,102 @@
+/-
+Copyright (c) 2026 Rémy Degenne. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Rémy Degenne
+-/
+module
+
+public import Maiti2026Power.ForLMLExplore.SequentialLearning.DivergenceDecomposition
+
+/-!
+# Data processing for runs of identification algorithms
+
+For two runs of the same identification algorithm `A : IdentAlg Unit 𝓐 𝓨 𝓓` (on arbitrary
+probability spaces, in two environments), the divergence between the laws of the pairs (history
+at the stopping time, output) is the divergence between the laws of the histories at the stopping
+time (`IsRun.klDiv_map_stoppedHist_out`), since the output is drawn from the same Markov kernel;
+consequently the divergence between the laws of the outputs is at most the divergence between
+the laws of the stopped histories (`IsRun.klDiv_map_out_le_stoppedHist`), by the data-processing
+inequality.
+
+Combined with the divergence decomposition for stopped histories, this bounds, when the stopping
+times are almost surely finite, the divergence between the laws of the outputs of two runs in two
+stationary environments by the expected sum, along the first run, of the divergences of the
+reward kernels at the actions played before stopping (`IsRun.klDiv_map_out_le_lintegral`; in
+composition-product form `IsRun.klDiv_map_out_le_tsum_compProd`). This is the standard
+change-of-measure argument of fixed-confidence lower bounds (Kaufmann, Cappé and Garivier,
+2016).
+-/
+
+@[expose] public section
+
+open MeasureTheory ProbabilityTheory InformationTheory Finset
+open scoped ENNReal ENat
+
+namespace Learning.IdentAlg
+
+variable {𝓐 𝓨 𝓓 : Type*} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨}
+  {m𝓓 : MeasurableSpace 𝓓} {Ω Ω' : Type*} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
+  {P : Measure Ω} {P' : Measure Ω'} [IsProbabilityMeasure P] [IsProbabilityMeasure P']
+  {A : IdentAlg Unit 𝓐 𝓨 𝓓} {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
+  {O' : ℕ → Ω' → Unit} {X' : ℕ → Ω' → 𝓐} {Y' : ℕ → Ω' → 𝓨}
+  {out : Ω → 𝓓} {out' : Ω' → 𝓓} {env env' : Environment Unit 𝓐 𝓨}
+
+/-- **Data processing for runs**: for two runs of the same identification algorithm, the
+divergence between the laws of the pairs (history at the stopping time, output) is the divergence
+between the laws of the histories at the stopping time. -/
+lemma IsRun.klDiv_map_stoppedHist_out (h : A.IsRun env O X Y out P)
+    (h' : A.IsRun env' O' X' Y' out' P') :
+    klDiv (P.map fun ω ↦ (A.stoppedHist O X Y ω, out ω))
+        (P'.map fun ω ↦ (A.stoppedHist O' X' Y' ω, out' ω)) =
+      klDiv (P.map (A.stoppedHist O X Y)) (P'.map (A.stoppedHist O' X' Y')) := by
+  rw [h.hasCondDistrib_output.map_eq, h'.hasCondDistrib_output.map_eq]
+  exact klDiv_compProd_left _ _ _
+
+/-- **Data processing for runs**: for two runs of the same identification algorithm, the
+divergence between the laws of the outputs is at most the divergence between the laws of the
+histories at the stopping time. -/
+lemma IsRun.klDiv_map_out_le_stoppedHist (h : A.IsRun env O X Y out P)
+    (h' : A.IsRun env' O' X' Y' out' P') :
+    klDiv (P.map out) (P'.map out') ≤
+      klDiv (P.map (A.stoppedHist O X Y)) (P'.map (A.stoppedHist O' X' Y')) := by
+  rw [← h.klDiv_map_stoppedHist_out h']
+  have := klDiv_map_le (P.map fun ω ↦ (A.stoppedHist O X Y ω, out ω))
+    (P'.map fun ω ↦ (A.stoppedHist O' X' Y' ω, out' ω)) measurable_snd
+  rwa [AEMeasurable.map_map_of_aemeasurable measurable_snd.aemeasurable
+    h.hasCondDistrib_output.aemeasurable, AEMeasurable.map_map_of_aemeasurable
+    measurable_snd.aemeasurable h'.hasCondDistrib_output.aemeasurable] at this
+
+variable {κ κ' : Kernel 𝓐 𝓨} [IsMarkovKernel κ] [IsMarkovKernel κ']
+
+/-- **Change of measure at a stopping time**, composition-product form: for two runs of the same
+identification algorithm in two stationary environments with reward kernels `κ` and `κ'`, with
+almost surely finite stopping times, the divergence between the laws of the outputs is at most
+the series over the rounds `t` of the conditional divergences of the reward kernels given the
+played action, on the event that the algorithm has not stopped after `t` rounds. -/
+lemma IsRun.klDiv_map_out_le_tsum_compProd (h : A.IsRun (Environment.bandit κ) O X Y out P)
+    (h' : A.IsRun (Environment.bandit κ') O' X' Y' out' P')
+    (hτ : ∀ᵐ ω ∂P, A.stoppingTime O X Y ω ≠ ⊤)
+    (hτ' : ∀ᵐ ω ∂P', A.stoppingTime O' X' Y' ω ≠ ⊤) :
+    klDiv (P.map out) (P'.map out') ≤
+      ∑' t : ℕ, klDiv ((P.restrict {ω | (t : ℕ∞) < A.stoppingTime O X Y ω}).map (X t) ⊗ₘ κ)
+        ((P.restrict {ω | (t : ℕ∞) < A.stoppingTime O X Y ω}).map (X t) ⊗ₘ κ') :=
+  (h.klDiv_map_out_le_stoppedHist h').trans_eq
+    (h.isAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_compProd h'.isAlgEnvSeq
+      A.measurableSet_stopSet hτ hτ')
+
+/-- **Change of measure at a stopping time**, integral form: for two runs of the same
+identification algorithm in two stationary environments with reward kernels `κ` and `κ'`, with
+almost surely finite stopping times, the divergence between the laws of the outputs is at most
+the expected sum, along the first run, of the divergences of the reward kernels at the actions
+played before stopping. -/
+lemma IsRun.klDiv_map_out_le_lintegral [MeasurableSpace.CountablyGenerated 𝓨]
+    (h : A.IsRun (Environment.bandit κ) O X Y out P)
+    (h' : A.IsRun (Environment.bandit κ') O' X' Y' out' P')
+    (hτ : ∀ᵐ ω ∂P, A.stoppingTime O X Y ω ≠ ⊤) (hτ' : ∀ᵐ ω ∂P', A.stoppingTime O' X' Y' ω ≠ ⊤) :
+    klDiv (P.map out) (P'.map out') ≤
+      ∫⁻ ω, ∑ t ∈ range (ENat.toNat (A.stoppingTime O X Y ω)), klDiv (κ (X t ω)) (κ' (X t ω)) ∂P :=
+  (h.klDiv_map_out_le_stoppedHist h').trans_eq
+    (h.isAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory h'.isAlgEnvSeq A.measurableSet_stopSet
+      hτ hτ')
+
+end Learning.IdentAlg

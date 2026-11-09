@@ -6,7 +6,7 @@ Authors: Rémy Degenne
 module
 
 public import Maiti2026Power.MXJ2026.DesignSet
-public import Maiti2026Power.Mathlib.Analysis.InnerProductSpace.OrthonormalBasisSubmodule
+public import Maiti2026Power.ForLMLExplore.Analysis.InnerProductSpace.OrthonormalBasisSubmodule
 
 /-!
 # The intrinsic width through a Gaussian vector supported on the span

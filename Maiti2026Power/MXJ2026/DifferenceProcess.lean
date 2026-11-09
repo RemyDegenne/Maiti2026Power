@@ -5,8 +5,8 @@ Authors: Rémy Degenne
 -/
 module
 
-public import Maiti2026Power.LeanMachineLearning.LinearBandit
-public import Maiti2026Power.Mathlib.Probability.BorellTIS
+public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
+public import Maiti2026Power.ForLMLExplore.Probability.BorellTIS
 public import Maiti2026Power.MXJ2026.Width
 
 /-!
