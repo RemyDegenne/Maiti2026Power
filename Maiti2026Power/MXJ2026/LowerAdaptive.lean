@@ -41,7 +41,7 @@ namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι]
 
-/-- **Theorem 2** (Maiti, Xu, Jamieson 2026): an identification algorithm (adaptive or not) with
+/-- **Theorem 2** [MXJ26, Theorem 2]: an identification algorithm (adaptive or not) with
 budget `T` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳 ⊆ ℝ^d`, `d ≥ 2`, with
 `δ < 1/16`, satisfies `T ≥ d log(1/δ) / (20000 ε²)`. -/
 theorem le_budget_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)

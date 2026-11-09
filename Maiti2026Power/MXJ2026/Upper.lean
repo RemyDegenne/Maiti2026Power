@@ -32,7 +32,7 @@ namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-- **Theorem 1** (Maiti, Xu, Jamieson 2026): for a spanning compact action set `𝒳 ⊆ ℝ^d`,
+/-- **Theorem 1** [MXJ26, Theorem 1]: for a spanning compact action set `𝒳 ⊆ ℝ^d`,
 `ε ∈ (0, 1]` and `δ ∈ (0, 1)`, there is a fixed-design (non-adaptive) identification algorithm
 which is `(ε, δ)`-PAC on `𝒳` with budget `T ≤ 600 (w(𝒳)² + d log(2/δ)) / ε² + 1`. -/
 theorem exists_isFixedDesign_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)

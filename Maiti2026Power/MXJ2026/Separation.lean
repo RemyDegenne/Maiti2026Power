@@ -65,9 +65,9 @@ lemma isPAC_fixedDesignTransport_blockProjBall {k d T : ℕ}
     (fun _ ϑ ↦ (inner_blockEmb_right i _ ϑ).symm) (measurable_blockProjBall i)
     (fun ϑ y ↦ (simpleRegret_blockBallSet_blockEmb i ϑ y).symm.le)
 
-/-- **Theorem 7, non-adaptive lower bound**: a fixed-design (non-adaptive) identification
-algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]` and
-`δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
+/-- **Theorem 7, non-adaptive lower bound** [MXJ26, Theorem 7]: a fixed-design (non-adaptive)
+identification algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, with `ε ∈ (0, 1]`
+and `δ ≤ 1/10`, has budget `T ≥ k d² / (210 ε²)`. -/
 theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : ℝ}
     (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioc 0 (1 / 10)) {T : ℕ}
     (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : A.IsFixedBudget T)
@@ -135,9 +135,9 @@ theorem blockBallSet_le_budget_of_isFixedDesign_of_isPAC (k d : ℕ) {ε δ : �
     _ ≤ 210 * ε ^ 2 * T := by gcongr
     _ = T * (210 * ε ^ 2) := by ring
 
-/-- **Theorem 7, adaptive lower bound** (from Theorem 2): an identification algorithm which is
-`(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, `kd ≥ 2`, with `δ < 1/16`, has budget
-`T ≥ kd log(1/δ) / (20000 ε²)`. -/
+/-- **Theorem 7, adaptive lower bound** [MXJ26, Theorem 7] (from Theorem 2): an identification
+algorithm which is `(ε, δ)`-PAC on the block-ball set of `ℝ^{kd}`, `kd ≥ 2`, with `δ < 1/16`, has
+budget `T ≥ kd log(1/δ) / (20000 ε²)`. -/
 theorem blockBallSet_le_budget_of_isPAC (k d : ℕ) (hkd : 2 ≤ k * d) {ε δ : ℝ} (hε : 0 < ε)
     (hδ : δ ∈ Set.Ioo 0 (1 / 16)) {T : ℕ}
     (A : IdentAlg Unit (blockBallSet k d) ℝ (blockBallSet k d)) (hA : A.IsFixedBudget T)
@@ -150,9 +150,9 @@ theorem blockBallSet_le_budget_of_isPAC (k d : ℕ) (hkd : 2 ≤ k * d) {ε δ :
   push_cast at this
   exact this
 
-/-- **Theorem 7, adaptive upper bound**: for `k ≥ 1`, `ε ∈ (0, 1]` and `δ ∈ (0, 1)`, there is an
-(adaptive) `(ε, δ)`-PAC identification algorithm on the block-ball set of `ℝ^{kd}` with budget
-`T ≤ 2·10⁶ (kd log(8k/δ) + d²) / ε²`. -/
+/-- **Theorem 7, adaptive upper bound** [MXJ26, Theorem 7]: for `k ≥ 1`, `ε ∈ (0, 1]` and `δ ∈ (0,
+1)`, there is an (adaptive) `(ε, δ)`-PAC identification algorithm on the block-ball set of `ℝ^{kd}`
+with budget `T ≤ 2·10⁶ (kd log(8k/δ) + d²) / ε²`. -/
 theorem exists_isPAC_blockBallSet (k d : ℕ) (hk : 1 ≤ k) {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1)
     (hδ : δ ∈ Set.Ioo 0 1) :
     ∃ T : ℕ, (T : ℝ) ≤ 2000000 * (k * d * log (8 * k / δ) + (d : ℝ) ^ 2) / ε ^ 2 ∧

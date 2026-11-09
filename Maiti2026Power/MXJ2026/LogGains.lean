@@ -42,7 +42,7 @@ namespace Maiti2026Power
 
 variable {ι : Type*} [Fintype ι]
 
-/-- **Theorem 6** (Maiti, Xu, Jamieson 2026): for every finite spanning action set `𝒳 ⊆ ℝ^d`,
+/-- **Theorem 6** [MXJ26, Theorem 6]: for every finite spanning action set `𝒳 ⊆ ℝ^d`,
 `ε ∈ (0, 1]` and `δ ∈ (0, 1)`, there is an (adaptive) `(ε, δ)`-PAC identification algorithm on
 `𝒳` with budget `T ≤ C d (log((|𝒳|/d)₊) + log(4/δ)) / ε²`, `C = 97281`, where
 `(u)₊ = max 1 u`. -/
@@ -188,8 +188,8 @@ theorem exists_isPAC_of_finite (𝒳 : Set (EuclideanSpace ℝ ι)) (hfin : 𝒳
       (hδ := hδ)]
     exact PhasedAlg.isFixedBudget_toIdentAlg _
 
-/-- **Table 1, multi-task bandits**: an `(ε, δ)`-PAC identification algorithm with budget `T ≥ 1`
-on the multi-task set with block sizes `dⱼ ≥ 2`, with `δ < 2/5`, satisfies
+/-- **Table 1, multi-task bandits** [MXJ26, Table 1]: an `(ε, δ)`-PAC identification algorithm with
+budget `T ≥ 1` on the multi-task set with block sizes `dⱼ ≥ 2`, with `δ < 2/5`, satisfies
 `T > (∑ⱼ √dⱼ)² / (20000 ε²)`. -/
 theorem multitaskSet_lt_budget_of_isPAC {m : ℕ} (d : Fin m → ℕ) (hd : ∀ j, 2 ≤ d j)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 2 / 5) {T : ℕ} (hT : 1 ≤ T)
@@ -207,8 +207,8 @@ theorem multitaskSet_lt_budget_of_isPAC {m : ℕ} (d : Fin m → ℕ) (hd : ∀ 
   · have hkey := le_of_isPAC_multitaskSet hm hd hε A hA hpac (by rw [mtSum]; exact hcon)
     linarith
 
-/-- **Table 1, hypercube `{-1, 1}^d`**: an `(ε, δ)`-PAC identification algorithm with budget
-`T ≥ 1` on `{-1, 1}^d`, with `δ < 1/6`, satisfies `T > d² / (100 ε²)`. -/
+/-- **Table 1, hypercube `{-1, 1}^d`** [MXJ26, Table 1]: an `(ε, δ)`-PAC identification algorithm
+with budget `T ≥ 1` on `{-1, 1}^d`, with `δ < 1/6`, satisfies `T > d² / (100 ε²)`. -/
 theorem hypercubePM_lt_budget_of_isPAC {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 1 / 6) {T : ℕ}
     (hT : 1 ≤ T) (A : IdentAlg Unit (hypercubePM ι) ℝ (hypercubePM ι)) (hA : A.IsFixedBudget T)
     (hpac : IsPAC (hypercubePM ι) A ε δ) :
@@ -232,8 +232,8 @@ theorem hypercubePM_lt_budget_of_isPAC {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 
     · rw [mul_one, div_pow, mul_div_assoc', div_le_iff₀ (by positivity)]
       nlinarith [h2]
 
-/-- **Table 1, hypercube `{0, 1}^d`**: an `(ε, δ)`-PAC identification algorithm with budget
-`T ≥ 1` on `{0, 1}^d`, with `δ < 1/6`, satisfies `T > d² / (400 ε²)`. -/
+/-- **Table 1, hypercube `{0, 1}^d`** [MXJ26, Table 1]: an `(ε, δ)`-PAC identification algorithm
+with budget `T ≥ 1` on `{0, 1}^d`, with `δ < 1/6`, satisfies `T > d² / (400 ε²)`. -/
 theorem hypercube01_lt_budget_of_isPAC {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 1 / 6) {T : ℕ}
     (hT : 1 ≤ T) (A : IdentAlg Unit (hypercube01 ι) ℝ (hypercube01 ι)) (hA : A.IsFixedBudget T)
     (hpac : IsPAC (hypercube01 ι) A ε δ) :
@@ -257,9 +257,9 @@ theorem hypercube01_lt_budget_of_isPAC {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 
     · rw [mul_one, div_pow, mul_div_assoc', div_le_iff₀ (by positivity)]
       nlinarith [h2]
 
-/-- **Table 1, `m`-sets**: for `1 ≤ m` with `n := d - m + 1 ≥ 20 m`, an `(ε, δ)`-PAC
-identification algorithm with budget `T ≥ 1` on the `m`-sets of `ℝ^d`, with `δ < 2/9`, satisfies
-`T > m n / (2500 ε²)`. -/
+/-- **Table 1, `m`-sets** [MXJ26, Table 1]: for `1 ≤ m` with `n := d - m + 1 ≥ 20 m`, an `(ε,
+δ)`-PAC identification algorithm with budget `T ≥ 1` on the `m`-sets of `ℝ^d`, with `δ < 2/9`,
+satisfies `T > m n / (2500 ε²)`. -/
 theorem mSet_lt_budget_of_isPAC (m : ℕ) (hm : 1 ≤ m) (hmd : 20 * m ≤ Fintype.card ι - m + 1)
     {ε δ : ℝ} (hε : 0 < ε) (hδ : δ < 2 / 9) {T : ℕ} (hT : 1 ≤ T)
     (A : IdentAlg Unit (mSet ι m) ℝ (mSet ι m)) (hA : A.IsFixedBudget T)
@@ -281,8 +281,8 @@ theorem mSet_lt_budget_of_isPAC (m : ℕ) (hm : 1 ≤ m) (hmd : 20 * m ≤ Finty
   have hkey := le_of_isPAC_mSet rfl hn hk hε hT A hA hpac hbud
   linarith
 
-/-- **Table 1, unit ball**: an `(ε, δ)`-PAC identification algorithm with budget `T` on the unit
-ball of `ℝ^d`, `d ≥ 2`, with `δ ≤ 1/500`, satisfies `T ≥ d² / (1000 ε²)`. -/
+/-- **Table 1, unit ball** [MXJ26, Table 1]: an `(ε, δ)`-PAC identification algorithm with budget
+`T` on the unit ball of `ℝ^d`, `d ≥ 2`, with `δ ≤ 1/500`, satisfies `T ≥ d² / (1000 ε²)`. -/
 theorem unitBall_le_budget_of_isPAC (hd : 2 ≤ Fintype.card ι) {ε δ : ℝ} (hε : 0 < ε)
     (hδ : δ ≤ 1 / 500) {T : ℕ} (A : IdentAlg Unit (unitBall ι) ℝ (unitBall ι))
     (hA : A.IsFixedBudget T)

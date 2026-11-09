@@ -161,7 +161,7 @@ lemma posDef_of_isFixedDesign_of_isPAC_of_zero_mem (h𝒳 : IsCompact 𝒳)
   posDef_of_isFixedDesign_of_isPAC_of_forall h𝒳 hspan hε hδ A hA hdes hpac
     fun v _ ↦ ⟨0, h0, inner_zero_left v⟩
 
-/-- **Theorem 3** (Maiti, Xu, Jamieson 2026): a fixed-design (non-adaptive) identification
+/-- **Theorem 3** [MXJ26, Theorem 3]: a fixed-design (non-adaptive) identification
 algorithm with budget `T ≥ 1` which is `(ε, δ)`-PAC on a spanning compact action set `𝒳`, with
 `δ ≤ 1/10`, satisfies `T ≥ w(𝒳)² / (70 ε²)`. -/
 theorem le_budget_of_isFixedDesign_of_isPAC (𝒳 : Set (EuclideanSpace ℝ ι)) (h𝒳 : IsCompact 𝒳)

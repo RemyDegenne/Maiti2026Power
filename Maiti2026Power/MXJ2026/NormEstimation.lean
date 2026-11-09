@@ -41,7 +41,7 @@ run against the linear Gaussian environment with reward vector `θ`, its output 
 def IsAccurateNormEst (A : IdentAlg Unit (unitBall ι) ℝ ℝ) (ε δ : ℝ) : Prop :=
   A.IsPAC (linearGaussianEnv (unitBall ι)) (fun θ r ↦ ε < |r - ‖θ‖|) δ
 
-/-- **Theorem 8** (Maiti, Xu, Jamieson 2026): for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
+/-- **Theorem 8** [MXJ26, Theorem 8]: for `ε ∈ (0, 1]` and `δ ∈ (0, 1)` there is an
 (adaptive) `(ε, δ)`-accurate `ℓ₂`-norm estimation algorithm on the unit ball of `ℝ^d` with budget
 `T ≤ 10⁵ d log(4/δ) / ε²`. -/
 theorem exists_isAccurateNormEst {ε δ : ℝ} (hε : ε ∈ Set.Ioc 0 1) (hδ : δ ∈ Set.Ioo 0 1) :
