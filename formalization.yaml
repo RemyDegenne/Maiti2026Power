@@ -39,7 +39,7 @@ sources:
       - "Arnab Maiti"
       - "Yunbei Xu"
       - "Kevin Jamieson"
-    id: "arXiv:2605.15663v1 (COLT 2026, paper 83)"
+    id: "arXiv:2605.15663v1 (COLT 2026)"
     type: "conference-paper"
     location: "Theorems 1–3, 5–8, Proposition 4 and the lower bounds of Table 1; see status.scope"
     relationship: "formalizes"
@@ -519,6 +519,9 @@ status:
     Gaussian quadratic forms, the sequential composition lemma `lem:composition`, which is no
     longer used, and the standalone fixed-design algorithm of `lem:ball_identification`,
     whose two estimates are formalized as the second phase of the block algorithm).
+
+    Comparator, 2026-11-09: scripts/formalize.sh ran scripts/comparator-verify.sh on the
+    regenerated challenges, and comparator verifies all 17 headline results.
   # Phase 1 stated all headline results with `sorry`; phase 2 proved all of them (Theorems 1,
   # 2, 3, 5, 6, 7, 8, Proposition 4 and the five Table 1 lower bounds).
   sorry_count: 0
@@ -799,11 +802,6 @@ alignment:
       module: "Maiti2026Power.MXJ2026.NormEstimation"
       status: "proved"
       note: "Existential form; the meta-algorithm of `thm:norm_estimation` is `Maiti2026Power.NormEstParam.alg` (a seeded algorithm), proved accurate with failure probability 7δ/8."
-    - source: "Part II — prerequisites (Gaussian concentration, sub-exponential variables, divergence decomposition, Sudakov–Fernique, Median Elimination, Gaussian posteriors)"
-      lean: ""
-      module: ""
-      status: "not-formalized"
-      note: "Phase 2."
 
 acknowledgements: >-
   Built on Mathlib. Depends on LeanMachineLearning/LML for the algorithm–environment interaction
