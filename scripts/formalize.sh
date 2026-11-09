@@ -60,6 +60,12 @@ workers() {
   fi
 }
 
+# Turn the workers off and stop their manager, which would otherwise outlive the script, idle.
+workers_stop() {
+  workers --off
+  tauceti workers --config "$cfg" manager-stop > /dev/null 2>&1 || true
+}
+
 if [ "${1:-}" = stop ]; then
   if [ -f "$state/loop.pid" ]; then
     pid=$(cat "$state/loop.pid")
@@ -73,8 +79,8 @@ if [ "${1:-}" = stop ]; then
     fi
     rm -f "$state/loop.pid"
   fi
-  workers --off
-  echo "Stopped the paper loop and its round; the workers stop on the manager's next cycle."
+  workers_stop
+  echo "Stopped the paper loop, its round, the workers and their manager."
   exit 0
 fi
 
@@ -97,6 +103,12 @@ trap 'echo; echo "$(date "+%F %T") interrupted"; exit 130' INT TERM
 # which only its maintainers can change.
 command -v claude > /dev/null || { echo "claude (Claude Code) is not on the PATH" >&2; exit 1; }
 gh auth status > /dev/null 2>&1 || { echo "gh is not logged in: run gh auth login" >&2; exit 1; }
+
+# The rounds use the lml plugin installed for this folder, which Claude Code updates only when an
+# interactive session starts here: bring it to the plugin's current version.
+claude plugin marketplace update lml-claude > /dev/null 2>&1 || true
+claude plugin update lml@lml-claude --scope project > /dev/null 2>&1 \
+  || echo "could not update the lml plugin; the rounds use the installed version" >&2
 
 # The paper's identity, from the header of PAPER_ROADMAP.md (set by init.sh): the GitHub
 # repository, or for a repository kept local, the GitHub login and the folder's name.
@@ -158,7 +170,7 @@ finish() {
     echo "the bump failed, see $state/bump.log" >&2
   fi
   scripts/literature-links.sh || echo "the literature links were not recorded" >&2
-  workers --off
+  workers_stop
   echo "Done: the paper is formalized, and its contributions are in LMLExplore."
   site
   exit 0
@@ -171,7 +183,7 @@ milestone() {
   scripts/literature-links.sh || echo "the literature links were not recorded" >&2
   local left
   if left=$(scripts/finished.sh contributions); then finish; fi
-  workers --off
+  workers_stop
   echo
   echo "The paper is formalized: every headline result is proved, and comparator verifies them."
   site
