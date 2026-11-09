@@ -19,7 +19,7 @@ with density `envDensity ρ n h = ∏ t, ρ (x t) (y t)`
 (`IsAlgEnvSeq.map_history_eq_withDensity_env`, blueprint `lem:env_likelihood_ratio`). This is
 the environment analogue of LML's `Algorithm.density` / `IsAlgEnvSeq.hasLaw_history_withDensity`,
 and the proof follows the same induction,
-with the kernel-level identity `Kernel.compProd_withDensity_right` (a density on the
+with Mathlib's kernel-level identity `Kernel.compProd_withDensity` (a density on the
 right factor of a composition-product of kernels, blueprint
 `lem:pb_kernel_compProd_withDensity_right`).
 -/
@@ -33,24 +33,6 @@ namespace ProbabilityTheory.Kernel
 
 variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β}
   {mγ : MeasurableSpace γ}
-
-/-- **A composition-product of kernels with a density on the right factor**:
-`κ ⊗ₖ (η.withDensity f) = (κ ⊗ₖ η).withDensity (fun a (b, c) ↦ f (a, b) c)`. -/
-lemma compProd_withDensity_right (κ : Kernel α β) [IsSFiniteKernel κ] (η : Kernel (α × β) γ)
-    [IsSFiniteKernel η] {f : α × β → γ → ℝ≥0∞} (hf : Measurable (Function.uncurry f))
-    [IsSFiniteKernel (η.withDensity f)] :
-    κ ⊗ₖ η.withDensity f = (κ ⊗ₖ η).withDensity (fun a p ↦ f (a, p.1) p.2) := by
-  have hg : Measurable (Function.uncurry fun a (p : β × γ) ↦ f (a, p.1) p.2) := by
-    change Measurable fun q : α × (β × γ) ↦ Function.uncurry f ((q.1, q.2.1), q.2.2)
-    exact hf.comp (by fun_prop)
-  ext a s hs
-  have hind : Measurable (s.indicator fun p : β × γ ↦ f (a, p.1) p.2) :=
-    (hg.comp measurable_prodMk_left).indicator hs
-  rw [Kernel.compProd_apply hs, Kernel.withDensity_apply' _ hg a s, ← lintegral_indicator hs,
-    Kernel.lintegral_compProd _ _ _ hind]
-  congr with b
-  rw [Kernel.withDensity_apply' _ hf, ← lintegral_indicator (measurable_prodMk_left hs)]
-  rfl
 
 /-- `prodMkLeft` of a kernel with a density. -/
 lemma prodMkLeft_withDensity (γ : Type*) [MeasurableSpace γ] (κ : Kernel α β)
@@ -130,13 +112,13 @@ lemma IsAlgEnvSeq.map_history_eq_withDensity_env (hρ : Measurable (Function.unc
             (κ₀.prodMkLeft (Hist Unit 𝓐 𝓨 n × Unit)).withDensity (fun p b ↦ ρ p.2 b) =
           (alg.policy n ⊗ₖ κ₀.prodMkLeft (Hist Unit 𝓐 𝓨 n × Unit)).withDensity
             fun _ p ↦ ρ p.1 p.2 :=
-        Kernel.compProd_withDensity_right _ _ hρ'
+        Kernel.compProd_withDensity hρ'
       have i2 : IsSFiniteKernel
           ((alg.policy n ⊗ₖ κ₀.prodMkLeft (Hist Unit 𝓐 𝓨 n × Unit)).withDensity
             fun _ p ↦ ρ p.1 p.2) := by
         rw [← h2]
         infer_instance
-      rw [h1, h2, Kernel.compProd_withDensity_right _ _ hρ'']
+      rw [h1, h2, Kernel.compProd_withDensity hρ'']
       rfl
     have : IsMarkovKernel ((stepKernel alg (Environment.bandit κ₀) n).withDensity
         fun _ p ↦ ρ p.action p.feedback) := by

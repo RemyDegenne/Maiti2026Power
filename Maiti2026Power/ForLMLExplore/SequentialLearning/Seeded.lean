@@ -25,9 +25,8 @@ The main result is the **seed representation** of a run: on the product space `�
 product measure `seedMeasure = ⊗ₙ (seed ⊗ μe)`, the recursively defined rounds `seedStep n` form an
 algorithm-environment sequence for the seeded algorithm and the noise
 environment (`SeededAlg.isAlgEnvSeq_seed`). Since the law of the history is determined by the
-algorithm and the environment (`IsAlgEnvSeq.map_history_eq`), the history of *any* run has the law
-of `seedFinHist T` under `seedMeasure` (`SeededAlg.IsAlgEnvSeq.map_history_eq_seed`), and
-the
+algorithm and the environment (LML's `isAlgEnvSeqUntil_unique`), the history of *any* run has the
+law of `seedFinHist T` under `seedMeasure` (`IsAlgEnvSeq.map_history_eq_seed`), and the
 PAC property of a fixed-budget seeded algorithm with deterministic output reduces to a computation
 on the product space (`SeededAlg.isPAC_fixedBudget_deterministic`,
 `SeededAlg.linearBandit_isPAC_fixedBudget_deterministic`).
@@ -41,27 +40,6 @@ open scoped ENNReal
 universe u
 
 namespace Learning
-
-section Uniqueness
-
-variable {𝓞 𝓐 𝓨 Ω Ω' : Type*} {m𝓞 : MeasurableSpace 𝓞} {m𝓐 : MeasurableSpace 𝓐}
-  {m𝓨 : MeasurableSpace 𝓨} {mΩ : MeasurableSpace Ω} {mΩ' : MeasurableSpace Ω'}
-  {O : ℕ → Ω → 𝓞} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
-  {O' : ℕ → Ω' → 𝓞} {X' : ℕ → Ω' → 𝓐} {Y' : ℕ → Ω' → 𝓨}
-  {alg : Algorithm 𝓞 𝓐 𝓨} {env : Environment 𝓞 𝓐 𝓨}
-  {P : Measure Ω} {P' : Measure Ω'} [IsFiniteMeasure P] [IsFiniteMeasure P']
-
-omit [IsFiniteMeasure P] [IsFiniteMeasure P'] in
-/-- The law of the history of an algorithm-environment sequence is determined by the algorithm
-and the environment. -/
-lemma IsAlgEnvSeq.map_history_eq [IsProbabilityMeasure P] [IsProbabilityMeasure P']
-    (h : IsAlgEnvSeq O X Y alg env P) (h' : IsAlgEnvSeq O' X' Y' alg env P') (n : ℕ) :
-    P.map (history O X Y n) = P'.map (history O' X' Y' n) := by
-  induction n with
-  | zero => rw [(hasLaw_history_zero O X Y).map_eq, (hasLaw_history_zero O' X' Y').map_eq]
-  | succ n ih => rw [h.map_history_succ, h'.map_history_succ, ih]
-
-end Uniqueness
 
 variable {𝓐 𝓨 U E : Type*} [MeasurableSpace 𝓐] [MeasurableSpace 𝓨] [MeasurableSpace U]
 
@@ -126,14 +104,6 @@ lemma noiseKernel_apply (x : 𝓐) : noiseKernel μe F hF x = μe.map (F x) :=
 
 /-- The stationary environment answering the action `x` with `F x e`, `e ~ μe`. -/
 noncomputable def noiseEnv : Environment Unit 𝓐 𝓨 := Environment.bandit (noiseKernel μe F hF)
-
-lemma feedbackZero_noiseEnv :
-    (noiseEnv μe F hF).feedbackZero = (noiseKernel μe F hF).prodMkLeft Unit :=
-  feedbackZero_bandit
-
-lemma feedback_noiseEnv (n : ℕ) :
-    (noiseEnv μe F hF).feedback n = (noiseKernel μe F hF).prodMkLeft _ :=
-  feedback_bandit n
 
 end NoiseEnv
 
@@ -255,14 +225,6 @@ instance : IsProbabilityMeasure (A.seedMeasure μe) := by
 lemma measurable_seedPrefix (n : ℕ) : Measurable (seedPrefix (U := U) (E := E) n) :=
   Measurable.of_eval fun _ ↦ measurable_pi_apply _
 
-lemma nonempty_of_isProbabilityMeasure {α : Type*} [MeasurableSpace α] (μ : Measure α)
-    [IsProbabilityMeasure μ] : Nonempty α := by
-  by_contra h
-  rw [not_nonempty_iff] at h
-  have := measure_univ (μ := μ)
-  rw [Set.univ_eq_empty_iff.2 h, measure_empty] at this
-  exact zero_ne_one this
-
 /-- Extension of a seed prefix to a full seed sequence (by an arbitrary value). -/
 noncomputable def seedExtend (n : ℕ) (w : Fin n → U × E) : ℕ → U × E :=
   haveI := nonempty_of_isProbabilityMeasure (A.seed.prod μe)
@@ -293,15 +255,11 @@ lemma seedHist_seedPrefix (n : ℕ) (ω : ℕ → U × E) :
   exact seedStep_congr fun k hk ↦
     A.seedExtend_seedPrefix_of_lt μe n ω (lt_of_le_of_lt hk i.2)
 
-lemma hasLaw_coord (n : ℕ) :
-    HasLaw (fun ω : ℕ → U × E ↦ ω n) (A.seed.prod μe) (A.seedMeasure μe) :=
-  ⟨(measurable_pi_apply n).aemeasurable, Measure.infinitePi_map_eval _ n⟩
-
 lemma hasCondDistrib_coord (n : ℕ) :
     HasCondDistrib (fun ω : ℕ → U × E ↦ ω n) (seedPrefix n)
       (Kernel.const _ (A.seed.prod μe)) (A.seedMeasure μe) := by
   refine IndepFun.hasCondDistrib_const ?_ (measurable_seedPrefix n).aemeasurable
-    (A.hasLaw_coord μe n)
+    (hasLaw_eval_infinitePi (fun _ ↦ A.seed.prod μe) n)
   have hind := iIndepFun_infinitePi (P := fun _ : ℕ ↦ A.seed.prod μe) (X := fun _ ↦ id)
     (fun _ ↦ measurable_id)
   have h := hind.indepFun_finset (Finset.range n) {n}
@@ -353,7 +311,7 @@ lemma isAlgEnvSeq_seed :
     rw [e1, e2] at h2
     exact h2
   hasCondDistrib_feedback n := by
-    rw [feedback_noiseEnv]
+    rw [noiseEnv, feedback_bandit]
     have hc : HasCondDistrib (fun ω : ℕ → U × E ↦ ((ω n).1, (ω n).2)) (seedPrefix n)
         (Kernel.const _ (A.seed.prod μe)) (A.seedMeasure μe) := A.hasCondDistrib_coord μe n
     have h1 := hc.snd_of_const_prod
@@ -409,7 +367,7 @@ lemma _root_.Learning.IsAlgEnvSeq.map_history_eq_seed {Ω : Type*} [MeasurableSp
     {P : Measure Ω} [IsProbabilityMeasure P] {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨}
     (h : IsAlgEnvSeq O X Y A.toAlgorithm (noiseEnv μe F hF) P) (T : ℕ) :
     P.map (history O X Y T) = (A.seedMeasure μe).map (A.seedFinHist F T) :=
-  h.map_history_eq (A.isAlgEnvSeq_seed F μe hF) T
+  isAlgEnvSeqUntil_unique (h.isAlgEnvSeqUntil T) ((A.isAlgEnvSeq_seed F μe hF).isAlgEnvSeqUntil T)
 
 /-- For a run of a fixed-budget seeded algorithm with deterministic output `g`, the probability
 of an event of the output is computed on the product space of seeds and noises. -/

@@ -11,7 +11,7 @@ Written on 2026-09-11 after comparing this project's `IdentAlg` (`Maiti2026Power
 | Observations | hard-coded `Unit`: `IdentAlg 𝓐 𝓨 𝓞`, where `𝓞` is the *output* type (clashes with LML's observation type name) | general: `IdentAlg 𝓞 𝓐 𝓨 𝓩`; needed by Chase2026Tight, where the expert advice is the observation |
 | Output rule | (before 2026-09-11) s-finite kernels, probability measures only on the stop set; `fixedBudget` put the zero kernel off the budget; `extendKernel` plumbing | Markov kernels at every length; `fixedBudget` needs `[Nonempty 𝓩]` |
 | Stopping time | general layer `StoppedHistory.lean`: hitting time of any measurable set of variable-length histories, stopped history for any `τ : Ω → ℕ∞`, about forty lemmas (characterizations, measurability, truncation, laws at `min τ M`, conditional laws on `{M < τ}`); `IdentAlg` delegates to it | inlined in `IdentAlg.stoppingTime` and `IdentAlg.stoppedHist`; three lemmas |
-| Downstream theory | data processing for runs, change of measure at an a.s. finite stopping time (KL form), existence of the canonical run for fixed budget, transport of runs, `AgreeUntil` | `StopsAS`, `IsDeltaPAC`, `IsDeltaCorrect` with monotonicity lemmas, `outputLaw` through the trajectory measure, `IdentAlg.comap` / `comapPartialFeedback`, threshold stopping rules (`chernoffStop`, `glrtStopOf`) and the specification predicate `IsGLRTRuleOf` |
+| Downstream theory | data processing for runs, change of measure at an a.s. finite stopping time (KL form), existence of the canonical run for fixed budget, transport of runs, agreement of algorithms until a time (LML's `IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq`) | `StopsAS`, `IsDeltaPAC`, `IsDeltaCorrect` with monotonicity lemmas, `outputLaw` through the trajectory measure, `IdentAlg.comap` / `comapPartialFeedback`, threshold stopping rules (`chernoffStop`, `glrtStopOf`) and the specification predicate `IsGLRTRuleOf` |
 | Consumers | fixed budget only (the paper's algorithms all have a deterministic budget) | six papers state `E[τ]` as `∫⁻ ω, (τ ω : ℝ≥0∞) ∂P`; all lower bounds on `E[τ]` are `sorry` |
 
 Three further ad-hoc styles live in LMLPapers papers: a raw Mathlib `IsStoppingTime` on the trajectory filtration with `∀ ω, σ ω ≠ ⊤` (MaynardZhang Lemma 6), a plain Mathlib stopping time with `toNat` sums (Chen Lemma 3), and a bounded within-episode index defined by `sInf` (Lee2026Unified `etaAt`). The first two are exactly what the general layer covers; the third is a different object and stays as it is.
@@ -283,7 +283,7 @@ noncomputable def comap (A : IdentAlg 𝓞 𝓐 𝓦 𝓩)
   output n := (A.output n).comap (G n) (hG n)
 ```
 
-Transport of runs along a measurable map of the sample space (existing here, `IsRun.comp_hasLaw`) and `Algorithm.AgreeUntil` (existing here, `AlgorithmPrefix.lean`) are unchanged.
+Transport of runs along a measurable map of the sample space (existing here, `IsRun.comp_hasLaw`) and the agreement of two algorithms until a time (since 2026-11-09 LML's unbundled hypothesis of `IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq`, replacing this project's `Algorithm.AgreeUntil`) are unchanged.
 
 ### 3.7 Change of measure at a stopping time (existing here, `RunDivergence.lean`)
 

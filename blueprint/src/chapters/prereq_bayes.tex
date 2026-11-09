@@ -57,7 +57,7 @@ hence $1$, for $n = 0$).
 
 \begin{lemma}[Composition-product of a kernel with a kernel having a density]
 \label{lem:pb_kernel_compProd_withDensity_right}
-\lean{ProbabilityTheory.Kernel.compProd_withDensity_right, ProbabilityTheory.Kernel.prodMkLeft_withDensity}\leanok
+\lean{ProbabilityTheory.Kernel.compProd_withDensity, ProbabilityTheory.Kernel.prodMkLeft_withDensity}\leanok
 Let $\pi$ be an s-finite kernel from $\mathcal{H}$ to $\mathcal{A}$, $\eta$ an s-finite kernel
 from $\mathcal{H}\times\mathcal{A}$ to $\mathcal{Y}$, and
 $f : (\mathcal{H}\times\mathcal{A})\times\mathcal{Y}\to[0,\infty]$ measurable such that the
@@ -73,10 +73,8 @@ composition-product is $(h,(a,y))\mapsto\rho(a,y)$, i.e.\ $\rho\circ\mathrm{snd}
 
 \begin{proof}
 \leanok
-(The Lean proof is not fiberwise: both sides are evaluated on a measurable set through
-\texttt{Kernel.compProd\_apply}, \texttt{Kernel.withDensity\_apply'} and
-\texttt{Kernel.lintegral\_compProd}, exactly as Mathlib's measure-level
-\texttt{Measure.compProd\_withDensity}.) Fiberwise. Fix $h\in\mathcal{H}$. For every kernel $\eta'$ from $\mathcal{H}\times\mathcal{A}$
+(This is Mathlib's \texttt{Kernel.compProd\_withDensity}, proved fiberwise from the
+measure-level \texttt{Measure.compProd\_withDensity}.) Fiberwise. Fix $h\in\mathcal{H}$. For every kernel $\eta'$ from $\mathcal{H}\times\mathcal{A}$
 to $\mathcal{Y}$, $(\pi\otimes\eta')(h) = \pi(h)\otimes\eta'_h$, where
 $\eta'_h := \eta'((h,\cdot))$ is the section kernel from $\mathcal{A}$ to $\mathcal{Y}$
 (Mathlib \texttt{Kernel.compProd\_apply\_eq\_compProd\_sectR}). The section of a kernel with
@@ -154,9 +152,9 @@ observations), with the recursion \texttt{envDensity\_snoc}; the law
 identity \texttt{map\_history\_eq\_withDensity\_env} is proved by induction on $n$ from the
 composition-product recursion of the law of the history. The kernel-level identity
 $\pi\otimes(\tilde\kappa_0.\mathrm{withDensity}\,\rho) = (\pi\otimes\tilde\kappa_0).\mathrm{withDensity}(\rho\circ\mathrm{snd})$
-is Lemma~\ref{lem:pb_kernel_compProd_withDensity_right}, the right-factor analogue of LML's
-\texttt{Kernel.compProd\_withDensity\_left}; it is not in Mathlib or LML and is proved
-fiberwise from \texttt{Measure.compProd\_withDensity}.
+is Lemma~\ref{lem:pb_kernel_compProd_withDensity_right}, Mathlib's
+\texttt{Kernel.compProd\_withDensity}, proved fiberwise from
+\texttt{Measure.compProd\_withDensity}.
 
 \begin{lemma}[Gaussian density ratio]\label{lem:pb_gaussian_density_ratio}
 \lean{TauCeti.Probability.gaussianReal_tilted_mul, TauCeti.Probability.gaussianPDFReal_mul_exp_div_mgf}\leanok

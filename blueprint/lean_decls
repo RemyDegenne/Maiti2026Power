@@ -81,9 +81,7 @@ Maiti2026Power.designSet_image_toEuclideanCLM
 Maiti2026Power.gw_le_sqrt_mul_gwMat_sum
 Maiti2026Power.gwMat_neg_set
 Maiti2026Power.gwMat_sub_set
-Learning.Algorithm.AgreeUntil
-Learning.IsAlgEnvSeqUntil.of_agreeUntil
-Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_agreeUntil
+Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq
 Learning.IsAlgEnvSeqUntil.map_history
 Learning.IdentAlg.map_history_out_eq
 Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil
@@ -97,7 +95,7 @@ Learning.SeededAlg.seedStep
 Learning.SeededAlg.seedFinHist
 Learning.SeededAlg.seedFeedback_eq
 Learning.SeededAlg.isAlgEnvSeq_seed
-Learning.IsAlgEnvSeq.map_history_eq
+Learning.isAlgEnvSeqUntil_unique
 Learning.IsAlgEnvSeq.map_history_eq_seed
 Learning.IdentAlg.IsRun.measureReal_eq_seed
 Learning.SeededAlg.isPAC_fixedBudget_deterministic
@@ -854,15 +852,14 @@ Learning.map_history_succ_of_hasCondDistrib
 Learning.feedback_bandit
 Learning.stepKernel_bandit
 Learning.sigmaHistory
-Learning.lt_hittingAfter_sigmaHistory_iff
-Learning.hittingAfter_sigmaHistory_eq_coe_iff
+Learning.history_mem_notStoppedSet_iff
+MeasureTheory.hittingAfter_eq_coe_iff
 Learning.stoppedValue_sigmaHistory_of_eq
 Learning.fst_stoppedProcess_sigmaHistory_le
 Learning.measurable_hittingAfter_sigmaHistory
 Learning.measurable_stoppedValue_sigmaHistory
-Learning.measurable_stoppedProcess_sigmaHistory
 Learning.IsAlgEnvSeq.adapted_sigmaHistory
-Learning.exists_measurableSet_preimage_lt_hittingAfter_sigmaHistory
+Learning.measurableSet_notStoppedSet
 Learning.truncHist
 Learning.truncHist_stoppedValue_sigmaHistory
 Learning.stoppedProcess_sigmaHistory_ae_eq_truncHist
@@ -892,7 +889,7 @@ Learning.sum_ite_lt_eq_sum_range_toNat_min
 Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_stepKernel
 Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory_compProd
 Learning.IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory
-Learning.tsum_ite_lt_eq_sum_range_toNat
+LMLExplore.tsum_indicator_natCast_lt_eq_sum_range
 Learning.IdentAlg.IsRun.klDiv_map_stoppedHist_out
 Learning.IdentAlg.IsRun.klDiv_map_out_le_stoppedHist
 Learning.IdentAlg.IsRun.klDiv_map_out_le_tsum_compProd
@@ -996,7 +993,7 @@ Learning.envDensity
 Learning.measurable_envDensity
 Learning.envDensity_zero
 Learning.envDensity_snoc
-ProbabilityTheory.Kernel.compProd_withDensity_right
+ProbabilityTheory.Kernel.compProd_withDensity
 ProbabilityTheory.Kernel.prodMkLeft_withDensity
 Learning.IsAlgEnvSeq.map_history_eq_withDensity_env
 TauCeti.Probability.gaussianReal_tilted_mul

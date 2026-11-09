@@ -9,6 +9,7 @@ public import LeanMachineLearning.SequentialLearning.DivergenceDecomposition
 public import Maiti2026Power.ForLMLExplore.Identification.LinearBandit.LinearBandit
 public import Maiti2026Power.ForLMLExplore.SequentialLearning.StoppedHistory
 public import LMLExplore.InformationTheory.KullbackLeibler.Gaussian
+public import LMLExplore.Topology.Algebra.InfiniteSum.NatInt
 
 /-!
 # The divergence decomposition at a stopping time
@@ -244,16 +245,6 @@ lemma sum_ite_lt_eq_sum_range_toNat_min {β : Type*} [AddCommMonoid β] (f : ℕ
     · rw [min_eq_right (by exact_mod_cast hkM), ENat.toNat_natCast]
       omega
 
-omit m𝓞 m𝓐 m𝓨 in
-/-- A series of terms which vanish unless `t < τ`, for a finite `τ`, is a sum over `t < τ`. -/
-lemma tsum_ite_lt_eq_sum_range_toNat {β : Type*} [AddCommMonoid β] [TopologicalSpace β]
-    (f : ℕ → β) {τ : ℕ∞} (hτ : τ ≠ ⊤) :
-    ∑' t : ℕ, (if (t : ℕ∞) < τ then f t else 0) = ∑ t ∈ range τ.toNat, f t := by
-  obtain ⟨k, rfl⟩ := ENat.ne_top_iff_exists.1 hτ
-  simp_rw [ENat.natCast_lt_natCast, ENat.toNat_natCast]
-  rw [tsum_eq_sum (s := range k) fun t ht ↦ ite_eq_right (by simpa using ht)]
-  exact sum_congr rfl fun t ht ↦ ite_eq_left (mem_range.1 ht)
-
 section StationaryEnv
 
 /-! ### The divergence decomposition for stationary environments
@@ -304,7 +295,8 @@ lemma IsAlgEnvSeq.klDiv_map_stoppedProcess_sigmaHistory [MeasurableSpace.Countab
     (measurable_klDiv_kernel κ κ').comp (hX t)
   have hlt : ∀ t : ℕ,
       MeasurableSet {ω | (t : WithTop ℕ) < hittingAfter (sigmaHistory O X Y) S 0 ω} :=
-    measurableSet_lt_hittingAfter_sigmaHistory h.measurable_obs hX h.measurable_feedback hS
+    fun _ ↦ measurable_hittingAfter_sigmaHistory h.measurable_obs hX h.measurable_feedback hS
+      measurableSet_Ioi
   rw [h.klDiv_map_stoppedProcess_sigmaHistory_compProd h' hS M]
   simp_rw [klDiv_compProd_right_eq_lintegral, lintegral_map (measurable_klDiv_kernel κ κ') (hX _),
     ← lintegral_indicator (hlt _)]
@@ -357,15 +349,17 @@ lemma IsAlgEnvSeq.klDiv_map_stoppedValue_sigmaHistory [MeasurableSpace.Countably
     (measurable_klDiv_kernel κ κ').comp (hX t)
   have hlt : ∀ t : ℕ,
       MeasurableSet {ω | (t : WithTop ℕ) < hittingAfter (sigmaHistory O X Y) S 0 ω} :=
-    measurableSet_lt_hittingAfter_sigmaHistory h.measurable_obs hX h.measurable_feedback hS
+    fun _ ↦ measurable_hittingAfter_sigmaHistory h.measurable_obs hX h.measurable_feedback hS
+      measurableSet_Ioi
   rw [h.klDiv_map_stoppedValue_sigmaHistory_compProd h' hS hτ hτ']
   simp_rw [klDiv_compProd_right_eq_lintegral, lintegral_map (measurable_klDiv_kernel κ κ') (hX _),
     ← lintegral_indicator (hlt _)]
   rw [← lintegral_tsum fun t ↦ ((hmeas t).indicator (hlt t)).aemeasurable]
   refine lintegral_congr_ae ?_
   filter_upwards [hτ] with ω hω
-  simp_rw [Set.indicator_apply, Set.mem_ofPred_eq]
-  exact tsum_ite_lt_eq_sum_range_toNat (fun t ↦ klDiv (κ (X t ω)) (κ' (X t ω))) hω
+  refine (tsum_congr fun t ↦ ?_).trans (LMLExplore.tsum_indicator_natCast_lt_eq_sum_range hω
+    fun t ↦ klDiv (κ (X t ω)) (κ' (X t ω)))
+  rfl
 
 end StationaryEnv
 

@@ -580,7 +580,7 @@ and the region algorithm of Chapter~\ref{chap:log_gains} are \emph{phased algori
 using the independence of the future noise from the past.
 
 \begin{lemma}[Algorithms agreeing on a prefix; transfer of PAC guarantees]\label{lem:prefix_transfer}
-\lean{Learning.Algorithm.AgreeUntil, Learning.IsAlgEnvSeqUntil.of_agreeUntil, Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_agreeUntil, Learning.IsAlgEnvSeqUntil.map_history, Learning.IdentAlg.map_history_out_eq, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
+\lean{Learning.IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq, Learning.IsAlgEnvSeqUntil.map_history, Learning.IdentAlg.map_history_out_eq, Learning.IdentAlg.IsPAC.measureReal_bad_of_isAlgEnvSeqUntil}\leanok
 \uses{def:bai_alg, def:pac}
 Let $\mathrm{alg}, \mathrm{alg}'$ be two algorithms with the same policies at the rounds
 $t < T$ (they \emph{agree until time $T$}). Then every
@@ -610,7 +610,7 @@ applied to the canonical run gives the bound.
 \end{proof}
 
 \begin{lemma}[Seeded algorithms and the seed representation of a run]\label{lem:seeded}
-\lean{Learning.SeededAlg, Learning.SeededAlg.toAlgorithm, Learning.SeededAlg.policy_apply, Learning.noiseEnv, Learning.LinearBandit.linearGaussianEnv_eq_noiseEnv, Learning.SeededAlg.seedMeasure, Learning.SeededAlg.seedStep, Learning.SeededAlg.seedFinHist, Learning.SeededAlg.seedFeedback_eq, Learning.SeededAlg.isAlgEnvSeq_seed, Learning.IsAlgEnvSeq.map_history_eq, Learning.IsAlgEnvSeq.map_history_eq_seed, Learning.IdentAlg.IsRun.measureReal_eq_seed, Learning.SeededAlg.isPAC_fixedBudget_deterministic, Learning.SeededAlg.linearBandit_isPAC_fixedBudget_deterministic, ProbabilityTheory.Kernel.mapOfConst, ProbabilityTheory.IndepFun.hasCondDistrib_const, ProbabilityTheory.HasCondDistrib.mapOfConst, ProbabilityTheory.HasCondDistrib.snd_of_const_prod}\leanok
+\lean{Learning.SeededAlg, Learning.SeededAlg.toAlgorithm, Learning.SeededAlg.policy_apply, Learning.noiseEnv, Learning.LinearBandit.linearGaussianEnv_eq_noiseEnv, Learning.SeededAlg.seedMeasure, Learning.SeededAlg.seedStep, Learning.SeededAlg.seedFinHist, Learning.SeededAlg.seedFeedback_eq, Learning.SeededAlg.isAlgEnvSeq_seed, Learning.isAlgEnvSeqUntil_unique, Learning.IsAlgEnvSeq.map_history_eq_seed, Learning.IdentAlg.IsRun.measureReal_eq_seed, Learning.SeededAlg.isPAC_fixedBudget_deterministic, Learning.SeededAlg.linearBandit_isPAC_fixedBudget_deterministic, ProbabilityTheory.Kernel.mapOfConst, ProbabilityTheory.IndepFun.hasCondDistrib_const, ProbabilityTheory.HasCondDistrib.mapOfConst, ProbabilityTheory.HasCondDistrib.snd_of_const_prod}\leanok
 \uses{def:bai_alg, def:pac, def:env}
 A \emph{seeded algorithm} with seed space $U$ is given by a probability measure $\mu_U$ on
 $U$ (the law of the seeds), a measurable first action $a_0 : U \to \Xs$ and measurable

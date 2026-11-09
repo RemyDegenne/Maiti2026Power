@@ -10,11 +10,11 @@ public import Maiti2026Power.ForLMLExplore.Identification.Run
 /-!
 # Algorithms agreeing on a prefix; transfer of PAC guarantees
 
-Two algorithms `alg`, `alg'` *agree until time `N`* (`Algorithm.AgreeUntil alg alg' N`) if they
-have the same policies at times `n < N`, that is they choose the first `N` actions in the same
-way. An algorithm-environment sequence for `alg` is then an algorithm-environment sequence for
-`alg'` until time `N` (LML `IsAlgEnvSeqUntil`), and the law of the history of the first `N`
-rounds is the one of the canonical trajectory measure of `alg'` (LML
+If two algorithms `alg`, `alg'` have the same policies at times `n < N` (they choose the first
+`N` actions in the same way), an algorithm-environment sequence for `alg` is an
+algorithm-environment sequence for `alg'` until time `N` (LML
+`IsAlgEnvSeq.isAlgEnvSeqUntil_of_policy_eq`, `IsAlgEnvSeqUntil`), and the law of the history of
+the first `N` rounds is the one of the canonical trajectory measure of `alg'` (LML
 `IsAlgEnvSeqUntil.map_history`).
 
 For a fixed-budget identification algorithm `A` with budget `T`, an algorithm-environment
@@ -34,52 +34,13 @@ open MeasureTheory ProbabilityTheory
 namespace Learning
 
 variable {𝓐 𝓨 : Type*} {m𝓐 : MeasurableSpace 𝓐} {m𝓨 : MeasurableSpace 𝓨}
-  {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω} [IsFiniteMeasure P]
-  {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨} {alg alg' : Algorithm Unit 𝓐 𝓨}
-  {env : Environment Unit 𝓐 𝓨} {N : ℕ}
-
-/-- Two algorithms agree until time `N` if they have the same policies at times `n < N` (they
-choose the actions `a_0, …, a_{N-1}` in the same way). -/
-structure Algorithm.AgreeUntil (alg alg' : Algorithm Unit 𝓐 𝓨) (N : ℕ) : Prop where
-  /-- The policies coincide at times `n < N`. -/
-  policy_eq : ∀ n < N, alg.policy n = alg'.policy n
-
-namespace Algorithm.AgreeUntil
-
-lemma refl (alg : Algorithm Unit 𝓐 𝓨) (N : ℕ) : alg.AgreeUntil alg N := ⟨fun _ _ ↦ rfl⟩
-
-lemma symm (h : alg.AgreeUntil alg' N) : alg'.AgreeUntil alg N :=
-  ⟨fun n hn ↦ (h.policy_eq n hn).symm⟩
-
-lemma mono (h : alg.AgreeUntil alg' N) {N' : ℕ} (hN : N' ≤ N) : alg.AgreeUntil alg' N' :=
-  ⟨fun n hn ↦ h.policy_eq n (hn.trans_le hN)⟩
-
-end Algorithm.AgreeUntil
-
-omit [IsFiniteMeasure P] in
-/-- An algorithm-environment sequence until time `N` for `alg` is one for every algorithm agreeing
-with `alg` until time `N`. -/
-lemma IsAlgEnvSeqUntil.of_agreeUntil (h : IsAlgEnvSeqUntil O X Y alg env P N)
-    (hagree : alg.AgreeUntil alg' N) : IsAlgEnvSeqUntil O X Y alg' env P N where
-  measurable_obs := h.measurable_obs
-  measurable_action := h.measurable_action
-  measurable_feedback := h.measurable_feedback
-  hasCondDistrib_obs := h.hasCondDistrib_obs
-  hasCondDistrib_action n hn := hagree.policy_eq n hn ▸ h.hasCondDistrib_action n hn
-  hasCondDistrib_feedback n hn := h.hasCondDistrib_feedback n hn
-
-omit [IsFiniteMeasure P] in
-/-- An algorithm-environment sequence for `alg` is an algorithm-environment sequence until time
-`N` for every algorithm agreeing with `alg` until time `N`. -/
-lemma IsAlgEnvSeq.isAlgEnvSeqUntil_of_agreeUntil (h : IsAlgEnvSeq O X Y alg env P)
-    (hagree : alg.AgreeUntil alg' N) : IsAlgEnvSeqUntil O X Y alg' env P N :=
-  (h.isAlgEnvSeqUntil N).of_agreeUntil hagree
+  {Ω : Type*} {mΩ : MeasurableSpace Ω} {P : Measure Ω}
+  {O : ℕ → Ω → Unit} {X : ℕ → Ω → 𝓐} {Y : ℕ → Ω → 𝓨} {env : Environment Unit 𝓐 𝓨}
 
 namespace IdentAlg
 
 variable {𝓓 : Type*} {m𝓓 : MeasurableSpace 𝓓} {A : IdentAlg Unit 𝓐 𝓨 𝓓} {T : ℕ} {out : Ω → 𝓓}
 
-omit [IsFiniteMeasure P] in
 /-- If `A` has budget `T`, `(O, X, Y)` is an algorithm-environment sequence for `A.alg` until
 time `T` and `out` has conditional law `A.output.comap (Sigma.mk T) _` (the output rule on
 histories of length `T`) given the history of the first `T` rounds, then (history, output) has
@@ -105,7 +66,6 @@ lemma map_history_out_eq [IsProbabilityMeasure P] (hA : A.IsFixedBudget T)
     _ = (A.runMeasure env).map (fun ω ↦ (history IT.obs IT.action IT.feedback T ω.1, ω.2)) :=
         ((A.isRun_runMeasure env).hasCondDistrib_output_history hA).map_eq.symm
 
-omit [IsFiniteMeasure P] in
 /-- **Transfer of a PAC guarantee to a partial run.** If `A` is PAC at level `δ` with budget
 `T`, `(O, X, Y)` is an algorithm-environment sequence for `A.alg` until time `T` in `env θ` and
 `out` has conditional law `A.output.comap (Sigma.mk T) _` (the output rule on histories of

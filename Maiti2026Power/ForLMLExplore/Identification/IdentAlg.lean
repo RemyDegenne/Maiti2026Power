@@ -105,11 +105,11 @@ section run
 /-- The stopping time of a fixed-budget algorithm with budget `T` is `T`. -/
 lemma IsFixedBudget.stoppingTime_eq (hA : A.IsFixedBudget T) (ω : Ω) :
     A.stoppingTime O X Y ω = T := by
-  refine hittingAfter_sigmaHistory_eq_coe_iff.2 ⟨?_, fun j hj hjS ↦ ?_⟩
+  refine hittingAfter_eq_coe_iff.2 ⟨Nat.zero_le _, ?_, fun j hj hjS ↦ ?_⟩
   · rw [hA]
     rfl
   · rw [hA] at hjS
-    exact hj.ne hjS
+    exact hj.2.ne hjS
 
 /-- The history at the stopping time of a fixed-budget algorithm with budget `T` is the history
 of the first `T` rounds. -/

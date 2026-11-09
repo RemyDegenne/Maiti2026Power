@@ -78,10 +78,6 @@ lemma thenRepeat_policy_of_gt {t : ℕ} (ht : n + 1 < t) :
       Kernel.deterministic (fun x ↦ (x.1 ⟨n + 1, ht⟩).action) (by fun_prop) := by
   simp [thenRepeat, thenRepeatPolicy, ht]
 
-/-- `thenRepeat alg n ρ` agrees with `alg` until time `n + 1`. -/
-lemma thenRepeat_agreeUntil : (alg.thenRepeat n ρ).AgreeUntil alg (n + 1) :=
-  ⟨fun _ ht ↦ thenRepeat_policy_of_lt alg n ρ ht⟩
-
 end Algorithm
 
 section run
@@ -96,7 +92,7 @@ omit [IsFiniteMeasure P] in
 sequence for `alg` until time `n + 1`. -/
 lemma IsAlgEnvSeq.isAlgEnvSeqUntil_of_thenRepeat
     (h : IsAlgEnvSeq O X Y (alg.thenRepeat n ρ) env P) : IsAlgEnvSeqUntil O X Y alg env P (n + 1) :=
-  h.isAlgEnvSeqUntil_of_agreeUntil (alg.thenRepeat_agreeUntil n ρ)
+  h.isAlgEnvSeqUntil_of_policy_eq fun _ ht ↦ alg.thenRepeat_policy_of_lt n ρ ht
 
 /-- Under `alg.thenRepeat n ρ`, the action at round `n + 1` has conditional law `ρ` given the
 history of the first `n + 1` rounds. -/
