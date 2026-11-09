@@ -59,8 +59,7 @@ the natural next layer of LML.
 Tailored to single proofs of the paper: `Analysis/BarrierSum.lean` (the barrier inequality of the
 Batson–Spielman–Srivastava rounding), `Analysis/InnerProductSpace/IsotropicSeparated.lean`,
 `Probability/Kernel/PriorAverage.lean`, `Data/Set/CoverSmall.lean`,
-`Data/Finset/PowersetCardSum.lean`, `Probability/GaussianDensityRatio.lean` (the density ratio
-itself is Tau Ceti's `gaussianReal_tilted_mul` since 2026-11-09),
+`Data/Finset/PowersetCardSum.lean`,
 `Probability/IndepIntegral.lean`; and everything under `Maiti2026Power/MXJ2026/`, which is the paper
 itself. `Probability/KLGaussian.lean` was deleted on 2026-11-09: the divergence between Gaussians
 is LMLExplore's `LMLExplore.klDiv_gaussianReal_gaussianReal_same_var`.

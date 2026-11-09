@@ -44,21 +44,6 @@ open scoped RealInnerProductSpace
 
 namespace ProbabilityTheory
 
-section charFun
-
-variable {E F : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [CompleteSpace E]
-  [NormedAddCommGroup F] [InnerProductSpace ℝ F] [CompleteSpace F]
-  {mE : MeasurableSpace E} [OpensMeasurableSpace E] {mF : MeasurableSpace F} [BorelSpace F]
-
-/-- The characteristic function of the image of a measure by a continuous linear map `L` between
-Hilbert spaces is the characteristic function of the measure evaluated at `L† t`. -/
-lemma charFun_map_clm (μ : Measure E) (L : E →L[ℝ] F) (t : F) :
-    charFun (μ.map L) t = charFun μ (ContinuousLinearMap.adjoint L t) := by
-  rw [charFun_apply, charFun_apply, integral_map (by fun_prop) (by fun_prop)]
-  simp_rw [ContinuousLinearMap.adjoint_inner_right]
-
-end charFun
-
 section multivariateGaussian
 
 variable {ι : Type*} [Fintype ι] [DecidableEq ι] {S : Matrix ι ι ℝ}

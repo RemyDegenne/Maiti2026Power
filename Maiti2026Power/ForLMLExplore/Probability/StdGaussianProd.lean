@@ -13,8 +13,6 @@ public import TauCeti.Probability.Distributions.Gaussian.L2
 /-!
 # Products of standard Gaussian measures and independence of uncorrelated linear images
 
-* `map_toLp_prod_stdGaussian`: a pair of independent standard Gaussian vectors of `E` and `F` is a
-  standard Gaussian vector of the product space `WithLp 2 (E × F)`.
 * `covariance_inner_add_prod_stdGaussian`: the covariance of the linear forms
   `⟪a, A₁ p.1 + A₂ p.2⟫` and `⟪b, B₁ p.1 + B₂ p.2⟫` under the product of two standard Gaussian
   measures is `⟪a, (A₁ ∘L B₁† + A₂ ∘L B₂†) b⟫`.
@@ -35,31 +33,6 @@ open MeasureTheory InnerProductSpace
 open scoped RealInnerProductSpace InnerProduct
 
 namespace ProbabilityTheory
-
-section Prod
-
-variable {E F : Type*}
-  [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
-  [MeasurableSpace E] [BorelSpace E]
-  [NormedAddCommGroup F] [InnerProductSpace ℝ F] [FiniteDimensional ℝ F]
-  [MeasurableSpace F] [BorelSpace F]
-
-/-- **A pair of independent standard Gaussian vectors is a standard Gaussian vector on the product
-space**: the product of the standard Gaussian measures of `E` and `F` is the standard Gaussian
-measure of `E × F` with the inner product `⟪(a, b), (x, y)⟫ = ⟪a, x⟫ + ⟪b, y⟫`, that is of
-`WithLp 2 (E × F)`. -/
-lemma map_toLp_prod_stdGaussian :
-    ((stdGaussian E).prod (stdGaussian F)).map (WithLp.toLp 2)
-      = stdGaussian (WithLp 2 (E × F)) := by
-  refine Measure.ext_of_charFun (funext fun t ↦ ?_)
-  rw [charFun_prod, charFun_stdGaussian, charFun_stdGaussian, charFun_stdGaussian,
-    ← Complex.exp_add]
-  congr 1
-  norm_cast
-  simp only [WithLp.ofLp_fst, WithLp.ofLp_snd]
-  linarith [WithLp.prod_norm_sq_eq_of_L2 t]
-
-end Prod
 
 section Covariance
 

@@ -13,13 +13,13 @@ public import LMLExplore.Order.ConditionallyCompleteLattice.Group
 # Suprema of finitely many real numbers
 
 Elementary facts about `⨆ i, f i` for `f : ι → ℝ` with `ι` finite and nonempty:
-`|⨆ i, f i| ≤ ∑ i, |f i|`, `exp (t * ⨆ i, f i) ≤ ∑ i, exp (t * f i)` and
-`⨆ i, (b + c * f i) = b + c * ⨆ i, f i` for `c ≥ 0`.
+`exp (t * ⨆ i, f i) ≤ ∑ i, exp (t * f i)` and `⨆ i, (b + c * f i) = b + c * ⨆ i, f i` for
+`c ≥ 0`.
 
 ## TODO
 
-These are stated for `ℝ` only: `abs_le_sum_abs_iSup` and `ciSup_const_add_const_mul` hold in
-any conditionally complete linear ordered field, and `exp_mul_iSup_le_sum` (which is what forces
+These are stated for `ℝ` only: `ciSup_const_add_const_mul` holds in any conditionally complete
+linear ordered field, and `exp_mul_iSup_le_sum` (which is what forces
 the import of the exponential into this `Order` file) is an instance of the general fact that a
 nonnegative monotone function of a finite maximum is at most the sum of its values.
 -/
@@ -29,10 +29,6 @@ nonnegative monotone function of a finite maximum is at most the sum of its valu
 open Real
 
 variable {ι : Type*}
-
-lemma abs_le_sum_abs_iSup [Fintype ι] [Nonempty ι] (f : ι → ℝ) : |⨆ i, f i| ≤ ∑ i, |f i| :=
-  abs_ciSup_le fun i ↦
-    Finset.single_le_sum (f := fun i ↦ |f i|) (fun j _ ↦ abs_nonneg (f j)) (Finset.mem_univ i)
 
 lemma exp_mul_iSup_le_sum [Fintype ι] [Nonempty ι] (t : ℝ) (f : ι → ℝ) :
     exp (t * ⨆ i, f i) ≤ ∑ i, exp (t * f i) := by
